@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Истинно / Ложно</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Golos+Text:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F8FF; --grid:rgba(70,110,200,.13); --card:#FFFFFF; --ink:#1F2A55; --ink-soft:#5A6490;
+  --margin:#E4572E; --good:#2E9D57; --bad:#D93A3A; --bad-bg:#FFD9D9; --good-bg:#DDF5E4; --cur:#1F2A55;
+  --marker-ink:#1B2140;
+  --hand:'Caveat','Comic Sans MS',cursive;
+  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',Consolas,'Courier New',monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#171C30; --grid:rgba(140,170,255,.08); --card:#20263F; --ink:#E6EAFF; --ink-soft:#A3ABD4;
+    --bad-bg:#5A2630; --good-bg:#1E4A33; --cur:#FFE45C; }
+}
+:root[data-theme="dark"]{ --paper:#171C30; --grid:rgba(140,170,255,.08); --card:#20263F; --ink:#E6EAFF; --ink-soft:#A3ABD4;
+  --bad-bg:#5A2630; --good-bg:#1E4A33; --cur:#FFE45C; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{min-height:100%;margin:0;color:var(--ink);font-family:var(--body);
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--margin);outline-offset:2px}
+#app{max-width:1100px;margin:0 auto;padding:12px clamp(12px,3vw,32px) 28px;display:flex;flex-direction:column;gap:14px}
+
+/* шапка */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font:700 clamp(30px,5vmin,46px)/1 var(--hand);margin:0}
+.brand h1 span{color:var(--margin)}
+.brand small{display:block;color:var(--ink-soft);font-size:14px;margin-top:2px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{position:relative;background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;font-weight:700;font-size:clamp(14px,1.8vmin,17px);box-shadow:3px 3px 0 var(--ink)}
+.pill b{font-family:var(--mono);margin-left:4px;font-variant-numeric:tabular-nums}
+.mult{position:absolute;right:-10px;top:-12px;background:var(--margin);color:#fff;border-radius:999px;padding:1px 7px;font:700 13px/1.4 var(--mono)}
+.mult[hidden]{display:none}
+.mult.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.5)}}
+.ibtn{width:42px;height:38px;background:var(--card);border:2px solid var(--ink);border-radius:12px;box-shadow:3px 3px 0 var(--ink);font-size:18px}
+.timebar{height:6px;border-radius:3px;background:var(--grid);overflow:hidden}
+.timebar[hidden]{display:none}
+.timebar i{display:block;height:100%;background:var(--ink);transform-origin:left}
+.timebar.low i{background:var(--bad)}
+
+/* листы */
+.sheet{background:var(--card);border:2px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:clamp(14px,2.6vmin,26px)}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.tag{border:2px solid var(--ink);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700}
+.tag.mode{background:var(--ink);color:var(--card)}
+.progress{margin-left:auto;color:var(--ink-soft);font-weight:600;font-size:15px}
+.formula{font:700 clamp(24px,4.4vmin,44px)/1.7 var(--mono);display:flex;align-items:center;flex-wrap:wrap;gap:.25em;overflow-x:auto}
+.formula .fl{white-space:nowrap}
+.sx{display:inline-block;background:color-mix(in srgb,var(--m) 78%,transparent);border-bottom:4px solid var(--m);border-radius:9px;padding:0 .14em;margin:0 .04em;color:var(--marker-ink);line-height:1.45;white-space:nowrap}
+.sx .sx{margin:.08em .04em}
+.op{display:inline-block;padding:0 .12em;margin:0 .1em;border-radius:7px;position:relative}
+.par{opacity:.7}
+.formula.pick .op{cursor:pointer;background:rgba(255,255,255,.85);box-shadow:0 0 0 2px var(--marker-ink) inset}
+.formula.pick .op:hover{background:#fff;box-shadow:0 0 0 3px var(--margin) inset}
+.formula.pick .op.chosen{background:var(--marker-ink);color:#fff;cursor:default}
+.op[data-n]::after{content:attr(data-n);position:absolute;top:-.55em;right:-.45em;font:700 .42em/1.5 var(--body);background:var(--margin);color:#fff;border-radius:999px;min-width:1.5em;text-align:center}
+.op.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.instr{margin:12px 0 0;color:var(--ink-soft);font-size:clamp(15px,2vmin,18px);line-height:1.45}
+
+.work{display:flex;flex-direction:column;align-items:center;gap:14px}
+.tablewrap{max-width:100%;overflow-x:auto;padding:4px 8px 10px}
+table.tt{border-collapse:separate;border-spacing:0;border:2px solid var(--ink);border-radius:12px;overflow:hidden;font:700 clamp(20px,3.2vmin,30px)/1 var(--mono);background:var(--card)}
+.tt th,.tt td{border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);text-align:center;min-width:clamp(52px,7vmin,72px);height:clamp(46px,6.5vmin,62px);padding:0 .45em}
+.tt tr > *:last-child{border-right:none}
+.tt tbody tr:last-child td{border-bottom:none}
+.tt th{font-size:.62em;white-space:nowrap;background:var(--card)}
+.tt th.ch{background:color-mix(in srgb,var(--m) 80%,transparent);color:var(--marker-ink);border-bottom:5px solid var(--m)}
+.tt th.ch.future{opacity:.45}
+.tt th.ch.active{box-shadow:inset 0 -5px 0 var(--marker-ink)}
+.tt th.root{font-size:.9em}
+.tt td.vc{color:var(--ink)}
+.tt tbody tr:nth-child(even) td.vc{background:color-mix(in srgb,var(--ink) 5%,var(--card))}
+.tt td.done{background:color-mix(in srgb,var(--m) 30%,var(--card))}
+.tt td.future{color:var(--ink-soft);opacity:.4}
+.tt td.active{padding:0;background:color-mix(in srgb,var(--m) 16%,var(--card))}
+.tt td.active.cur{box-shadow:inset 0 0 0 4px var(--cur)}
+.tt td.active.bad{background:var(--bad-bg)}
+.tt td.diff{background:var(--bad-bg);color:var(--bad)}
+.cell{width:100%;height:100%;min-height:inherit;border:none;background:transparent;font:inherit;padding:0 .4em}
+.cell.q{color:var(--ink-soft);opacity:.55}
+.tt td.flash{animation:flash .6s}
+@keyframes flash{0%{background:var(--good-bg)}100%{}}
+
+.feedback{max-width:820px;min-height:1.5em;text-align:center;font-size:clamp(15px,2.1vmin,19px);font-weight:600;line-height:1.45;color:var(--ink-soft)}
+.feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
+.pad,.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.pad[hidden],.actions:empty{display:none}
+.key{min-width:76px;height:64px;border:2px solid var(--ink);border-radius:14px;background:var(--card);box-shadow:4px 4px 0 var(--ink);font:700 30px/1 var(--mono)}
+.key.wide{font:700 17px/1 var(--body);padding:0 18px}
+.key:active,.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.btn{border:2px solid var(--ink);border-radius:14px;padding:.6em 1.1em;background:var(--card);box-shadow:4px 4px 0 var(--ink);font-weight:700;font-size:clamp(15px,2vmin,18px)}
+.btn.main{background:#FFE45C;color:#1B2140}
+.btn.soft{background:#D3C1FF;color:#1B2140}
+.btn.mint{background:#9BE7A0;color:#1B2140}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;width:min(820px,100%)}
+.options:empty{display:none}
+.opt{text-align:left;border:2px solid var(--ink);border-radius:14px;background:var(--card);box-shadow:4px 4px 0 var(--ink);padding:.6em .8em;font:700 clamp(17px,2.6vmin,24px)/1.35 var(--mono);display:flex;gap:.6em;align-items:baseline}
+.opt .n{font:700 14px/1 var(--body);background:var(--ink);color:var(--card);border-radius:999px;padding:4px 8px;flex-shrink:0}
+.opt.good{background:var(--good-bg);border-color:var(--good)}
+.opt.bad{background:var(--bad-bg);border-color:var(--bad)}
+
+/* экраны */
+.screen{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;overflow-y:auto;background:rgba(20,26,50,.45);backdrop-filter:blur(2px)}
+.screen[hidden]{display:none}
+.screen .sheet{width:min(700px,100%)}
+.screen h2{font:700 clamp(34px,6vmin,52px)/1 var(--hand);margin:0 0 .3em}
+.screen h3{font-size:17px;margin:1.1em 0 .4em}
+.lead{font-size:clamp(16px,2.1vmin,19px);line-height:1.5;margin:0 0 1.2em;max-width:52ch}
+.group{margin:0 0 1em}
+.group > span{display:block;font-weight:700;margin-bottom:.45em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--ink);border-radius:999px;background:var(--card);padding:.4em .9em;font-weight:600;font-size:clamp(14px,1.9vmin,17px)}
+.chip small{color:var(--ink-soft);font-weight:400}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.75}
+.go{display:block;width:100%;margin-top:.7em;border:2px solid var(--ink);border-radius:16px;padding:.7em;background:#FFE45C;color:#1B2140;box-shadow:4px 4px 0 var(--ink);font:700 clamp(19px,2.8vmin,24px)/1 var(--body)}
+.go.ghost{background:var(--card);color:var(--ink);font-size:clamp(15px,2.1vmin,18px)}
+.best{font-size:15px;color:var(--ink-soft);margin-top:.9em;text-align:center}
+.result{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:.6em}
+.result div{flex:1 1 120px;border:2px solid var(--ink);border-radius:14px;padding:10px 12px}
+.result b{display:block;font:700 clamp(24px,4.4vmin,38px)/1.1 var(--mono)}
+.result small{color:var(--ink-soft)}
+.record{color:var(--good);font-weight:700}
+.weak{margin:0;padding:0;list-style:none;line-height:1.5}
+.weak li{margin:.45em 0}
+.weak .x{color:var(--ink-soft)}
+.help{font-size:clamp(15px,2vmin,17px);line-height:1.5}
+.help p{margin:.4em 0}
+.mini{display:flex;gap:14px;flex-wrap:wrap}
+.mini table{border-collapse:collapse;font:700 16px/1 var(--mono)}
+.mini td,.mini th{border:2px solid var(--ink);padding:6px 10px;text-align:center}
+.mini th{background:color-mix(in srgb,var(--ink) 8%,var(--card));font-size:14px}
+.mini td.one{background:#9BE7A0;color:#1B2140}
+.tabs{display:flex;gap:8px;margin:0 0 1.1em;flex-wrap:wrap}
+.tabs .chip{font-size:clamp(15px,2.1vmin,18px);padding:.55em 1.1em}
+.name{display:block;font-weight:700;margin:0 0 1em}
+.name input{display:block;width:100%;margin-top:.4em;border:2px solid var(--ink);border-radius:12px;padding:.6em .8em;font:600 18px var(--body);background:var(--card);color:var(--ink)}
+.name input.need{border-color:var(--bad);box-shadow:0 0 0 3px var(--bad-bg)}
+.crit{width:100%;border-collapse:collapse;margin:.3em 0 1em;font-size:clamp(14px,1.9vmin,17px)}
+.crit th,.crit td{border:2px solid var(--ink);padding:.45em .7em;text-align:left;vertical-align:top}
+.crit th{background:color-mix(in srgb,var(--ink) 8%,var(--card))}
+.crit td.g{font:700 1.3em/1 var(--mono);text-align:center;width:3em}
+.rules{margin:.2em 0 .6em;padding-left:1.2em;line-height:1.5;font-size:clamp(14px,1.9vmin,17px)}
+.rules li{margin:.25em 0}
+.examhead{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:.8em}
+.bigmark{font:700 clamp(80px,16vmin,140px)/1 var(--hand);width:1.4em;height:1.4em;display:grid;place-items:center;border:4px solid var(--margin);color:var(--margin);border-radius:50%;transform:rotate(-8deg)}
+.examhead p{margin:.15em 0;font-size:clamp(15px,2vmin,18px)}
+.subvals{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.pill[hidden],.ibtn[hidden]{display:none}
+.pill.warn b{color:var(--bad)}
+@media (max-width:640px){.progress{margin-left:0;width:100%}.key{min-width:64px;height:56px}}
+@media (prefers-reduced-motion: reduce){.op.shake,.mult.bump,.tt td.flash{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><h1>Истинно <span>/</span> Ложно</h1><small>таблицы истинности · логика · 8 класс</small></div>
+    <div class="stats">
+      <div class="pill" id="pTime" hidden>⏱ <b id="clock">10:00</b></div>
+      <div class="pill" id="pPts" hidden>Баллы <b id="epts">0</b></div>
+      <div class="pill" id="pGrade" hidden>Сейчас это <b id="egrade">2</b></div>
+      <div class="pill" id="pScore">Очки <b id="score">0</b></div>
+      <div class="pill" id="pStreak">Серия <b id="streak">0</b><span class="mult" id="mult" hidden>×2</span></div>
+      <div class="pill" id="pSolved">Решено <b id="solved">0</b></div>
+      <button class="ibtn" id="helpBtn" aria-label="Справка">📖</button>
+      <button class="ibtn" id="pauseBtn" aria-label="Пауза">⏸</button>
+      <button class="ibtn" id="muteBtn" aria-label="Выключить звук">🔊</button>
+    </div>
+  </header>
+  <div class="timebar" id="timebar" hidden><i id="timefill"></i></div>
+
+  <section class="sheet">
+    <div class="meta"><span class="tag mode" id="tagMode">Таблица</span><span class="tag" id="tagLevel">Разминка</span><span class="progress" id="progress"></span></div>
+    <div class="formula" id="formula"></div>
+    <p class="instr" id="instr"></p>
+  </section>
+
+  <section class="sheet work">
+    <div class="tablewrap"><table class="tt" id="tt"></table></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="pad" id="pad" hidden>
+      <button class="key" data-k="0">0</button>
+      <button class="key" data-k="1">1</button>
+      <button class="key wide" data-k="del">⌫ Стереть</button>
+      <button class="key wide" data-k="check">✓ Проверить столбец</button>
+    </div>
+    <div class="actions" id="actions"></div>
+  </section>
+</div>
+
+<section class="screen" id="startScreen">
+  <div class="sheet">
+    <h2>Истинно / Ложно</h2>
+    <div class="tabs" id="kindTabs"></div>
+
+    <div id="examPanel">
+      <p class="lead">Работа длится <b id="examMin">10</b> минут. Задания идут по кругу — таблица истинности, «вычисли значение», «детектив» — и с каждым кругом становятся сложнее. Решай столько, сколько успеешь: оценка зависит от набранных баллов.</p>
+      <label class="name">Фамилия и имя<input id="studentName" autocomplete="off" placeholder="Например: Иванов Пётр, 8Б"></label>
+      <h3>За что даются баллы</h3>
+      <table class="crit" id="critPts"></table>
+      <h3>Оценка</h3>
+      <table class="crit" id="critGrades"></table>
+      <h3>Правила</h3>
+      <ul class="rules" id="examRules"></ul>
+    </div>
+
+    <div id="trainPanel">
+      <p class="lead">Каждый цветной кусок формулы — свой столбец таблицы. Заполняй столбцы по порядку: ошибка сразу подсвечивается и объясняется.</p>
+      <div class="group"><span>Режим</span><div class="chips" id="cMode"></div></div>
+      <div class="group"><span>Сложность</span><div class="chips" id="cLevel"></div></div>
+      <div class="group"><span>Порядок действий</span><div class="chips" id="cOrder"></div></div>
+      <div class="group"><span>Время</span><div class="chips" id="cDur"></div></div>
+    </div>
+    <div class="group"><span>Запись операций</span><div class="chips" id="cNote"></div></div>
+
+    <button class="go" id="startBtn">Начать</button>
+    <button class="go ghost" id="helpBtn2">Справка: таблицы НЕ, И, ИЛИ</button>
+    <div class="best" id="bestLine"></div>
+  </div>
+</section>
+
+<section class="screen" id="helpScreen" hidden>
+  <div class="sheet help">
+    <h2>Справка</h2>
+    <div class="mini">
+      <table><tr><th>A</th><th>НЕ A</th></tr><tr><td>0</td><td class="one">1</td></tr><tr><td>1</td><td>0</td></tr></table>
+      <table><tr><th>A</th><th>B</th><th>A И B</th></tr><tr><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td></tr><tr><td>1</td><td>0</td><td>0</td></tr><tr><td>1</td><td>1</td><td class="one">1</td></tr></table>
+      <table><tr><th>A</th><th>B</th><th>A ИЛИ B</th></tr><tr><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td class="one">1</td></tr><tr><td>1</td><td>0</td><td class="one">1</td></tr><tr><td>1</td><td>1</td><td class="one">1</td></tr></table>
+    </div>
+    <h3>Как запомнить</h3>
+    <p><b>НЕ</b> (инверсия, ¬) меняет значение на противоположное.<br><b>И</b> (конъюнкция, ∧, &amp;) даёт 1, только когда <i>оба</i> операнда равны 1.<br><b>ИЛИ</b> (дизъюнкция, ∨, |) даёт 0, только когда <i>оба</i> операнда равны 0.</p>
+    <h3>Порядок действий</h3>
+    <p>Сначала скобки, потом НЕ, потом И, потом ИЛИ. Например, в A ∨ B ∧ C сначала вычисляется B ∧ C.</p>
+    <h3>Как строить таблицу</h3>
+    <p>1. Строк столько, сколько наборов значений: 2 переменные — 4 строки, 3 переменные — 8 строк (2ⁿ).<br>
+       2. Наборы выписываются как двоичные числа по порядку: 00, 01, 10, 11.<br>
+       3. На каждую операцию — свой столбец, в порядке выполнения.<br>
+       4. Последний столбец — значение всей функции F.</p>
+    <button class="go" id="helpClose">Понятно</button>
+  </div>
+</section>
+
+<section class="screen" id="pauseScreen" hidden>
+  <div class="sheet" style="width:min(440px,100%);text-align:center">
+    <h2>Пауза</h2>
+    <button class="go" id="resumeBtn">Продолжить</button>
+    <button class="go ghost" id="finishBtn">Завершить раунд</button>
+    <button class="go ghost" id="quitBtn">Выйти в меню</button>
+  </div>
+</section>
+
+<section class="screen" id="endScreen" hidden>
+  <div class="sheet">
+    <div id="rExam" hidden>
+      <h2>Работа завершена</h2>
+      <div class="examhead">
+        <div class="bigmark" id="xGrade">5</div>
+        <div><p><b id="xName"></b></p><p id="xDate"></p><p>Набрано баллов: <b id="xPts"></b></p><p id="xAway"></p></div>
+      </div>
+      <table class="crit" id="xTable"></table>
+    </div>
+    <div id="rTrain">
+      <h2>Раунд окончен</h2>
+      <div class="result">
+        <div><b id="rScore">0</b><small>очков</small></div>
+        <div><b id="rSolved">0</b><small>функций решено</small></div>
+        <div><b id="rAcc">0%</b><small>точность проверок</small></div>
+        <div><b id="rStreak">0</b><small>лучшая серия</small></div>
+      </div>
+      <p class="record" id="rRecord" hidden>Новый рекорд!</p>
+    </div>
+    <div id="rWeak"></div>
+    <button class="go" id="againBtn">Сыграть ещё раз</button>
+    <button class="go ghost" id="menuBtn">В меню</button>
+  </div>
+</section>
+
+<script>
+/* ================= НАСТРОЙКИ ================= */
+const LEVELS = {                         // [переменных, операций]
+  warm: { name:'Разминка', note:'2 переменные', shapes:[[2,1],[2,2],[2,2]] },
+  mid:  { name:'Средний',  note:'2–3 переменные', shapes:[[2,3],[3,2],[3,3]] },
+  hard: { name:'Сложный',  note:'3 переменные', shapes:[[3,3],[3,4],[3,4]] }
+};
+const MODES = { table:'Таблица истинности', sub:'Вычисли значение', det:'Детектив', mix:'Вперемешку' };
+
+/* ===== КОНТРОЛЬНАЯ: всё, что может захотеть поменять учитель ===== */
+const EXAM = {
+  minutes: 10,
+  seq: ['table', 'sub', 'det'],                                   // задания идут по кругу
+  levelAt: n => n < 3 ? 'warm' : n < 6 ? 'mid' : 'hard',         // n — номер задания с нуля
+  points: { table:{ warm:2, mid:3, hard:4 }, sub:1, det:2 },
+  errorPenalty: 1,                                                // минус за таблицу с ошибками
+  grades: [[16, 5], [11, 4], [6, 3], [0, 2]]                      // [от скольких баллов, оценка]
+};
+const TYPE_NAMES = { table:'Таблица истинности', sub:'Вычисли значение', det:'Детектив' };
+const VARS = ['A','B','C'];
+const PREC = { or:1, and:2, not:3, v:4 };
+const MARKERS = ['#FFB3C7','#A9D4FF','#9BE7A0','#FFC58A','#D3C1FF','#7FE0D6'];
+const F_COLOR = '#FFE45C';
+const ERR_NAMES = {
+  sub:   ['Вычисли значение', 'Подставляй значения по шагам: сначала самые внутренние операции, потом внешние.'],
+  not:   ['НЕ (инверсия)', 'НЕ меняет 0 на 1, а 1 на 0.'],
+  and:   ['И (конъюнкция)', 'И даёт 1, только когда оба операнда равны 1.'],
+  or:    ['ИЛИ (дизъюнкция)', 'ИЛИ даёт 0, только когда оба операнда равны 0.'],
+  order: ['Порядок действий', 'Сначала скобки, потом НЕ, потом И, потом ИЛИ.'],
+  det:   ['Детектив', 'Проверяй варианты по одной строке: подставь значения и сравни с F.']
+};
+
+/* ================= ЛОГИКА ФОРМУЛ ================= */
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const rint = (a, b) => a + Math.floor(Math.random()*(b - a + 1));
+const shuffle = a => { for (let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+const SYM = { sym:{ not:'¬', and:'∧', or:'∨' }, word:{ not:'НЕ', and:'И', or:'ИЛИ' } };
+const isBin = n => n.t === 'and' || n.t === 'or';
+const needParen = (c, p, side) => isBin(c) && (PREC[c.t] < PREC[p.t] || (c.t === p.t && side === 'b'));
+
+function txt(n, nt){
+  if (n.t === 'v') return n.name;
+  const s = SYM[nt];
+  if (n.t === 'not') return s.not + (nt === 'word' ? ' ' : '') + (isBin(n.a) ? `(${txt(n.a, nt)})` : txt(n.a, nt));
+  const side = (c, k) => needParen(c, n, k) ? `(${txt(c, nt)})` : txt(c, nt);
+  return `${side(n.a,'a')} ${s[n.t]} ${side(n.b,'b')}`;
+}
+const key = n => txt(n, 'sym');
+
+function build(k, vars){
+  if (k === 0) return { t:'v', name: rand(vars) };
+  if (Math.random() < .3) return { t:'not', a: build(k-1, vars) };
+  const left = rint(0, k-1);
+  return { t: Math.random() < .5 ? 'and' : 'or', a: build(left, vars), b: build(k-1-left, vars) };
+}
+function varsIn(n, s = new Set()){ if (n.t === 'v') s.add(n.name); else { varsIn(n.a, s); if (n.b) varsIn(n.b, s); } return s; }
+function sane(n){
+  if (n.t === 'v') return true;
+  if (n.t === 'not') return n.a.t !== 'not' && sane(n.a);
+  return key(n.a) !== key(n.b) && sane(n.a) && sane(n.b);
+}
+function evalN(n, e){
+  if (n.t === 'v') return e[n.name];
+  if (n.t === 'not') return 1 - evalN(n.a, e);
+  return n.t === 'and' ? evalN(n.a, e) & evalN(n.b, e) : evalN(n.a, e) | evalN(n.b, e);
+}
+function envs(nv){
+  const out = [];
+  for (let r = 0; r < (1 << nv); r++){ const e = {}; for (let i = 0; i < nv; i++) e[VARS[i]] = (r >> (nv-1-i)) & 1; out.push(e); }
+  return out;
+}
+const vec = (n, rows) => rows.map(e => evalN(n, e));
+
+function genFormula(level){
+  for (let i = 0; i < 600; i++){
+    const [nv, k] = rand(LEVELS[level].shapes), vars = VARS.slice(0, nv);
+    const t = build(k, vars);
+    if (varsIn(t).size !== nv || !sane(t)) continue;
+    const rows = envs(nv), v = vec(t, rows);
+    if (v.every(x => x === v[0])) continue;
+    return { tree:t, nv, rows };
+  }
+  return { tree:{ t:'and', a:{t:'v',name:'A'}, b:{t:'not',a:{t:'v',name:'B'}} }, nv:2, rows:envs(2) };
+}
+
+function clone(n){ return n.t === 'v' ? { t:'v', name:n.name } : n.t === 'not' ? { t:'not', a:clone(n.a) } : { t:n.t, a:clone(n.a), b:clone(n.b) }; }
+// «похожая» формула для детектива: сменить И/ИЛИ, добавить/убрать НЕ, заменить переменную
+function mutate(tree, nv){
+  const root = { x: clone(tree) }, refs = [];
+  (function walk(n, set){
+    refs.push({ n, set });
+    if (n.t === 'not') walk(n.a, v => n.a = v);
+    else if (n.t !== 'v'){ walk(n.a, v => n.a = v); walk(n.b, v => n.b = v); }
+  })(root.x, v => root.x = v);
+  const kind = rand(['flip','flip','neg','neg','var']);
+  const bins = refs.filter(r => isBin(r.n));
+  if (kind === 'flip' && bins.length){ const r = rand(bins); r.n.t = r.n.t === 'and' ? 'or' : 'and'; return root.x; }
+  if (kind === 'var'){
+    const r = rand(refs.filter(r => r.n.t === 'v'));
+    r.n.name = rand(VARS.slice(0, nv).filter(v => v !== r.n.name)); return root.x;
+  }
+  const r = rand(refs);
+  if (r.n.t === 'not') r.set(r.n.a); else r.set({ t:'not', a:r.n });
+  return root.x;
+}
+
+/* ================= СОСТОЯНИЕ ================= */
+const store = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k,v) }catch(e){} }
+};
+let cfg = { kind:'exam', mode:'table', level:'warm', order:true, nt:'sym', dur:300 };
+let S = null;
+let muted = store.get('tf:muted') === '1';
+const bestKey = () => `tf:best:${cfg.mode}:${cfg.level}:${cfg.order?1:0}:${cfg.dur}`;
+
+/* ---------- звук ---------- */
+let ac = null;
+function tone(f1, f2, dur, type, vol, delay = 0){
+  if (muted || !ac) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t+dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.connect(g).connect(ac.destination); o.start(t); o.stop(t+dur);
+}
+const sfx = {
+  tap:  () => tone(1200, 900, .04, 'triangle', .08),
+  good: () => { tone(660,660,.1,'sine',.15); tone(990,990,.14,'sine',.15,.09); },
+  bad:  () => tone(220, 120, .25, 'sawtooth', .07),
+  solved: () => [523,659,784,1047].forEach((f,i) => tone(f,f,.16,'sine',.14,i*.09)),
+  end:  () => [784,659,523].forEach((f,i) => tone(f,f,.2,'sine',.14,i*.14))
+};
+function setMute(m){
+  muted = m; store.set('tf:muted', m ? '1' : '0');
+  $('muteBtn').textContent = m ? '🔇' : '🔊';
+  $('muteBtn').setAttribute('aria-label', m ? 'Включить звук' : 'Выключить звук');
+}
+
+/* ---------- меню ---------- */
+function chip(html, pressed, fn){
+  const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = html;
+  b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b;
+}
+function chips(id, list){ const c = $(id); c.innerHTML = ''; list.forEach(x => c.appendChild(x)); }
+const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+function renderMenu(){
+  chips('kindTabs', [
+    chip('📝 Контрольная на оценку', cfg.kind === 'exam', () => { cfg.kind = 'exam'; renderMenu(); }),
+    chip('🎯 Тренировка', cfg.kind === 'train', () => { cfg.kind = 'train'; renderMenu(); })
+  ]);
+  const exam = cfg.kind === 'exam';
+  $('examPanel').hidden = !exam; $('trainPanel').hidden = exam;
+  $('startBtn').textContent = exam ? `Начать работу (${EXAM.minutes} минут)` : 'Начать тренировку';
+  if (exam){
+    $('examMin').textContent = EXAM.minutes;
+    const P = EXAM.points;
+    $('critPts').innerHTML = `<tr><th>Задание</th><th>Баллы</th></tr>
+      <tr><td><b>Таблица истинности</b><br>расставить порядок действий и заполнить таблицу</td><td>${P.table.warm} / ${P.table.mid} / ${P.table.hard} — по сложности<br>−${EXAM.errorPenalty}, если были ошибки</td></tr>
+      <tr><td><b>Вычисли значение</b><br>найти F при заданных A, B, C</td><td>${P.sub}</td></tr>
+      <tr><td><b>Детектив</b><br>выбрать формулу по готовой таблице</td><td>${P.det}</td></tr>`;
+    $('critGrades').innerHTML = EXAM.grades.map(([min, g], i) =>
+      `<tr><td class="g">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${min} баллов` : `меньше ${EXAM.grades[i-1][0]} баллов`}</td></tr>`).join('');
+    $('examRules').innerHTML = [
+      `Работа идёт ровно ${EXAM.minutes} минут, закончить раньше нельзя. Когда время выйдет, оценка появится сама.`,
+      'Подсказки и справка во время работы отключены.',
+      'Задание можно пропустить, но баллов за него не будет.',
+      'Задание, которое не успел закончить к концу времени, не засчитывается.',
+      'Если уйти со страницы или переключить вкладку, это будет видно в результате.'
+    ].map(x => `<li>${x}</li>`).join('');
+  } else {
+    chips('cMode', Object.keys(MODES).map(k => chip(MODES[k], cfg.mode === k, () => { cfg.mode = k; renderMenu(); })));
+    chips('cLevel', Object.keys(LEVELS).map(k => chip(`${LEVELS[k].name} <small>${LEVELS[k].note}</small>`, cfg.level === k, () => { cfg.level = k; renderMenu(); })));
+    chips('cOrder', [
+      chip('Сначала расставить порядок', cfg.order, () => { cfg.order = true; renderMenu(); }),
+      chip('Сразу к таблице', !cfg.order, () => { cfg.order = false; renderMenu(); })
+    ]);
+    chips('cDur', [[180,'3 минуты'],[300,'5 минут'],[0,'Без ограничения']].map(([d,l]) => chip(l, cfg.dur === d, () => { cfg.dur = d; renderMenu(); })));
+  }
+  chips('cNote', [
+    chip('¬ ∧ ∨', cfg.nt === 'sym', () => { cfg.nt = 'sym'; renderMenu(); }),
+    chip('НЕ И ИЛИ', cfg.nt === 'word', () => { cfg.nt = 'word'; renderMenu(); })
+  ]);
+  const best = !exam && store.get(bestKey());
+  $('bestLine').textContent = best ? 'Рекорд с этими настройками: ' + best : '';
+}
+
+/* ================= РАУНД ================= */
+function start(){
+  const exam = cfg.kind === 'exam';
+  const name = $('studentName').value.trim();
+  if (exam && !name){ const i = $('studentName'); i.classList.add('need'); i.focus(); i.placeholder = 'Сначала впиши фамилию и имя'; return; }
+  if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+  S = { running:true, paused:false, t:0, dur: exam ? EXAM.minutes * 60 : cfg.dur, score:0, streak:0, best:0, mult:1, solved:0,
+        checks:0, okChecks:0, errs:{ not:0, and:0, or:0, order:0, det:0, sub:0 }, task:null,
+        exam, name, t0: Date.now(), startedAt: new Date(), pts:0, taskNo:0, away:0,
+        byType:{ table:{ n:0, ok:0, pts:0 }, sub:{ n:0, ok:0, pts:0 }, det:{ n:0, ok:0, pts:0 } } };
+  ['startScreen','endScreen','pauseScreen'].forEach(id => $(id).hidden = true);
+  $('timebar').hidden = !S.dur;
+  ['pTime','pPts','pGrade'].forEach(id => $(id).hidden = !exam);
+  ['pScore','pStreak','pSolved','helpBtn','pauseBtn'].forEach(id => $(id).hidden = exam);
+  updateHud(); newTask();
+}
+
+function streakUp(){
+  S.streak++; S.best = Math.max(S.best, S.streak);
+  const m = Math.min(5, 1 + Math.floor(S.streak / 4));
+  if (m > S.mult){ const el = $('mult'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+  S.mult = m;
+}
+function streakBreak(){ S.streak = 0; S.mult = 1; }
+function updateHud(){
+  $('score').textContent = S.score; $('streak').textContent = S.streak; $('solved').textContent = S.solved;
+  const m = $('mult'); m.hidden = S.mult < 2; m.textContent = '×' + S.mult;
+  if (S.exam){ $('epts').textContent = S.pts; $('egrade').textContent = gradeFor(S.pts); }
+}
+function feedback(html, cls = ''){ const f = $('feedback'); f.innerHTML = html; f.className = 'feedback ' + cls; }
+
+function newTask(){
+  let kind, level;
+  if (S.exam){
+    kind = EXAM.seq[S.taskNo % EXAM.seq.length]; level = EXAM.levelAt(S.taskNo); S.taskNo++;
+  } else {
+    kind = cfg.mode === 'mix' ? rand(['table','sub','det']) : cfg.mode; level = cfg.level;
+  }
+  S.task = kind === 'table' ? makeTable(level) : kind === 'det' ? makeDet(level) : makeSub(level);
+  if (S.exam) S.byType[kind].n++;
+  $('tagLevel').textContent = LEVELS[level].name;
+  feedback('');
+  render();
+}
+function examAward(kind, pts){
+  if (!S.exam) return;
+  S.pts += pts; S.byType[kind].ok++; S.byType[kind].pts += pts;
+}
+
+/* ---------- таблица ---------- */
+function makeTable(level = cfg.level){
+  const g = genFormula(level), cols = [], byKey = new Map();
+  (function post(n){
+    if (n.t === 'v') return;
+    post(n.a); if (n.b) post(n.b);
+    const k = key(n);
+    if (!byKey.has(k)){ byKey.set(k, cols.length); cols.push({ node:n, key:k, correct:vec(n, g.rows) }); }
+  })(g.tree);
+  cols.forEach((c, i) => Object.assign(c, {
+    isRoot: i === cols.length - 1, color: i === cols.length - 1 ? F_COLOR : MARKERS[i % MARKERS.length],
+    user: new Array(g.rows.length).fill(null), bad: new Set(), done:false, hinted:false, firstTry:true
+  }));
+  const ordering = cfg.order && cols.length > 1;
+  return { kind:'table', level, ...g, cols, byKey, order: ordering ? [] : cols.map((_, i) => i),
+           phase: ordering ? 'order' : 'fill', ac:0, cur:0, clean:true };
+}
+const colOf = n => S.task.byKey.get(key(n));
+function childCols(ci){
+  const n = S.task.cols[ci].node;
+  return [n.a, n.b].filter(x => x && x.t !== 'v').map(colOf);
+}
+const nm = n => n.t === 'v' || n.t === 'not' ? txt(n, cfg.nt) : `(${txt(n, cfg.nt)})`;
+
+function fhtml(n){
+  if (n.t === 'v') return `<span class="var">${n.name}</span>`;
+  const T = S.task, ci = colOf(n), c = T.cols[ci];
+  const pos = T.kind === 'table' && T.phase === 'order' ? T.order.indexOf(ci) : -1;
+  const op = o => `<span class="op${pos >= 0 ? ' chosen' : ''}" data-c="${ci}"${pos >= 0 ? ` data-n="${pos+1}"` : ''}>${o}</span>`;
+  const par = s => `<span class="par">${s}</span>`;
+  const s = SYM[cfg.nt];
+  let inner;
+  if (n.t === 'not') inner = op(s.not) + (isBin(n.a) ? par('(') + fhtml(n.a) + par(')') : fhtml(n.a));
+  else {
+    const side = (ch, k) => needParen(ch, n, k) ? par('(') + fhtml(ch) + par(')') : fhtml(ch);
+    inner = side(n.a, 'a') + op(s[n.t]) + side(n.b, 'b');
+  }
+  return `<span class="sx" style="--m:${c.color}">${inner}</span>`;
+}
+
+function renderTable(){
+  const T = S.task, vars = VARS.slice(0, T.nv);
+  let h = '<thead><tr>' + vars.map(v => `<th>${v}</th>`).join('');
+  T.order.forEach((ci, i) => {
+    const c = T.cols[ci], st = T.phase === 'done' || i < T.ac ? 'done' : (i === T.ac && T.phase === 'fill') ? 'active' : 'future';
+    h += `<th class="ch ${st}${c.isRoot ? ' root' : ''}" style="--m:${c.color}" title="${esc(txt(c.node, cfg.nt))}">${c.isRoot ? 'F' : esc(txt(c.node, cfg.nt))}</th>`;
+  });
+  h += '</tr></thead><tbody>';
+  T.rows.forEach((e, r) => {
+    h += '<tr>' + vars.map(v => `<td class="vc">${e[v]}</td>`).join('');
+    T.order.forEach((ci, i) => {
+      const c = T.cols[ci];
+      if (T.phase === 'done' || i < T.ac) h += `<td class="done${c.justDone ? ' flash' : ''}" style="--m:${c.color}">${c.correct[r]}</td>`;
+      else if (i === T.ac && T.phase === 'fill'){
+        const u = c.user[r];
+        h += `<td class="active${c.bad.has(r) ? ' bad' : ''}${T.cur === r ? ' cur' : ''}" style="--m:${c.color}"><button class="cell${u === null ? ' q' : ''}" data-r="${r}" aria-label="Строка ${r+1}">${u === null ? '?' : u}</button></td>`;
+      } else h += '<td class="future">·</td>';
+    });
+    h += '</tr>';
+  });
+  $('tt').innerHTML = h + '</tbody>';
+  T.cols.forEach(c => c.justDone = false);
+}
+
+function pickOp(ci){
+  const T = S.task;
+  if (!S.running || S.paused || T.kind !== 'table' || T.phase !== 'order' || T.order.includes(ci)) return;
+  const missing = childCols(ci).filter(k => !T.order.includes(k));
+  if (missing.length){
+    S.errs.order++; streakBreak(); sfx.bad(); T.clean = false;
+    feedback(`Рано. Эта операция работает с результатом ${esc(nm(T.cols[missing[0]].node))} — его нужно вычислить раньше.`, 'bad');
+    document.querySelectorAll(`#formula .op[data-c="${ci}"]`).forEach(o => { o.classList.remove('shake'); void o.offsetWidth; o.classList.add('shake'); });
+    updateHud(); return;
+  }
+  T.order.push(ci); S.score += 2; sfx.tap();
+  if (T.order.length === T.cols.length){
+    T.phase = 'fill'; T.ac = 0; T.cur = 0; sfx.good();
+    feedback('Порядок верный! Теперь заполняй столбцы таблицы.', 'good');
+  } else feedback(`Шаг ${T.order.length}: ${esc(nm(T.cols[ci].node))}. Что дальше?`);
+  updateHud(); render();
+}
+
+function activeCol(){ const T = S.task; return T.cols[T.order[T.ac]]; }
+function canType(){ return S && S.running && !S.paused && S.task.kind === 'table' && S.task.phase === 'fill'; }
+
+function setCell(v, auto){
+  if (!canType()) return;
+  const T = S.task, c = activeCol();
+  c.user[T.cur] = v; c.bad.delete(T.cur); sfx.tap();
+  if (auto){
+    const n = T.rows.length;
+    let nx = -1;
+    for (let i = 1; i <= n; i++){ const r = (T.cur + i) % n; if (c.user[r] === null || c.bad.has(r)){ nx = r; break; } }
+    if (nx === -1){ renderTable(); return checkCol(); }
+    T.cur = nx;
+  }
+  renderTable();
+}
+function clearCell(){
+  if (!canType()) return;
+  const T = S.task, c = activeCol();
+  if (c.user[T.cur] === null && T.cur > 0) T.cur--;
+  c.user[T.cur] = null; c.bad.delete(T.cur); renderTable();
+}
+function moveCur(d){
+  if (!canType()) return;
+  const T = S.task; T.cur = (T.cur + d + T.rows.length) % T.rows.length; renderTable();
+}
+
+function explain(c, r, reveal){
+  const e = S.task.rows[r], n = c.node, s = SYM[cfg.nt], res = evalN(n, e);
+  const out = reveal ? res : '?';
+  if (n.t === 'not'){
+    const a = evalN(n.a, e);
+    return `Строка ${r+1}: ${esc(nm(n.a))} = ${a}, значит ${s.not} ${esc(nm(n.a))} = ${out}. НЕ меняет значение на противоположное.`;
+  }
+  const a = evalN(n.a, e), b = evalN(n.b, e);
+  const rule = n.t === 'and' ? 'И даёт 1, только когда оба операнда равны 1.' : 'ИЛИ даёт 0, только когда оба операнда равны 0.';
+  return `Строка ${r+1}: ${esc(nm(n.a))} = ${a}, ${esc(nm(n.b))} = ${b} → ${a} ${s[n.t]} ${b} = ${out}. ${rule}`;
+}
+
+function checkCol(){
+  if (!canType()) return;
+  const T = S.task, c = activeCol();
+  if (c.user.some(u => u === null)){ feedback('Заполни все клетки столбца — потом проверим.', 'bad'); return; }
+  S.checks++;
+  const wrong = c.user.map((u, r) => u !== c.correct[r] ? r : -1).filter(r => r >= 0);
+  if (!wrong.length){
+    S.okChecks++; c.done = true; c.justDone = true;
+    let pts;
+    if (c.hinted) pts = 2;
+    else { if (c.firstTry) streakUp(); pts = (c.firstTry ? 5 : 3) * S.mult; }
+    S.score += pts; T.ac++; T.cur = 0; sfx.good();
+    if (T.ac >= T.order.length) return solveTable(pts);
+    const nx = T.cols[T.order[T.ac]];
+    feedback(`Верно! +${pts}. Следующий столбец: ${nx.isRoot ? 'F' : esc(txt(nx.node, cfg.nt))}.`, 'good');
+  } else {
+    c.bad = new Set(wrong); c.firstTry = false; T.clean = false;
+    S.errs[c.node.t]++; streakBreak(); S.score = Math.max(0, S.score - 2); sfx.bad();
+    T.cur = wrong[0];
+    feedback(explain(c, wrong[0], true) + (wrong.length > 1 ? ` Всего ошибок в столбце: ${wrong.length}.` : ''), 'bad');
+  }
+  updateHud(); render();
+}
+
+function solveTable(lastPts){
+  const T = S.task; T.phase = 'done';
+  const bonus = T.clean ? 10 * S.mult : 5;
+  S.score += bonus; S.solved++; sfx.solved();
+  if (S.exam){
+    const pts = Math.max(1, EXAM.points.table[T.level] - (T.clean ? 0 : EXAM.errorPenalty));
+    examAward('table', pts);
+    feedback(`Таблица готова! +${pts} ${pts === 1 ? 'балл' : 'балла'}${T.clean ? ' — без единой ошибки' : ' (были ошибки)'}.`, 'good');
+  } else feedback(`Функция решена! +${lastPts} за столбец и +${bonus} за всю таблицу${T.clean ? ' без ошибок' : ''}.`, 'good');
+  updateHud(); render();
+  setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
+}
+
+function hint(){
+  const T = S.task;
+  if (!S.running || S.paused) return;
+  if (T.phase === 'order'){
+    const ci = T.cols.findIndex((_, i) => !T.order.includes(i) && childCols(i).every(k => T.order.includes(k)));
+    feedback(`Подсказка: начинай с операций внутри скобок и с самых «глубоких». Сейчас можно вычислить ${esc(nm(T.cols[ci].node))}.`);
+    return;
+  }
+  if (T.phase !== 'fill') return;
+  const c = activeCol(); c.hinted = true;
+  feedback('Подсказка: ' + explain(c, T.cur, false));
+}
+
+/* ---------- детектив ---------- */
+function makeDet(level = cfg.level){
+  const g = genFormula(level), F = vec(g.tree, g.rows);
+  const opts = [{ tree:g.tree, ok:true }];
+  const seenV = new Set([F.join('')]), seenT = new Set([key(g.tree)]);
+  for (let i = 0; i < 600 && opts.length < 4; i++){
+    let t = mutate(g.tree, g.nv);
+    if (Math.random() < .35) t = mutate(t, g.nv);
+    if (!sane(t)) continue;
+    const vk = vec(t, g.rows).join(''), tk = key(t);
+    if (seenV.has(vk) || seenT.has(tk)) continue;
+    seenV.add(vk); seenT.add(tk); opts.push({ tree:t, ok:false });
+  }
+  return { kind:'det', ...g, F, opts: shuffle(opts), answered:false, chosen:-1 };
+}
+
+function renderDet(){
+  const T = S.task, vars = VARS.slice(0, T.nv);
+  const chosen = T.chosen >= 0 && !T.opts[T.chosen].ok ? vec(T.opts[T.chosen].tree, T.rows) : null;
+  let h = '<thead><tr>' + vars.map(v => `<th>${v}</th>`).join('') + `<th class="ch root" style="--m:${F_COLOR}">F</th>`;
+  if (chosen) h += `<th class="ch" style="--m:#FFB3C7">твой вариант</th>`;
+  h += '</tr></thead><tbody>';
+  T.rows.forEach((e, r) => {
+    h += '<tr>' + vars.map(v => `<td class="vc">${e[v]}</td>`).join('') + `<td class="done" style="--m:${F_COLOR}">${T.F[r]}</td>`;
+    if (chosen) h += `<td class="${chosen[r] !== T.F[r] ? 'diff' : 'done'}" style="--m:#FFB3C7">${chosen[r]}</td>`;
+    h += '</tr>';
+  });
+  $('tt').innerHTML = h + '</tbody>';
+  const o = $('options'); o.innerHTML = '';
+  T.opts.forEach((op, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (T.answered && op.ok ? ' good' : '') + (T.answered && i === T.chosen && !op.ok ? ' bad' : '');
+    b.innerHTML = `<span class="n">${i+1}</span><span>F = ${esc(txt(op.tree, cfg.nt))}</span>`;
+    b.onclick = () => choose(i);
+    o.appendChild(b);
+  });
+}
+
+function choose(i){
+  const T = S.task;
+  if (!S.running || S.paused || T.kind !== 'det' || T.answered) return;
+  T.answered = true; T.chosen = i; S.checks++;
+  if (T.opts[i].ok){
+    S.okChecks++; streakUp(); const pts = 20 * S.mult;
+    S.score += pts; S.solved++; sfx.solved();
+    examAward('det', EXAM.points.det);
+    feedback(`Верно! +${S.exam ? EXAM.points.det + ' балла' : pts}. Именно эта формула даёт такую таблицу.`, 'good');
+  } else {
+    S.errs.det++; streakBreak(); sfx.bad();
+    const v = vec(T.opts[i].tree, T.rows);
+    const diff = T.rows.map((_, r) => v[r] !== T.F[r] ? r + 1 : 0).filter(Boolean);
+    feedback(`Не та формула: в ${diff.length > 1 ? 'строках' : 'строке'} ${diff.join(', ')} она даёт другое значение — смотри красные клетки. Правильная отмечена зелёным.`, 'bad');
+  }
+  updateHud(); render();
+  setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
+}
+
+/* ---------- вычисли значение ---------- */
+function makeSub(level = cfg.level){
+  const T = makeTable(level);
+  return Object.assign(T, { kind:'sub', row: rint(0, T.rows.length - 1), answered:false, chosen:null });
+}
+function renderSub(){
+  const T = S.task, vars = VARS.slice(0, T.nv), e = T.rows[T.row], root = T.cols[T.cols.length - 1];
+  $('tt').innerHTML = '<thead><tr>' + vars.map(v => `<th>${v}</th>`).join('') + `<th class="ch root" style="--m:${F_COLOR}">F</th></tr></thead>` +
+    '<tbody><tr>' + vars.map(v => `<td class="vc">${e[v]}</td>`).join('') +
+    `<td class="${T.answered ? 'done' : 'future'}" style="--m:${F_COLOR}">${T.answered ? root.correct[T.row] : '?'}</td></tr></tbody>`;
+  const o = $('options'); o.innerHTML = '';
+  [0, 1].forEach(v => {
+    const b = document.createElement('button');
+    const ok = v === root.correct[T.row];
+    b.className = 'opt' + (T.answered && ok ? ' good' : '') + (T.answered && v === T.chosen && !ok ? ' bad' : '');
+    b.innerHTML = `<span class="n">${v}</span><span>F = ${v} (${v ? 'истинно' : 'ложно'})</span>`;
+    b.onclick = () => answerSub(v);
+    o.appendChild(b);
+  });
+}
+function answerSub(v){
+  const T = S.task;
+  if (!S.running || S.paused || T.kind !== 'sub' || T.answered) return;
+  T.answered = true; T.chosen = v; S.checks++;
+  const e = T.rows[T.row], root = T.cols[T.cols.length - 1];
+  const steps = T.cols.map(c => `${esc(c.isRoot ? 'F' : nm(c.node))} = ${evalN(c.node, e)}`).join(' → ');
+  if (v === root.correct[T.row]){
+    S.okChecks++; streakUp(); const pts = 8 * S.mult;
+    S.score += pts; S.solved++; sfx.good();
+    examAward('sub', EXAM.points.sub);
+    feedback(`Верно! ${steps}`, 'good');
+  } else {
+    S.errs.sub++; streakBreak(); sfx.bad();
+    feedback(`Неверно. Считаем по шагам: ${steps}`, 'bad');
+  }
+  updateHud(); render();
+  setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
+}
+
+/* ---------- общий рендер ---------- */
+function btn(text, cls, fn){ const b = document.createElement('button'); b.className = 'btn ' + cls; b.innerHTML = text; b.onclick = fn; return b; }
+function skip(){
+  if (!S.running || S.paused) return;
+  const T = S.task;
+  if (!(T.kind === 'table' && T.phase === 'done') && !T.answered) streakBreak();
+  updateHud(); newTask();
+}
+
+function render(){
+  const T = S.task, act = $('actions'); act.innerHTML = '';
+  $('tagMode').textContent = (S.exam ? `Задание ${S.taskNo} · ` : '') + TYPE_NAMES[T.kind];
+  const skipLabel = S.exam ? '↷ Пропустить (0 баллов)' : '↻ Другая функция';
+  if (T.kind === 'table'){
+    $('formula').className = 'formula' + (T.phase === 'order' ? ' pick' : '');
+    $('formula').innerHTML = `<span class="fl">F =</span> ${fhtml(T.tree)}`;
+    $('options').innerHTML = '';
+    if (T.phase === 'order'){
+      $('instr').textContent = 'Шаг 1. Нажимай на знаки операций в том порядке, в каком их нужно выполнять. Сначала скобки, потом НЕ, потом И, потом ИЛИ.';
+      $('progress').textContent = `Порядок: ${T.order.length} из ${T.cols.length}`;
+    } else if (T.phase === 'fill'){
+      $('instr').textContent = 'Каждый цветной кусок формулы — свой столбец. Клавиши 0 и 1 заполняют клетку и переходят дальше, стрелки двигают рамку, Enter проверяет столбец.';
+      $('progress').textContent = `Столбец ${T.ac + 1} из ${T.order.length}`;
+    } else {
+      $('instr').textContent = 'Таблица готова. Сравни цвета: каждый столбец — один кусок формулы.';
+      $('progress').textContent = 'Функция решена';
+    }
+    renderTable();
+    $('pad').hidden = T.phase !== 'fill';
+    if (T.phase === 'done') act.appendChild(btn('Следующая функция →', 'main', newTask));
+    else { if (!S.exam) act.appendChild(btn('💡 Подсказка', 'soft', hint)); act.appendChild(btn(skipLabel, 'mint', skip)); }
+  } else if (T.kind === 'sub'){
+    $('formula').className = 'formula';
+    $('formula').innerHTML = `<span class="fl">F =</span> ${fhtml(T.tree)}`;
+    $('instr').textContent = 'Подставь значения переменных и вычисли F. Двигайся по цветным кускам изнутри наружу. Клавиши 0 и 1 — ответ.';
+    $('progress').textContent = '';
+    $('pad').hidden = true;
+    renderSub();
+    act.appendChild(T.answered ? btn('Дальше →', 'main', newTask) : btn(skipLabel, 'mint', skip));
+  } else {
+    $('formula').className = 'formula';
+    $('formula').innerHTML = `<span class="fl">F = ?</span>`;
+    $('instr').textContent = 'Таблица уже заполнена. Какая из формул даёт ровно такой столбец F? Клавиши 1–4 выбирают вариант.';
+    $('progress').textContent = T.answered ? '' : `Вариантов: ${T.opts.length}`;
+    $('pad').hidden = true;
+    renderDet();
+    act.appendChild(T.answered ? btn('Дальше →', 'main', newTask) : btn(S.exam ? skipLabel : '↻ Пропустить', 'mint', skip));
+  }
+}
+
+/* ---------- конец раунда ---------- */
+function end(){
+  if (!S || !S.running) return;
+  S.running = false; S.paused = false; sfx.end();
+  $('pauseScreen').hidden = true; $('helpScreen').hidden = true;
+  $('rExam').hidden = !S.exam; $('rTrain').hidden = S.exam;
+  $('againBtn').hidden = S.exam;
+  if (S.exam){
+    $('clock').textContent = '0:00';
+    $('xGrade').textContent = gradeFor(S.pts);
+    $('xName').textContent = S.name;
+    $('xDate').textContent = S.startedAt.toLocaleString('ru-RU', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) + ` · ${EXAM.minutes} минут`;
+    $('xPts').textContent = S.pts;
+    $('xAway').textContent = S.away ? `Уходил со страницы: ${S.away} раз(а)` : 'Со страницы не уходил';
+    $('xAway').style.color = S.away ? 'var(--bad)' : 'var(--good)';
+    $('xTable').innerHTML = '<tr><th>Задание</th><th>Решено</th><th>Баллы</th></tr>' +
+      Object.keys(S.byType).map(k => `<tr><td>${TYPE_NAMES[k]}</td><td>${S.byType[k].ok} из ${S.byType[k].n}</td><td>${S.byType[k].pts}</td></tr>`).join('') +
+      `<tr><th>Итого</th><th>${Object.values(S.byType).reduce((s, x) => s + x.ok, 0)}</th><th>${S.pts}</th></tr>`;
+  }
+  $('rScore').textContent = S.score; $('rSolved').textContent = S.solved; $('rStreak').textContent = S.best;
+  $('rAcc').textContent = (S.checks ? Math.round(S.okChecks / S.checks * 100) : 0) + '%';
+  const prev = +store.get(bestKey()) || 0;
+  $('rRecord').hidden = !(S.score > prev && S.score > 0);
+  if (S.score > prev) store.set(bestKey(), S.score);
+  const weak = Object.entries(S.errs).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+  $('rWeak').innerHTML = weak.length
+    ? `<h3>Над чем поработать</h3><ul class="weak">${weak.map(([k, n]) => `<li><b>${ERR_NAMES[k][0]}</b> — ошибок: ${n}<br><span class="x">${ERR_NAMES[k][1]}</span></li>`).join('')}</ul>`
+    : (S.checks ? '<p class="record">Ни одной ошибки!</p>' : '');
+  $('endScreen').hidden = false; $('againBtn').focus();
+}
+
+/* ---------- пауза, справка, таймер ---------- */
+function setPause(p){
+  if (!S || !S.running || S.exam) return;
+  S.paused = p; $('pauseScreen').hidden = !p; if (p) $('resumeBtn').focus();
+}
+let helpResume = false;
+function openHelp(){
+  if (S && S.running && !S.paused){ S.paused = true; helpResume = true; }
+  $('helpScreen').hidden = false; $('helpClose').focus();
+}
+function closeHelp(){
+  $('helpScreen').hidden = true;
+  if (helpResume && S && S.running) S.paused = false;
+  helpResume = false;
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden || !S || !S.running) return;
+  if (S.exam) S.away++;
+  else if ($('helpScreen').hidden) setPause(true);
+});
+
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (S && S.running && S.exam){
+    S.t = (Date.now() - S.t0) / 1000;                      // по настоящим часам: пауз нет
+    const left = Math.max(0, Math.ceil(S.dur - S.t));
+    $('clock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    $('pTime').classList.toggle('warn', left <= 60);
+  }
+  if (S && S.running && S.dur && (S.exam || !S.paused)){
+    if (!S.exam) S.t += dt;
+    $('timefill').style.transform = `scaleX(${Math.max(0, 1 - S.t / S.dur)})`;
+    $('timebar').classList.toggle('low', S.dur - S.t < 20);
+    if (S.t >= S.dur) end();
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- управление ---------- */
+$('formula').addEventListener('click', e => { const o = e.target.closest('.op'); if (o && S) pickOp(+o.dataset.c); });
+$('tt').addEventListener('click', e => {
+  const b = e.target.closest('.cell'); if (!b || !canType()) return;
+  const T = S.task, c = activeCol(), r = +b.dataset.r;
+  if (T.cur !== r){ T.cur = r; renderTable(); return; }       // первый клик — выбрать клетку
+  setCell(c.user[r] === 1 ? 0 : 1, false);                       // повторный — переключить 0/1
+});
+$('pad').addEventListener('click', e => {
+  const k = e.target.closest('.key'); if (!k) return;
+  const d = k.dataset.k;
+  if (d === '0' || d === '1') setCell(+d, true);
+  else if (d === 'del') clearCell();
+  else checkCol();
+});
+addEventListener('keydown', e => {
+  if (!$('helpScreen').hidden){ if (e.key === 'Escape') closeHelp(); return; }
+  if (!S || !S.running) return;
+  if (e.key === 'Escape'){ if (!S.exam) setPause(!S.paused); return; }
+  if (S.paused) return;
+  const T = S.task;
+  if (T.kind === 'table' && T.phase === 'fill'){
+    if (e.key === '0' || e.key === '1'){ e.preventDefault(); setCell(+e.key, true); }
+    else if (e.key === 'Backspace' || e.key === 'Delete'){ e.preventDefault(); clearCell(); }
+    else if (e.key === 'ArrowDown'){ e.preventDefault(); moveCur(1); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); moveCur(-1); }
+    else if (e.key === 'Enter'){ e.preventDefault(); checkCol(); }
+  } else if (T.kind === 'sub' && !T.answered){
+    if (e.key === '0' || e.key === '1') answerSub(+e.key);
+  } else if (T.kind === 'det' && !T.answered){
+    const k = +e.key; if (k >= 1 && k <= T.opts.length) choose(k - 1);
+  } else if (e.key === 'Enter' && ((T.kind === 'table' && T.phase === 'done') || T.answered)){
+    if (document.activeElement && document.activeElement.classList.contains('main')) return;   // кнопка сама сработает
+    e.preventDefault(); newTask();
+  }
+});
+$('startBtn').onclick = start;
+$('againBtn').onclick = start;
+$('menuBtn').onclick = () => {
+  $('endScreen').hidden = true; $('startScreen').hidden = false;
+  ['pTime','pPts','pGrade'].forEach(id => $(id).hidden = true);
+  ['pScore','pStreak','pSolved','helpBtn','pauseBtn'].forEach(id => $(id).hidden = false);
+  renderMenu();
+};
+$('studentName').addEventListener('input', e => e.target.classList.remove('need'));
+$('studentName').addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+$('helpBtn').onclick = openHelp;
+$('helpBtn2').onclick = openHelp;
+$('helpClose').onclick = closeHelp;
+$('pauseBtn').onclick = () => setPause(true);
+$('resumeBtn').onclick = () => setPause(false);
+$('finishBtn').onclick = end;
+$('quitBtn').onclick = () => { S.running = false; S.paused = false; $('pauseScreen').hidden = true; $('startScreen').hidden = false; renderMenu(); };
+$('muteBtn').onclick = () => setMute(!muted);
+
+// пример на фоне меню
+S = { running:false, paused:false, score:0, streak:0, mult:1, solved:0, task:null };
+S.task = makeTable(); S.task.phase = 'fill'; S.task.order = S.task.cols.map((_, i) => i);
+render();
+setMute(muted); renderMenu(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

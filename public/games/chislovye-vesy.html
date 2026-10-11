@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Числовые весы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;800&family=Golos+Text:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#3A2A4F; --plum:#4E3A68; --brass:#E0A93B; --brass-d:#9C6F1E;
+  --chalk:#F6EEDF; --ink:#2A1E33; --muted:#D6C8E2; --good:#7FDB9A; --bad:#FF6F61; --sky:#8FC9FF;
+  --display:'Exo 2','Arial Black',system-ui,sans-serif;
+  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --night:#211729; --plum:#33244A; }
+}
+:root[data-theme="dark"]{ --night:#211729; --plum:#33244A; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;overflow:hidden;color:var(--chalk);font-family:var(--body);
+  background:radial-gradient(ellipse at 50% 30%,var(--plum),var(--night) 70%) var(--night)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
+#app{height:100%;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none}
+sub{font-size:.55em;vertical-align:baseline;position:relative;top:.3em;margin-left:.06em;opacity:.75}
+
+/* верх */
+.hud{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px clamp(12px,2.5vw,28px) 8px}
+.prompt{font:800 clamp(18px,2.8vmin,28px)/1.2 var(--display)}
+.prompt small{display:block;font:600 clamp(13px,1.7vmin,16px)/1.3 var(--body);color:var(--muted)}
+.stats{display:flex;gap:8px;flex-shrink:0;align-items:stretch}
+.stat{background:rgba(0,0,0,.25);border-radius:12px;padding:6px 12px;text-align:center;min-width:64px}
+.stat b{display:block;font:800 clamp(20px,3vmin,30px)/1.1 var(--display);color:var(--brass);font-variant-numeric:tabular-nums}
+.stat small{font-size:12px;color:var(--muted)}
+.lives b{letter-spacing:.08em;color:var(--bad)}
+.lives b i{font-style:normal;opacity:.2}
+.icon-btn{background:rgba(0,0,0,.25);border:none;border-radius:12px;width:46px;font-size:20px;font-weight:700}
+.qbar{height:8px;margin:0 clamp(12px,2.5vw,28px);border-radius:4px;background:rgba(0,0,0,.25);overflow:hidden}
+.qbar i{display:block;height:100%;background:var(--brass);transform-origin:left}
+.qbar.low i{background:var(--bad)}
+
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,2vmin,18px);padding:8px 12px 16px;min-height:0}
+.feedback{min-height:2.8em;max-width:900px;text-align:center;font-size:clamp(15px,2.2vmin,21px);font-weight:600;line-height:1.4;color:var(--muted)}
+.feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
+.feedback sub{font-size:.7em;top:.2em}
+
+/* весы */
+#scale{width:min(760px,100%);max-height:58vh;flex:0 1 auto}
+.side{cursor:pointer}
+.side .hit{fill:transparent}
+.side:hover .card{stroke:var(--brass)}
+.side.good .card{fill:var(--good)} .side.bad .card{fill:var(--bad)}
+.card{fill:var(--chalk);stroke:transparent;stroke-width:3}
+.numtxt{font:800 42px var(--display);fill:var(--ink)}
+.dec{font:700 24px var(--body);fill:var(--chalk)}
+.eq-row{display:flex;gap:10px;justify-content:center}
+.btn{border:none;border-radius:14px;padding:.6em 1.3em;font:800 clamp(17px,2.5vmin,24px)/1 var(--display);background:rgba(0,0,0,.28);color:var(--chalk)}
+.btn.brass{background:var(--brass);color:var(--ink)}
+.btn.good{background:var(--good);color:var(--ink)}
+.btn.bad{background:var(--bad)}
+
+/* лесенка */
+#sortArea{width:min(900px,100%);display:flex;flex-direction:column;align-items:center;gap:clamp(14px,3vmin,30px)}
+#sortArea[hidden]{display:none}
+.pool{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;min-height:calc(clamp(56px,10vmin,96px) + 26px)}
+.ncard{border:none;border-radius:14px;background:var(--chalk);color:var(--ink);min-width:4.4em;padding:.3em .6em .45em;
+  font:800 clamp(28px,5.6vmin,52px)/1.05 var(--display);box-shadow:0 6px 0 var(--brass-d),0 10px 20px rgba(0,0,0,.3);display:flex;flex-direction:column;align-items:center}
+.ncard .d{font:700 clamp(13px,1.8vmin,17px)/1.2 var(--body);color:#6a5a76;min-height:1.2em}
+.ncard.bad{background:var(--bad);color:#fff} .ncard.bad .d{color:#fff}
+.ncard.good{background:var(--good)}
+.ncard.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.stairs{display:flex;align-items:flex-end;gap:10px}
+.step{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px}
+.seat{min-height:calc(clamp(28px,5.6vmin,52px)*1.05 + 2.4em);display:flex;align-items:flex-end}
+.block{width:clamp(96px,17vmin,170px);border-radius:10px 10px 0 0;background:linear-gradient(180deg,var(--brass),var(--brass-d));color:var(--ink);
+  font:800 clamp(16px,2.4vmin,22px)/1 var(--display);display:flex;align-items:flex-start;justify-content:center;padding-top:8px}
+.ends{display:flex;justify-content:space-between;width:100%;max-width:calc(4*clamp(96px,17vmin,170px) + 30px);font-size:14px;color:var(--muted);margin-top:-6px}
+
+/* экраны */
+.screen{position:absolute;inset:0;z-index:10;display:grid;place-items:center;padding:20px;overflow-y:auto;background:rgba(20,12,28,.6);backdrop-filter:blur(3px)}
+.screen[hidden]{display:none}
+.panel{background:linear-gradient(180deg,var(--plum),var(--night));border:2px solid rgba(224,169,59,.35);border-radius:24px;padding:clamp(22px,4vmin,40px);width:min(680px,100%);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+h1{font:800 clamp(34px,7vmin,66px)/1 var(--display);margin:0 0 .35em;color:var(--brass)}
+h2{font:800 clamp(24px,4.4vmin,38px)/1.1 var(--display);margin:0 0 .5em}
+h3{font:800 18px/1.2 var(--display);margin:1.1em 0 .4em;color:var(--brass)}
+.lead{font-size:clamp(16px,2.2vmin,19px);line-height:1.5;margin:0 0 1.3em;max-width:50ch}
+.group{margin:0 0 1.2em}
+.group > span{display:block;font-weight:700;margin-bottom:.5em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:rgba(0,0,0,.28);border:none;border-radius:10px;padding:.55em .95em;font-size:clamp(15px,2vmin,18px);font-weight:600}
+.chip[aria-pressed="true"]{background:var(--brass);color:var(--ink)}
+.go{display:block;width:100%;margin-top:.6em;border:none;border-radius:16px;padding:.75em;background:var(--brass);color:var(--ink);font:800 clamp(20px,3vmin,28px)/1 var(--display)}
+.go.ghost{background:transparent;color:var(--chalk);border:2px solid rgba(246,238,223,.3);font:700 clamp(15px,2.2vmin,19px)/1 var(--body);padding:.75em;margin-top:.5em}
+.best{font-size:15px;color:var(--muted);margin-top:.9em;text-align:center}
+.result{display:flex;gap:10px;margin:0 0 1em;flex-wrap:wrap}
+.result div{flex:1 1 120px;background:rgba(0,0,0,.25);border-radius:14px;padding:12px 14px}
+.result b{display:block;font:800 clamp(26px,4.6vmin,40px)/1.1 var(--display);color:var(--brass)}
+.result small{color:var(--muted);font-size:14px}
+.record{color:var(--good);font-weight:700;margin:-.3em 0 1em}
+.log{margin:0 0 1em;padding:0;list-style:none;font-size:16px;line-height:1.6}
+.log sub,.help-body sub{font-size:.7em;top:.2em}
+.help-body{font-size:clamp(15px,2vmin,18px);line-height:1.55}
+.help-body p{margin:.4em 0}
+.help-body ol{margin:.3em 0;padding-left:1.4em}
+.help-body li{margin:.35em 0}
+.calc{background:rgba(0,0,0,.25);border-radius:12px;padding:10px 14px;margin:.5em 0;font-weight:600}
+.calc div{margin:.2em 0}
+@media (max-width:560px){.hud{flex-wrap:wrap}.stat{min-width:52px;padding:5px 8px}.icon-btn{width:40px}}
+@media (prefers-reduced-motion: reduce){.ncard.shake{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="hud">
+    <div class="prompt" id="prompt">Что тяжелее?<small>Нажми на чашу с большим числом</small></div>
+    <div class="stats">
+      <div class="stat"><b id="score">0</b><small>очки</small></div>
+      <div class="stat lives"><b id="lives">♥♥♥</b><small>жизни</small></div>
+      <div class="stat"><b id="streak">0</b><small>серия</small></div>
+      <button class="icon-btn" id="helpBtn" aria-label="Как сравнивать">?</button>
+      <button class="icon-btn" id="pauseBtn" aria-label="Пауза">⏸</button>
+      <button class="icon-btn" id="muteBtn" aria-label="Выключить звук">🔊</button>
+    </div>
+  </header>
+  <div class="qbar" id="qbar"><i id="qfill"></i></div>
+
+  <main>
+    <svg id="scale" viewBox="0 0 640 360" aria-label="Весы">
+      <path d="M250 352 L390 352 L370 326 L270 326 Z" fill="var(--brass-d)"/>
+      <rect x="312" y="95" width="16" height="235" rx="4" fill="var(--brass-d)"/>
+      <line id="beam" x1="120" y1="95" x2="520" y2="95" stroke="var(--brass)" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="320" cy="95" r="14" fill="var(--brass)" stroke="var(--brass-d)" stroke-width="4"/>
+      <path d="M306 72 L320 50 L334 72 Z" fill="var(--brass)"/>
+      <g class="side" id="sideL" role="button" tabindex="0" aria-label="Левая чаша"></g>
+      <g class="side" id="sideR" role="button" tabindex="0" aria-label="Правая чаша"></g>
+    </svg>
+    <div class="eq-row" id="eqRow"><button class="btn" id="eqBtn">Поровну</button></div>
+
+    <div id="sortArea" hidden>
+      <div class="pool" id="pool"></div>
+      <div class="stairs" id="stairs"></div>
+      <div class="ends"><span>самое маленькое</span><span>самое большое</span></div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+  </main>
+
+  <section class="screen" id="startScreen">
+    <div class="panel">
+      <h1>Числовые весы</h1>
+      <p class="lead">Числа записаны в разных системах счисления. Сравни их, пока не кончилось время. Три ошибки — и игра окончена.</p>
+      <div class="group"><span>Режим</span><div class="chips" id="modeChips"></div></div>
+      <div class="group"><span>Системы счисления</span><div class="chips" id="setChips"></div></div>
+      <button class="go" id="startBtn">Начать</button>
+      <button class="go ghost" id="helpBtn2">Как сравнивать числа</button>
+      <div class="best" id="bestLine"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="helpScreen" hidden>
+    <div class="panel">
+      <h2>Как сравнивать числа</h2>
+      <div class="help-body" id="helpBody"></div>
+      <button class="go" id="helpClose">Понятно</button>
+    </div>
+  </section>
+
+  <section class="screen" id="pauseScreen" hidden>
+    <div class="panel" style="width:min(420px,100%);text-align:center">
+      <h2>Пауза</h2>
+      <button class="go" id="resumeBtn">Продолжить</button>
+      <button class="go ghost" id="quitBtn">Выйти в меню</button>
+    </div>
+  </section>
+
+  <section class="screen" id="endScreen" hidden>
+    <div class="panel">
+      <h2>Игра окончена</h2>
+      <div class="result">
+        <div><b id="rScore">0</b><small>очков</small></div>
+        <div><b id="rSolved">0</b><small>заданий решено</small></div>
+        <div><b id="rStreak">0</b><small>лучшая серия</small></div>
+      </div>
+      <div class="record" id="rRecord" hidden>Новый рекорд!</div>
+      <div id="rLog"></div>
+      <button class="go" id="againBtn">Сыграть ещё раз</button>
+      <button class="go ghost" id="menuBtn">Сменить режим</button>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ================= НАСТРОЙКИ ================= */
+const MODES = {
+  duel: { name:'Весы: что больше', title:'Что тяжелее?', hint:'Нажми на чашу с большим числом или «Поровну»' },
+  sort: { name:'Лесенка: по возрастанию', title:'Расставь по возрастанию', hint:'Нажимай на карточки, начиная с самого маленького числа' }
+};
+const SETS = {
+  all:  { name:'2, 8, 10 и 16', bases:[2,8,10,16] },
+  b210: { name:'2 и 10',        bases:[2,10] },
+  b2816:{ name:'2, 8 и 16',     bases:[2,8,16] }
+};
+const MAXES = [20, 40, 70, 120, 200, 255];   // диапазон чисел растёт каждые 5 решённых заданий
+
+/* ================= ОБЩЕЕ ================= */
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const rint = (a, b) => a + Math.floor(Math.random()*(b - a + 1));
+const lerp = (a, b, t) => a + (b - a)*Math.min(1, Math.max(0, t));
+const fmt = (n, b) => n.toString(b).toUpperCase();
+const num = (n, b) => `${fmt(n,b)}<sub>${b}</sub>`;
+const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup = k => String(k).split('').map(d => SUP[d]).join('');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const store = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k,v) }catch(e){} }
+};
+// 15₈ = 1·8¹ + 5·8⁰ = 8 + 5 = 13
+function expand(n, b){
+  if (b === 10) return `${num(n,10)}`;
+  const s = fmt(n, b), L = s.length;
+  const terms = s.split('').map((d, i) => `${parseInt(d, b)}·${b}${sup(L-1-i)}`);
+  const vals = s.split('').map((d, i) => parseInt(d, b) * b ** (L-1-i)).filter(v => v);
+  return `${num(n,b)} = ${terms.join(' + ')} = ${vals.length > 1 ? vals.join(' + ') + ' = ' : ''}${n}`;
+}
+
+let cfg = { mode:'duel', set:'all' };
+let S = null, lock = false;
+let muted = store.get('vesy:muted') === '1';
+
+/* ---------- звук ---------- */
+let ac = null;
+function tone(f1, f2, dur, type, vol, delay=0){
+  if (muted || !ac) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t+dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.connect(g).connect(ac.destination); o.start(t); o.stop(t+dur);
+}
+const sfx = {
+  tap:  () => tone(900, 700, .05, 'triangle', .1),
+  good: () => { tone(660,660,.1,'sine',.16); tone(990,990,.15,'sine',.16,.09); },
+  bad:  () => tone(220, 110, .3, 'sawtooth', .08),
+  clank:() => tone(160, 90, .18, 'triangle', .2),
+  end:  () => [784,659,523].forEach((f,i) => tone(f,f,.2,'sine',.14,i*.14))
+};
+function setMute(m){
+  muted = m; store.set('vesy:muted', m ? '1' : '0');
+  $('muteBtn').textContent = m ? '🔇' : '🔊';
+  $('muteBtn').setAttribute('aria-label', m ? 'Включить звук' : 'Выключить звук');
+}
+
+/* ---------- меню ---------- */
+function chip(label, pressed, fn){
+  const b = document.createElement('button'); b.className = 'chip'; b.textContent = label;
+  b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b;
+}
+function renderMenu(){
+  const mc = $('modeChips'); mc.innerHTML = '';
+  Object.keys(MODES).forEach(k => mc.appendChild(chip(MODES[k].name, cfg.mode === k, () => { cfg.mode = k; renderMenu(); })));
+  const sc = $('setChips'); sc.innerHTML = '';
+  Object.keys(SETS).forEach(k => sc.appendChild(chip(SETS[k].name, cfg.set === k, () => { cfg.set = k; renderMenu(); })));
+  const best = store.get(bestKey());
+  $('bestLine').textContent = best ? 'Рекорд в этом режиме: ' + best : '';
+}
+const bestKey = () => `vesy:best:${cfg.mode}:${cfg.set}`;
+
+/* ---------- весы (SVG) ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+function buildSide(g){
+  g.innerHTML = `
+    <rect class="hit" x="-105" y="30" width="210" height="170"/>
+    <line x1="0" y1="0" x2="-82" y2="120" stroke="var(--brass-d)" stroke-width="3"/>
+    <line x1="0" y1="0" x2="82" y2="120" stroke="var(--brass-d)" stroke-width="3"/>
+    <rect class="card" x="-84" y="50" width="168" height="64" rx="12"/>
+    <text class="numtxt" x="0" y="96" text-anchor="middle"></text>
+    <path d="M-96 120 Q0 176 96 120 Z" fill="var(--brass)"/>
+    <ellipse cx="0" cy="120" rx="96" ry="8" fill="var(--brass-d)"/>
+    <text class="dec" x="0" y="190" text-anchor="middle"></text>`;
+}
+buildSide($('sideL')); buildSide($('sideR'));
+let angle = 0, angleAnim = null;
+function drawScale(a){
+  const r = a * Math.PI / 180, L = 200, cx = 320, cy = 95;
+  const lx = cx - L*Math.cos(r), ly = cy - L*Math.sin(r), rx = cx + L*Math.cos(r), ry = cy + L*Math.sin(r);
+  const beam = $('beam');
+  beam.setAttribute('x1', lx); beam.setAttribute('y1', ly); beam.setAttribute('x2', rx); beam.setAttribute('y2', ry);
+  $('sideL').setAttribute('transform', `translate(${lx} ${ly})`);
+  $('sideR').setAttribute('transform', `translate(${rx} ${ry})`);
+}
+function tiltTo(target){
+  if (reduced){ angle = target; drawScale(angle); return; }
+  const from = angle, t0 = performance.now(), dur = 650;
+  angleAnim = { from, target, t0, dur };
+}
+function setPan(g, n, b){
+  const t = g.querySelector('.numtxt');
+  t.innerHTML = `<tspan>${fmt(n,b)}</tspan><tspan font-size="22" dy="10" opacity=".7">${b}</tspan>`;
+  g.querySelector('.dec').textContent = '';
+  g.classList.remove('good','bad');
+}
+drawScale(0);
+
+/* ---------- генерация заданий ---------- */
+const level = () => Math.min(MAXES.length-1, Math.floor(S.solved / 5));
+function twoBases(){
+  const bs = SETS[cfg.set].bases, a = rand(bs);
+  let b = rand(bs);
+  if (Math.random() < .85) while (b === a && bs.length > 1) b = rand(bs);
+  return [a, b];
+}
+function genDuel(){
+  const max = MAXES[level()], r = Math.random();
+  let [ba, bb] = twoBases(), a, b;
+  if (r < .15){                                   // равные числа в разных системах
+    while (ba === bb) [ba, bb] = twoBases();
+    a = b = rint(2, max);
+  } else if (r < .3 && ba !== bb){                // ловушка: одинаковые цифры, разные системы
+    const lim = Math.min(ba, bb);
+    let s; do { s = String(rint(1, lim-1)) + (Math.random() < .6 ? String(rint(0, lim-1)) : ''); } while (parseInt(s, Math.max(ba,bb)) > 255);
+    a = parseInt(s, ba); b = parseInt(s, bb);
+  } else {
+    a = rint(1, max);
+    const d = rint(1, Math.max(2, Math.round(max * .25)));
+    b = Math.random() < .5 ? a + d : a - d;
+    if (b < 1 || b > 255) b = a + (a > 128 ? -d : d);
+    if (b === a) b = a + 1;
+  }
+  if (Math.random() < .5) [a, b, ba, bb] = [b, a, bb, ba];
+  return { a, ba, b, bb };
+}
+function genSort(){
+  const max = Math.max(30, MAXES[level()]), bs = SETS[cfg.set].bases;
+  const c = rint(Math.round(max*.3), max), spread = Math.max(8, Math.round(max*.35));
+  const vals = new Set();
+  while (vals.size < 4) vals.add(Math.min(255, Math.max(1, c + rint(-spread, spread))));
+  const bases = [...bs].sort(() => Math.random() - .5);
+  return [...vals].map((v, i) => ({ v, b: bases[i % bases.length] })).sort(() => Math.random() - .5);
+}
+
+/* ---------- раунд ---------- */
+function start(){
+  if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+  S = { running:true, paused:false, score:0, lives:3, streak:0, best:0, solved:0, log:[], q:null, qt:0, qmax:1 };
+  ['startScreen','endScreen','pauseScreen'].forEach(id => $(id).hidden = true);
+  const duel = cfg.mode === 'duel';
+  $('scale').style.display = duel ? '' : 'none';
+  $('eqRow').style.display = duel ? '' : 'none';
+  $('sortArea').hidden = duel;
+  $('prompt').innerHTML = `${MODES[cfg.mode].title}<small>${MODES[cfg.mode].hint}</small>`;
+  updateHud(); next();
+}
+
+function next(){
+  lock = false; setFeedback('', '');
+  const p = S.solved;
+  if (cfg.mode === 'duel'){
+    S.q = genDuel(); S.qmax = lerp(10, 4.5, p / 30);
+    setPan($('sideL'), S.q.a, S.q.ba); setPan($('sideR'), S.q.b, S.q.bb);
+    $('eqBtn').className = 'btn';
+    tiltTo(0);
+  } else {
+    S.q = { cards: genSort(), placed: [] }; S.qmax = lerp(24, 12, p / 25);
+    renderSort();
+  }
+  S.qt = S.qmax;
+}
+
+/* весы */
+function answerDuel(choice){
+  if (!S || !S.running || S.paused || lock) return;
+  lock = true;
+  const { a, ba, b, bb } = S.q;
+  const right = a > b ? 'L' : a < b ? 'R' : 'E';
+  tiltTo(right === 'L' ? -12 : right === 'R' ? 12 : 0); sfx.clank();
+  $('sideL').querySelector('.dec').textContent = '= ' + a;
+  $('sideR').querySelector('.dec').textContent = '= ' + b;
+  const sign = right === 'L' ? '>' : right === 'R' ? '<' : '=';
+  const why = `${expand(a, ba)}&nbsp;&nbsp;${sign}&nbsp;&nbsp;${expand(b, bb)}`;
+  if (choice === right){
+    (right === 'L' ? $('sideL') : right === 'R' ? $('sideR') : $('eqBtn')).classList.add('good');
+    win(); setFeedback(`Верно! ${num(a,ba)} ${sign} ${num(b,bb)}`, 'good');
+    setTimeout(next, 1300);
+  } else {
+    if (choice === 'L') $('sideL').classList.add('bad');
+    if (choice === 'R') $('sideR').classList.add('bad');
+    if (choice === 'E') $('eqBtn').classList.add('bad');
+    (right === 'L' ? $('sideL') : right === 'R' ? $('sideR') : $('eqBtn')).classList.add('good');
+    S.log.push(`${num(a,ba)} ${sign} ${num(b,bb)} <span style="color:var(--muted)">(${a} ${sign} ${b})</span>`);
+    setFeedback((choice ? '' : 'Время вышло. ') + why, 'bad');
+    lose();
+  }
+}
+
+/* лесенка */
+function renderSort(){
+  const pool = $('pool'), stairs = $('stairs');
+  pool.innerHTML = ''; stairs.innerHTML = '';
+  for (let i = 0; i < 4; i++){
+    stairs.insertAdjacentHTML('beforeend',
+      `<div class="step"><div class="seat" id="seat${i}"></div><div class="block" style="height:${36 + i*30}px">${i+1}</div></div>`);
+  }
+  S.q.cards.forEach((c, i) => {
+    const el = document.createElement('button');
+    el.className = 'ncard'; el.innerHTML = `<span>${num(c.v, c.b)}</span><span class="d"></span>`;
+    el.onclick = () => pick(c, el); c.el = el; pool.appendChild(el);
+  });
+}
+function pick(c, el){
+  if (!S || !S.running || S.paused || lock || S.q.placed.includes(c)) return;
+  const order = [...S.q.cards].sort((x, y) => x.v - y.v);
+  const k = S.q.placed.length;
+  if (c === order[k]){
+    sfx.tap(); S.q.placed.push(c); $('seat' + k).appendChild(el);
+    if (S.q.placed.length === 4){
+      lock = true; S.q.cards.forEach(x => { x.el.classList.add('good'); x.el.querySelector('.d').textContent = '= ' + x.v; });
+      win(); setFeedback('Верно! ' + order.map(x => num(x.v, x.b)).join(' &lt; '), 'good');
+      setTimeout(next, 1500);
+    }
+  } else failSort(c);
+}
+function failSort(c){
+  lock = true;
+  const order = [...S.q.cards].sort((x, y) => x.v - y.v);
+  S.q.cards.forEach(x => x.el.querySelector('.d').textContent = '= ' + x.v);
+  if (c){ c.el.classList.add('bad','shake'); }
+  // показываем правильный порядок
+  order.forEach((x, i) => { if (!S.q.placed.includes(x)) $('seat' + i).appendChild(x.el); });
+  S.log.push(order.map(x => num(x.v, x.b)).join(' &lt; ') + ` <span style="color:var(--muted)">(${order.map(x => x.v).join(' &lt; ')})</span>`);
+  const wrongNote = c ? `${expand(c.v, c.b)} — это не самое маленькое из оставшихся. ` : 'Время вышло. ';
+  setFeedback(wrongNote + 'Правильный порядок уже на лесенке.', 'bad');
+  lose();
+}
+
+function win(){
+  const bonus = Math.ceil(Math.max(0, S.qt));
+  const pts = 10 + bonus + 2*Math.floor(S.streak / 5);
+  S.score += pts; S.solved++; S.streak++; S.best = Math.max(S.best, S.streak);
+  sfx.good(); updateHud();
+}
+function lose(){
+  S.lives--; S.streak = 0; sfx.bad(); updateHud();
+  setTimeout(() => { if (!S.running) return; S.lives <= 0 ? end() : next(); }, 3000);
+}
+
+function updateHud(){
+  $('score').textContent = S.score; $('streak').textContent = S.streak;
+  $('lives').innerHTML = '♥'.repeat(Math.max(0, S.lives)) + `<i>${'♥'.repeat(3 - Math.max(0, S.lives))}</i>`;
+}
+function setFeedback(html, cls){ const f = $('feedback'); f.innerHTML = html; f.className = 'feedback ' + cls; }
+
+function end(){
+  S.running = false; sfx.end();
+  $('rScore').textContent = S.score; $('rSolved').textContent = S.solved; $('rStreak').textContent = S.best;
+  const prev = +store.get(bestKey()) || 0;
+  $('rRecord').hidden = !(S.score > prev && S.score > 0);
+  if (S.score > prev) store.set(bestKey(), S.score);
+  $('rLog').innerHTML = S.log.length ? `<h3>Ошибки — правильные ответы</h3><ul class="log">${S.log.map(x => `<li>${x}</li>`).join('')}</ul>` : '';
+  $('endScreen').hidden = false; $('againBtn').focus();
+}
+
+/* ---------- помощь ---------- */
+let helpResume = false;
+function openHelp(){
+  if (S && S.running && !S.paused){ S.paused = true; helpResume = true; }
+  let example = '';
+  if (S && S.running && S.q){
+    if (cfg.mode === 'duel') example = `<h3>Разбор этого задания</h3><div class="calc"><div>${expand(S.q.a, S.q.ba)}</div><div>${expand(S.q.b, S.q.bb)}</div></div>`;
+    else example = `<h3>Разбор этого задания</h3><div class="calc">${S.q.cards.map(c => `<div>${expand(c.v, c.b)}</div>`).join('')}</div>`;
+  } else {
+    example = `<h3>Пример</h3><div class="calc"><div>${expand(13, 8)}</div><div>${expand(13, 16)}</div><div>${expand(13, 2)}</div></div>
+      <p>Значит, 15<sub>8</sub> = D<sub>16</sub> = 1101<sub>2</sub> = 13<sub>10</sub> — это одно и то же число, просто записано по-разному.</p>`;
+  }
+  $('helpBody').innerHTML = `
+    <p>Сравнивать числа в разных системах «на глаз» нельзя: 21<sub>8</sub> и 21<sub>16</sub> выглядят одинаково, но это 17 и 33. Надёжный способ — перевести оба числа в десятичную систему.</p>
+    <h3>Как перевести в десятичную</h3>
+    <ol>
+      <li>Пронумеруй цифры справа налево, начиная с нуля.</li>
+      <li>Умножь каждую цифру на основание в степени её номера.</li>
+      <li>Сложи. В шестнадцатеричной A = 10, B = 11, C = 12, D = 13, E = 14, F = 15.</li>
+    </ol>
+    ${example}
+    <h3>Быстрые приёмы</h3>
+    <ol>
+      <li>«10» в любой системе равно её основанию: 10<sub>2</sub> = 2, 10<sub>8</sub> = 8, 10<sub>16</sub> = 16.</li>
+      <li>Одинаковые цифры — больше то число, у которого больше основание: 21<sub>16</sub> &gt; 21<sub>10</sub> &gt; 21<sub>8</sub>.</li>
+      <li>Двоичные числа без ведущих нулей: чем больше цифр, тем больше число. Восемь цифр — это уже от 128 до 255.</li>
+      <li>Восьмеричное и шестнадцатеричное можно сравнить через двоичное: одна восьмеричная цифра — три двоичных разряда, одна шестнадцатеричная — четыре.</li>
+    </ol>`;
+  $('helpScreen').hidden = false; $('helpClose').focus();
+}
+function closeHelp(){
+  $('helpScreen').hidden = true;
+  if (helpResume && S && S.running){ S.paused = false; }
+  helpResume = false;
+}
+
+/* ---------- пауза и цикл ---------- */
+function setPause(p){
+  if (!S || !S.running) return;
+  S.paused = p; $('pauseScreen').hidden = !p; if (p) $('resumeBtn').focus();
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) setPause(true); });
+
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (angleAnim){
+    const { from, target, t0, dur } = angleAnim, k = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - k, 3) * Math.cos(k * Math.PI * 2.2);   // качнуться и успокоиться
+    angle = from + (target - from) * e; drawScale(angle);
+    if (k >= 1){ angle = target; drawScale(angle); angleAnim = null; }
+  }
+  if (S && S.running && !S.paused && !lock){
+    S.qt -= dt;
+    $('qfill').style.transform = `scaleX(${Math.max(0, S.qt / S.qmax)})`;
+    $('qbar').classList.toggle('low', S.qt < 3);
+    if (S.qt <= 0){ cfg.mode === 'duel' ? answerDuel(null) : failSort(null); }
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- управление ---------- */
+$('sideL').addEventListener('click', () => answerDuel('L'));
+$('sideR').addEventListener('click', () => answerDuel('R'));
+$('sideL').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); answerDuel('L'); } });
+$('sideR').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); answerDuel('R'); } });
+$('eqBtn').onclick = () => answerDuel('E');
+addEventListener('keydown', e => {
+  if (!$('helpScreen').hidden){ if (e.key === 'Escape') closeHelp(); return; }
+  if (!S || !S.running) return;
+  if (e.key === 'Escape') return setPause(!S.paused);
+  if (S.paused) return;
+  if (cfg.mode === 'duel'){
+    if (e.key === 'ArrowLeft') answerDuel('L');
+    if (e.key === 'ArrowRight') answerDuel('R');
+    if (e.key === 'ArrowDown' || e.key === '=') answerDuel('E');
+  } else {
+    const k = +e.key;
+    if (k >= 1 && k <= 4){ const b = $('pool').querySelectorAll('.ncard')[k-1]; if (b) b.click(); }
+  }
+});
+$('startBtn').onclick = start;
+$('againBtn').onclick = start;
+$('menuBtn').onclick = () => { $('endScreen').hidden = true; $('startScreen').hidden = false; renderMenu(); };
+$('helpBtn').onclick = openHelp;
+$('helpBtn2').onclick = openHelp;
+$('helpClose').onclick = closeHelp;
+$('pauseBtn').onclick = () => setPause(true);
+$('resumeBtn').onclick = () => setPause(false);
+$('quitBtn').onclick = () => { S.running = false; S.paused = false; $('pauseScreen').hidden = true; $('startScreen').hidden = false; renderMenu(); };
+$('muteBtn').onclick = () => setMute(!muted);
+
+// весы на фоне меню
+setPan($('sideL'), 21, 8); setPan($('sideR'), 21, 16); angle = 8; drawScale(8);
+setMute(muted); renderMenu(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

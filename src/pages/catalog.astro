@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import Card from '../components/Card.astro';
+import { getCollection } from 'astro:content';
+const all = (await getCollection('items')).sort((a, b) => a.data.order - b.data.order);
+const grades = [...new Set(all.flatMap(i => i.data.grades))].sort((a, b) => a - b);
+---
+<Base title="Каталог" description="Все игры, тренажёры, курсы и программы">
+  <section>
+    <div class="wrap">
+      <h1>Каталог</h1>
+      <div class="filters">
+        <div class="row" data-filter="type">
+          <button aria-pressed="true" data-v="">Всё</button>
+          <button data-v="game">Игры и тренажёры</button>
+          <button data-v="course">Курсы</button>
+          <button data-v="app">Программы</button>
+        </div>
+        <div class="row" data-filter="grade">
+          <button aria-pressed="true" data-v="">Любой класс</button>
+          {grades.map(g => <button data-v={String(g)}>{g} класс</button>)}
+        </div>
+        <input id="q" type="search" placeholder="Поиск: тема, слово, например «логика» или «двоичная»" />
+      </div>
+      <p id="empty" class="muted" hidden>Ничего не нашлось — попробуйте другой запрос.</p>
+      <div class="grid" id="list">{all.map(i => <Card item={i} />)}</div>
+    </div>
+  </section>
+</Base>
+<script>
+  const state = { type: '', grade: '', q: '' };
+  const params = new URLSearchParams(location.search);
+  state.type = params.get('type') ?? ''; state.grade = params.get('grade') ?? ''; state.q = params.get('q') ?? '';
+  const q = document.getElementById('q') as HTMLInputElement;
+  q.value = state.q;
+
+  function apply() {
+    let shown = 0;
+    document.querySelectorAll<HTMLElement>('#list .card').forEach(c => {
+      const t = c.dataset.type ?? '';
+      const okType = !state.type || (state.type === 'game' ? (t === 'game' || t === 'trainer') : t === state.type);
+      const okGrade = !state.grade || (c.dataset.grades ?? '').split(' ').includes(state.grade);
+      const okQ = !state.q || state.q.toLowerCase().split(/\s+/).every(w => (c.dataset.text ?? '').includes(w));
+      c.hidden = !(okType && okGrade && okQ);
+      if (!c.hidden) shown++;
+    });
+    (document.getElementById('empty') as HTMLElement).hidden = shown > 0;
+    document.querySelectorAll<HTMLElement>('[data-filter]').forEach(row => {
+      const key = row.dataset.filter as 'type' | 'grade';
+      row.querySelectorAll<HTMLButtonElement>('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state[key])));
+    });
+    const p = new URLSearchParams();
+    if (state.type) p.set('type', state.type);
+    if (state.grade) p.set('grade', state.grade);
+    if (state.q) p.set('q', state.q);
+    history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p : ''));
+  }
+  document.querySelectorAll<HTMLElement>('[data-filter]').forEach(row => {
+    row.addEventListener('click', e => {
+      const b = (e.target as HTMLElement).closest('button'); if (!b) return;
+      state[row.dataset.filter as 'type' | 'grade'] = b.dataset.v ?? ''; apply();
+    });
+  });
+  q.addEventListener('input', () => { state.q = q.value.trim(); apply(); });
+  apply();
+</script>
+<style>
+  .filters{display:flex;flex-direction:column;gap:10px;margin:8px 0 24px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .row button{font:600 15px var(--body);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.45em 1em;cursor:pointer}
+  .row button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  input[type=search]{font:500 16px var(--body);padding:.7em 1em;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);max-width:560px}
+</style>

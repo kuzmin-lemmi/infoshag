@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import Card from '../components/Card.astro';
+import { getCollection } from 'astro:content';
+import { SITE } from '../config';
+const base = import.meta.env.BASE_URL;
+const all = (await getCollection('items')).sort((a, b) => a.data.order - b.data.order);
+const school = all.filter(i => i.data.type === 'game' || i.data.type === 'trainer');
+const grades = [...new Set(school.flatMap(i => i.data.grades))].sort((a, b) => a - b);
+const courses = all.filter(i => i.data.type === 'course');
+const apps = all.filter(i => i.data.type === 'app');
+---
+<Base>
+  <section class="hero">
+    <div class="wrap">
+      <p class="kicker">Библиотека разработок</p>
+      <h1>{SITE.name}</h1>
+      <p class="lead">{SITE.tagline}</p>
+      <div class="cta">
+        <a class="btn primary" href={`${base}catalog/`}>Открыть каталог</a>
+        <a class="btn" href={`${base}catalog/?type=game`}>Игры для урока</a>
+      </div>
+      <ul class="nums">
+        <li><b>{school.length}</b> игр и тренажёров</li>
+        <li><b>{courses.length}</b> курса</li>
+        <li><b>{apps.length}</b> {apps.length === 1 ? 'сервис' : 'сервиса'}</li>
+      </ul>
+    </div>
+  </section>
+
+  {grades.map(g => (
+    <section class="band">
+      <div class="wrap">
+        <div class="head"><h2>Информатика · {g} класс</h2><a href={`${base}catalog/?grade=${g}`}>Все материалы {g} класса →</a></div>
+        <div class="grid">{school.filter(i => i.data.grades.includes(g)).map(i => <Card item={i} />)}</div>
+      </div>
+    </section>
+  ))}
+
+  <section class="band">
+    <div class="wrap">
+      <div class="head"><h2>Курсы</h2><a href={`${base}catalog/?type=course`}>Все курсы →</a></div>
+      <p class="muted note">Пока курсы проходят на Stepik — скоро их можно будет проходить прямо здесь.</p>
+      <div class="grid">{courses.map(i => <Card item={i} />)}</div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="head"><h2>Программы и сервисы</h2><a href={SITE.github}>Все проекты на GitHub ↗</a></div>
+      <div class="grid">{apps.map(i => <Card item={i} />)}</div>
+    </div>
+  </section>
+</Base>
+<style>
+  .hero{padding:clamp(40px,8vw,96px) 0 clamp(24px,4vw,40px);
+    background:radial-gradient(ellipse at 85% 0%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 60%)}
+  .kicker{font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;font-size:14px;margin:0 0 12px}
+  .lead{font-size:clamp(18px,2.2vw,22px);color:var(--soft);max-width:46ch;margin:0 0 24px}
+  .cta{display:flex;gap:10px;flex-wrap:wrap}
+  .nums{list-style:none;padding:0;margin:32px 0 0;display:flex;gap:28px;flex-wrap:wrap;color:var(--soft)}
+  .nums b{display:block;font:800 clamp(26px,3.4vw,36px)/1 var(--display);color:var(--ink)}
+  .band + .band{padding-top:0}
+  .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .head h2{margin:0}
+  .head a{font-weight:600;color:var(--accent);text-decoration:none}
+  .note{margin:-6px 0 16px}
+</style>

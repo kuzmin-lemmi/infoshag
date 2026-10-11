@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+interface Props { title?: string; description?: string; }
+const { title, description = SITE.tagline } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const full = title ? `${title} — ${SITE.short}` : SITE.name;
+const path = Astro.url.pathname;
+---
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{full}</title>
+  <meta name="description" content={description} />
+  <meta property="og:title" content={full} />
+  <meta property="og:description" content={description} />
+  <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700&family=Unbounded:wght@700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="top">
+    <div class="wrap bar">
+      <a class="logo" href={base}><span class="mark">К</span><span>{SITE.short}</span></a>
+      <nav>
+        <a href={`${base}catalog/`} aria-current={path.includes('/catalog') ? 'page' : undefined}>Каталог</a>
+        <a href={`${base}catalog/?type=game`}>Игры</a>
+        <a href={`${base}catalog/?type=course`}>Курсы</a>
+        <a href={`${base}catalog/?type=app`}>Программы</a>
+      </nav>
+    </div>
+  </header>
+  <main><slot /></main>
+  <footer>
+    <div class="wrap foot">
+      <span>© {new Date().getFullYear()} {SITE.author}</span>
+      <span class="links">
+        <a href={SITE.github}>GitHub</a>
+        {SITE.vk && <a href={SITE.vk}>ВКонтакте</a>}
+      </span>
+    </div>
+  </footer>
+</body>
+</html>
+<style>
+  .top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;text-decoration:none;font:800 18px var(--display)}
+  .mark{width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:17px}
+  nav{display:flex;gap:4px;flex-wrap:wrap}
+  nav a{text-decoration:none;font-weight:600;padding:.4em .75em;border-radius:10px;color:var(--soft)}
+  nav a:hover,nav a[aria-current]{color:var(--ink);background:var(--surface)}
+  footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0 calc(24px + env(safe-area-inset-bottom,0px))}
+  .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--soft);font-size:15px}
+  .links{display:flex;gap:16px}
+  @media (max-width:640px){ .logo span:last-child{display:none} nav a{padding:.35em .5em;font-size:15px} }
+</style>

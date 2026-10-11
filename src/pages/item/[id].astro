@@ -1,0 +1,85 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+import QRCode from 'qrcode';
+import { TYPES, ACCESS } from '../../config';
+import { openHref, gradeLabel } from '../../lib';
+
+export async function getStaticPaths() {
+  const items = await getCollection('items');
+  return items.map(item => ({ params: { id: item.id }, props: { item } }));
+}
+const { item } = Astro.props;
+const d = item.data;
+const { Content } = await render(item);
+const external = /^https?:/.test(d.url);
+const href = openHref(d.url);
+const abs = external ? d.url : new URL(href, Astro.site).toString();
+const qr = await QRCode.toString(abs, { type: 'svg', margin: 1, color: { dark: '#141A2E', light: '#FFFFFF' } });
+const rows = [
+  ['Тип', TYPES[d.type].label],
+  ['Класс', gradeLabel(d.grades)],
+  ['Тема', d.topic],
+  ['Учебник', d.textbook],
+  ['Время', d.duration],
+  ['Формат', d.format.join(', ')],
+  ['Режимы', d.modes.join(' · ')],
+  ['Доступ', ACCESS[d.access]],
+].filter(([, v]) => v);
+---
+<Base title={d.title} description={d.summary}>
+  <section class="top" style={`--c:${d.color}`}>
+    <div class="wrap layout">
+      <div>
+        <a class="back" href={`${import.meta.env.BASE_URL}catalog/`}>← Каталог</a>
+        <div class="badge"><span>{d.emoji}</span></div>
+        <h1>{d.title}</h1>
+        <p class="lead">{d.summary}</p>
+        <div class="cta">
+          <a class="btn primary" href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
+            {d.type === 'course' ? 'Перейти к курсу' : 'Открыть'} {external ? '↗' : '▶'}
+          </a>
+          {!external && <button class="btn" id="copy" data-url={abs}>Скопировать ссылку</button>}
+          {d.repo && <a class="btn" href={d.repo}>Исходный код ↗</a>}
+        </div>
+        <dl class="facts">{rows.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}</dl>
+        <div class="text"><Content /></div>
+        {d.tags.length > 0 && <p class="tags">{d.tags.map(t => <span class="chip">{t}</span>)}</p>}
+      </div>
+      <aside class="qr">
+        <div class="qrbox" set:html={qr} />
+        <p><b>Раздать классу</b><br /><span class="muted">Покажите QR на доске — ученики откроют {d.type === 'course' ? 'курс' : 'игру'} с телефона или планшета.</span></p>
+        <code>{abs.replace(/^https?:\/\//, '')}</code>
+      </aside>
+    </div>
+  </section>
+</Base>
+<script>
+  const b = document.getElementById('copy') as HTMLButtonElement | null;
+  b?.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(b.dataset.url ?? ''); b.textContent = 'Ссылка скопирована ✓'; }
+    catch { b.textContent = b.dataset.url ?? ''; }
+  });
+</script>
+<style>
+  .top{padding-top:28px;background:radial-gradient(ellipse at 10% 0%,color-mix(in srgb,var(--c) 22%,transparent),transparent 55%)}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;align-items:start}
+  .back{display:inline-block;margin-bottom:18px;color:var(--soft);text-decoration:none;font-weight:600}
+  .badge{width:92px;height:92px;border-radius:24px;display:grid;place-items:center;font-size:52px;margin-bottom:18px;
+    background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--c) 55%,#fff),var(--c));box-shadow:0 14px 30px color-mix(in srgb,var(--c) 35%,transparent)}
+  .lead{font-size:clamp(17px,2vw,20px);color:var(--soft);max-width:60ch}
+  .cta{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 28px}
+  .cta .btn{font:700 16px var(--body);cursor:pointer;color:var(--ink)}
+  .cta .btn.primary{background:var(--c);border-color:var(--c);color:#fff}
+  .facts{display:grid;grid-template-columns:max-content 1fr;gap:8px 20px;margin:0 0 28px;padding:18px 20px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
+  dt{color:var(--soft);font-weight:600}
+  dd{margin:0}
+  .text{max-width:68ch}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .qr{position:sticky;top:90px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:18px;text-align:center}
+  .qrbox{background:#fff;border-radius:12px;padding:8px}
+  .qrbox :global(svg){display:block;width:100%;height:auto}
+  .qr p{font-size:15px}
+  .qr code{font-size:12.5px;word-break:break-all;color:var(--soft)}
+  @media (max-width:860px){ .layout{grid-template-columns:1fr} .qr{position:static;max-width:320px} }
+</style>

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Звёздная почта</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700&family=JetBrains+Mono:wght@500;700&family=Play:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --space:#15133A; --space-2:#211D52; --signal:#58E6D9; --amber:#FFC857; --ink:#EDEBFF; --soft:#B3AFE0;
+  --good:#7BEA9C; --bad:#FF7A90; --panel:rgba(20,18,56,.9); --line:rgba(88,230,217,.35);
+  --display:'Play','Trebuchet MS',system-ui,sans-serif;
+  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',Consolas,'Courier New',monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --space:#0B0A20; --space-2:#16133A; --panel:rgba(14,12,40,.9); }
+}
+:root[data-theme="dark"]{ --space:#0B0A20; --space-2:#16133A; --panel:rgba(14,12,40,.9); }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{min-height:100%;margin:0;color:var(--ink);font-family:var(--body);background-color:var(--space);
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%,#fff8,transparent),radial-gradient(1px 1px at 32% 72%,#fff7,transparent),
+    radial-gradient(1.5px 1.5px at 58% 28%,#fff6,transparent),radial-gradient(1px 1px at 78% 62%,#fff8,transparent),
+    radial-gradient(1px 1px at 88% 14%,#fff6,transparent),radial-gradient(1.5px 1.5px at 44% 90%,#fff5,transparent),
+    radial-gradient(ellipse at 80% 0%,rgba(88,230,217,.14),transparent 50%),
+    radial-gradient(ellipse at 0% 100%,rgba(160,90,255,.18),transparent 55%),
+    linear-gradient(180deg,var(--space-2),var(--space));
+  background-attachment:fixed}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+#app{max-width:1100px;margin:0 auto;padding:12px clamp(12px,3vw,32px) 28px;display:flex;flex-direction:column;gap:14px}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font:700 clamp(26px,4.4vmin,40px)/1 var(--display);margin:0;letter-spacing:.02em}
+.brand h1 span{color:var(--signal);text-shadow:0 0 18px rgba(88,230,217,.5)}
+.brand small{display:block;color:var(--soft);font-size:14px;margin-top:4px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{position:relative;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;font-size:clamp(14px,1.8vmin,16px);background:rgba(0,0,0,.2)}
+.pill b{font-family:var(--mono);margin-left:4px;color:var(--amber)}
+.pill.warn b{color:var(--bad)}
+.pill[hidden],.ibtn[hidden]{display:none}
+.mult{position:absolute;right:-10px;top:-12px;background:var(--signal);color:#05221f;border-radius:999px;padding:1px 7px;font:700 13px/1.4 var(--mono)}
+.mult[hidden]{display:none}
+.mult.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.5)}}
+.ibtn{width:42px;height:38px;border:1.5px solid var(--line);border-radius:12px;background:rgba(0,0,0,.2);font-size:18px}
+.timebar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.timebar[hidden]{display:none}
+.timebar i{display:block;height:100%;background:var(--signal);transform-origin:left;box-shadow:0 0 10px var(--signal)}
+.timebar.low i{background:var(--bad)}
+
+.sheet{background:var(--panel);border:1.5px solid var(--line);border-radius:20px;padding:clamp(14px,2.6vmin,26px);box-shadow:0 0 40px rgba(88,230,217,.06),0 20px 50px rgba(0,0,0,.35)}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tag{border:1.5px solid var(--line);border-radius:999px;padding:3px 12px;font:600 14px/1.3 var(--body)}
+.tag.main{background:var(--signal);color:#05221f;border-color:var(--signal)}
+.question{font:700 clamp(20px,3.4vmin,32px)/1.25 var(--display);margin:10px 0 0}
+.instr{margin:8px 0 0;color:var(--soft);font-size:clamp(15px,2vmin,18px);line-height:1.45}
+.work{display:flex;flex-direction:column;align-items:center;gap:16px}
+
+/* послание */
+.msgs{display:grid;gap:14px;width:100%;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.msg{position:relative;text-align:left;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;background:rgba(88,230,217,.05)}
+.msgs.single .msg{max-width:760px;justify-self:center;width:100%}
+button.msg{cursor:pointer}
+button.msg:hover{border-color:var(--signal);background:rgba(88,230,217,.1)}
+.msg.picked{opacity:.55}
+.msg.good{border-color:var(--good);background:rgba(123,234,156,.1)}
+.msg.bad{border-color:var(--bad);background:rgba(255,122,144,.12)}
+.msg .planet{font:700 clamp(17px,2.4vmin,22px)/1.2 var(--display);color:var(--signal)}
+.msg .alpha{margin-top:4px;color:var(--soft);font-size:clamp(14px,1.9vmin,17px)}
+.msg .alpha b{color:var(--amber);font-family:var(--mono)}
+.glyphs{display:flex;flex-wrap:wrap;gap:clamp(6px,1.2vmin,12px);margin:12px 0 4px;color:var(--ink)}
+.glyphs svg{width:clamp(30px,5.2vmin,48px);height:clamp(30px,5.2vmin,48px);fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 4px rgba(88,230,217,.45));background:rgba(255,255,255,.04);border-radius:8px;padding:3px}
+.glyphs svg circle{fill:currentColor;stroke:none}
+.msgs:not(.single) .glyphs svg{width:clamp(24px,3.8vmin,36px);height:clamp(24px,3.8vmin,36px)}
+.bulk{margin:12px 0 4px;font-size:clamp(16px,2.2vmin,20px);line-height:1.45}
+.bulk b{color:var(--amber);font-family:var(--mono)}
+.order{position:absolute;top:-12px;right:-10px;width:34px;height:34px;border-radius:50%;background:var(--amber);color:#2a1d00;display:grid;place-items:center;font:700 18px var(--mono)}
+.vol{margin-top:8px;font:600 clamp(14px,1.9vmin,17px)/1.4 var(--body);color:var(--amber)}
+
+/* шаги ответа */
+.steps{display:flex;flex-direction:column;gap:10px;width:min(760px,100%)}
+.step{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border:1.5px solid transparent;border-radius:14px;padding:8px 12px;background:rgba(255,255,255,.04)}
+.step.active{border-color:var(--signal);background:rgba(88,230,217,.08)}
+.step.done{opacity:.85}
+.step.future{opacity:.4}
+.step .lbl{flex:1 1 220px;font-weight:600;font-size:clamp(15px,2.1vmin,19px)}
+.step .lbl small{display:block;color:var(--soft);font-weight:400;font-size:.85em}
+.box{min-width:5.5em;padding:.25em .6em;border-radius:10px;border:2px dashed var(--line);font:700 clamp(22px,3.6vmin,32px)/1.2 var(--mono);text-align:right;background:rgba(0,0,0,.25)}
+.step.active .box{border:2.5px solid var(--signal);box-shadow:0 0 14px rgba(88,230,217,.35)}
+.step.done .box{border:2px solid var(--good);color:var(--good)}
+.step.bad .box{border:2.5px solid var(--bad);color:var(--bad)}
+.unit{font:600 clamp(15px,2vmin,18px) var(--body);color:var(--soft);min-width:3.5em}
+
+.feedback{max-width:840px;min-height:1.5em;text-align:center;font-size:clamp(15px,2.1vmin,19px);font-weight:600;line-height:1.45;color:var(--soft)}
+.feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
+.pad,.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pad[hidden],.actions:empty{display:none}
+.key{min-width:58px;height:58px;border:1.5px solid var(--line);border-radius:14px;background:rgba(88,230,217,.06);font:700 26px/1 var(--mono)}
+.key.wide{font:700 16px/1 var(--body);padding:0 16px}
+.key.ok{background:var(--signal);color:#05221f;border-color:var(--signal)}
+.key:active,.btn:active{transform:translateY(2px)}
+.btn{border:1.5px solid var(--line);border-radius:12px;padding:.6em 1.1em;background:rgba(88,230,217,.06);font-weight:700;font-size:clamp(15px,2vmin,18px)}
+.btn.main{background:var(--amber);color:#2a1d00;border-color:var(--amber)}
+
+/* экраны */
+.screen{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;overflow-y:auto;background:rgba(5,4,20,.6);backdrop-filter:blur(3px)}
+.screen[hidden]{display:none}
+.screen .sheet{width:min(700px,100%)}
+.screen h2{font:700 clamp(28px,5vmin,44px)/1.05 var(--display);margin:0 0 .4em}
+.screen h3{font-size:17px;margin:1.1em 0 .4em;color:var(--signal)}
+.lead{font-size:clamp(16px,2.1vmin,19px);line-height:1.5;margin:0 0 1.1em}
+.group{margin:0 0 1em}
+.group > span{display:block;font-weight:700;margin-bottom:.45em}
+.chips,.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs{margin-bottom:1.1em}
+.chip{border:1.5px solid var(--line);border-radius:999px;background:transparent;padding:.45em .95em;font-weight:600;font-size:clamp(14px,1.9vmin,17px)}
+.chip small{color:var(--soft);font-weight:400}
+.chip[aria-pressed="true"]{background:var(--signal);color:#05221f;border-color:var(--signal)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.75}
+.go{display:block;width:100%;margin-top:.7em;border:none;border-radius:14px;padding:.75em;background:var(--amber);color:#2a1d00;font:700 clamp(18px,2.7vmin,23px)/1 var(--body)}
+.go.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-size:clamp(15px,2.1vmin,18px)}
+.go[hidden]{display:none}
+.name{display:block;font-weight:700;margin:0 0 1em}
+.name input{display:block;width:100%;margin-top:.4em;border:1.5px solid var(--line);border-radius:12px;padding:.6em .8em;font:600 18px var(--body);background:rgba(0,0,0,.25);color:var(--ink)}
+.name input.need{border-color:var(--bad);box-shadow:0 0 0 3px rgba(255,122,144,.3)}
+.crit{width:100%;border-collapse:collapse;margin:.3em 0 1em;font-size:clamp(14px,1.9vmin,17px)}
+.crit th,.crit td{border:1.5px solid var(--line);padding:.45em .7em;text-align:left;vertical-align:top}
+.crit th{background:rgba(88,230,217,.08)}
+.crit td.g2{font:700 1.3em/1 var(--mono);text-align:center;width:3em;color:var(--amber)}
+.rules{margin:.2em 0 .6em;padding-left:1.2em;line-height:1.5;font-size:clamp(14px,1.9vmin,17px)}
+.rules li{margin:.25em 0}
+.examhead{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:.8em}
+.bigmark{font:700 clamp(70px,14vmin,120px)/1 var(--display);width:1.5em;height:1.5em;display:grid;place-items:center;border:4px solid var(--amber);color:var(--amber);border-radius:50%;transform:rotate(-8deg);box-shadow:0 0 30px rgba(255,200,87,.25)}
+.examhead p{margin:.15em 0;font-size:clamp(15px,2vmin,18px)}
+.result{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:.6em}
+.result div{flex:1 1 120px;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.result b{display:block;font:700 clamp(24px,4.4vmin,36px)/1.1 var(--mono);color:var(--amber)}
+.result small{color:var(--soft)}
+.record{color:var(--good);font-weight:700}
+.weak{margin:0;padding:0;list-style:none;line-height:1.5}
+.weak li{margin:.45em 0}
+.weak .x{color:var(--soft)}
+.help{font-size:clamp(15px,2vmin,17px);line-height:1.5}
+.help p{margin:.4em 0}
+.pow{display:flex;flex-wrap:wrap;gap:6px;margin:.4em 0}
+.pow span{border:1.5px solid var(--line);border-radius:8px;padding:4px 8px;font:600 15px var(--mono)}
+.f{font:700 1.1em var(--mono);color:var(--amber)}
+@media (max-width:640px){.key{min-width:52px;height:52px}}
+@media (prefers-reduced-motion: reduce){.mult.bump{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><h1>Звёздная <span>почта</span></h1><small>информационный объём сообщения · 7 класс</small></div>
+    <div class="stats">
+      <div class="pill" id="pTime" hidden>⏱ <b id="clock">10:00</b></div>
+      <div class="pill" id="pPts" hidden>Баллы <b id="epts">0</b></div>
+      <div class="pill" id="pGrade" hidden>Сейчас это <b id="egrade">2</b></div>
+      <div class="pill" id="pScore">Очки <b id="score">0</b></div>
+      <div class="pill" id="pStreak">Серия <b id="streak">0</b><span class="mult" id="mult" hidden>×2</span></div>
+      <div class="pill" id="pSolved">Принято <b id="solved">0</b></div>
+      <button class="ibtn" id="helpBtn" aria-label="Справка">📖</button>
+      <button class="ibtn" id="pauseBtn" aria-label="Пауза">⏸</button>
+      <button class="ibtn" id="muteBtn" aria-label="Выключить звук">🔊</button>
+    </div>
+  </header>
+  <div class="timebar" id="timebar" hidden><i id="timefill"></i></div>
+
+  <section class="sheet">
+    <div class="meta"><span class="tag main" id="tagTask">Взвесь послание</span><span class="tag" id="tagLevel">Уровень 1</span></div>
+    <p class="question" id="question"></p>
+    <p class="instr" id="instr"></p>
+  </section>
+
+  <section class="sheet work">
+    <div class="msgs" id="msgs"></div>
+    <div class="steps" id="steps"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="pad" id="pad" hidden>
+      <button class="key" data-v="1">1</button><button class="key" data-v="2">2</button><button class="key" data-v="3">3</button>
+      <button class="key" data-v="4">4</button><button class="key" data-v="5">5</button><button class="key" data-v="6">6</button>
+      <button class="key" data-v="7">7</button><button class="key" data-v="8">8</button><button class="key" data-v="9">9</button>
+      <button class="key" data-v="0">0</button>
+      <button class="key wide" data-v="del">⌫ Стереть</button><button class="key wide ok" data-v="ok">✓ Проверить</button>
+    </div>
+    <div class="actions" id="actions"></div>
+  </section>
+</div>
+
+<section class="screen" id="startScreen">
+  <div class="sheet">
+    <h2>Звёздная почта</h2>
+    <p class="lead" style="margin-bottom:.8em">Радиотелескоп принимает послания с других планет. У каждой цивилизации свой алфавит, и чем он больше, тем «тяжелее» каждый знак. Твоя задача — узнать, сколько информации несёт послание.</p>
+    <div class="tabs" id="kindTabs"></div>
+
+    <div id="examPanel">
+      <p class="lead">Работа длится <b id="examMin">10</b> минут. Задания идут по кругу — «взвесь послание» и «расставь по весу» — и становятся сложнее: сначала алфавиты-степени двойки, потом любые алфавиты, потом байты и килобайты.</p>
+      <label class="name">Фамилия и имя<input id="studentName" autocomplete="off" placeholder="Например: Иванова Маша, 7А"></label>
+      <h3>За что даются баллы</h3>
+      <table class="crit" id="critPts"></table>
+      <h3>Оценка</h3>
+      <table class="crit" id="critGrades"></table>
+      <h3>Правила</h3>
+      <ul class="rules" id="examRules"></ul>
+    </div>
+
+    <div id="trainPanel">
+      <div class="group"><span>Задания</span><div class="chips" id="cType"></div></div>
+      <div class="group"><span>Уровень</span><div class="chips" id="cLevel"></div></div>
+      <div class="group"><span>Время</span><div class="chips" id="cDur"></div></div>
+    </div>
+
+    <button class="go" id="startBtn">Начать</button>
+    <button class="go ghost" id="helpBtn2">Справка: формулы и единицы</button>
+    <div id="bestLine" style="font-size:15px;color:var(--soft);margin-top:.9em;text-align:center"></div>
+  </div>
+</section>
+
+<section class="screen" id="helpScreen" hidden>
+  <div class="sheet help">
+    <h2>Справка</h2>
+    <h3>Вес одного знака</h3>
+    <p>Если в алфавите <b>N</b> знаков, то один знак несёт <b>i</b> бит, где <span class="f">N = 2<sup>i</sup></span>.</p>
+    <div class="pow"><span>2 = 2¹ → 1</span><span>4 = 2² → 2</span><span>8 = 2³ → 3</span><span>16 = 2⁴ → 4</span><span>32 = 2⁵ → 5</span><span>64 = 2⁶ → 6</span><span>128 = 2⁷ → 7</span><span>256 = 2⁸ → 8</span></div>
+    <p>Если N — не степень двойки, бери ближайшую степень <b>сверху</b>: для 33 знаков 2⁵ = 32 мало, 2⁶ = 64 хватает, значит i = 6 бит.</p>
+    <h3>Объём послания</h3>
+    <p><span class="f">I = K · i</span>, где K — количество знаков в послании. Внимание: длинное послание на маленьком алфавите может весить меньше короткого на большом!</p>
+    <h3>Единицы</h3>
+    <p>1 байт = 8 бит · 1 Кбайт = 1024 байта · 1 Мбайт = 1024 Кбайт.<br>Чтобы перевести биты в байты — дели на 8, байты в килобайты — дели на 1024.</p>
+    <button class="go" id="helpClose">Понятно</button>
+  </div>
+</section>
+
+<section class="screen" id="pauseScreen" hidden>
+  <div class="sheet" style="width:min(440px,100%);text-align:center">
+    <h2>Пауза</h2>
+    <button class="go" id="resumeBtn">Продолжить</button>
+    <button class="go ghost" id="finishBtn">Завершить раунд</button>
+    <button class="go ghost" id="quitBtn">Выйти в меню</button>
+  </div>
+</section>
+
+<section class="screen" id="endScreen" hidden>
+  <div class="sheet">
+    <div id="rExam" hidden>
+      <h2>Работа завершена</h2>
+      <div class="examhead">
+        <div class="bigmark" id="xGrade">5</div>
+        <div><p><b id="xName"></b></p><p id="xDate"></p><p>Набрано баллов: <b id="xPts"></b></p><p id="xAway"></p></div>
+      </div>
+      <table class="crit" id="xTable"></table>
+    </div>
+    <div id="rTrain">
+      <h2>Сеанс связи окончен</h2>
+      <div class="result">
+        <div><b id="rScore">0</b><small>очков</small></div>
+        <div><b id="rSolved">0</b><small>посланий принято</small></div>
+        <div><b id="rAcc">0%</b><small>верных ответов</small></div>
+        <div><b id="rStreak">0</b><small>лучшая серия</small></div>
+      </div>
+      <p class="record" id="rRecord" hidden>Новый рекорд!</p>
+    </div>
+    <div id="rWeak"></div>
+    <button class="go" id="againBtn">Сыграть ещё раз</button>
+    <button class="go ghost" id="menuBtn">В меню</button>
+  </div>
+</section>
+
+<script>
+/* ================= НАСТРОЙКИ ================= */
+const TYPES = { weigh:'Взвесь послание', sort:'Расставь по весу' };
+const LEVELS = {
+  1: { name:'Уровень 1', note:'степени двойки', alphabets:[2,4,8,16,32,64,128,256], k:[3,10] },
+  2: { name:'Уровень 2', note:'любые алфавиты', alphabets:[3,5,6,7,10,12,20,26,33,40,50,60,100,120,200], k:[3,12] },
+  3: { name:'Уровень 3', note:'байты и килобайты', alphabets:[16,32,64,128,256] }
+};
+const PLANETS = ['Проксима','Трапписта','Глизе','Кеплер-22','Тау Кита','Вега','Альтаир','Ригель','Денеб','Сириус','Бетельгейзе','Альдебаран','Капелла','Канопус','Арктур','Полярная'];
+
+/* ===== КОНТРОЛЬНАЯ: всё, что может захотеть поменять учитель ===== */
+const EXAM = {
+  minutes: 10,
+  seq: ['weigh', 'sort'],                                  // задания идут по кругу
+  levelAt: n => n < 3 ? 1 : n < 6 ? 2 : 3,                 // уровень по номеру задания (с нуля)
+  points: { weigh:{ 1:2, 2:2, 3:3 }, sort:2 },
+  errorPenalty: 1,                                         // минус, если в задании была ошибка
+  grades: [[14, 5], [10, 4], [6, 3], [0, 2]]               // [от скольких баллов, оценка]
+};
+const ERR_TIPS = {
+  i:    ['Вес одного знака', 'N = 2ⁱ. Если N — не степень двойки, бери ближайшую степень сверху.'],
+  K:    ['Подсчёт знаков', 'Считай знаки послания внимательно: K — это их количество.'],
+  I:    ['Объём в битах', 'I = K · i: количество знаков умножь на вес одного знака.'],
+  B:    ['Перевод в байты', '1 байт = 8 бит — дели число бит на 8.'],
+  KB:   ['Перевод в килобайты', '1 Кбайт = 1024 байта — дели число байт на 1024.'],
+  sort: ['Сравнение посланий', 'Сравнивай не длину, а объём I = K · i: короткое послание на большом алфавите может весить больше.']
+};
+
+/* ================= ОБЩЕЕ ================= */
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const rint = (a, b) => a + Math.floor(Math.random()*(b - a + 1));
+const shuffle = a => { for (let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const store = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k,v) }catch(e){} }
+};
+const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup = k => String(k).split('').map(d => SUP[d]).join('');
+const bitsFor = N => Math.max(1, Math.ceil(Math.log2(N)));
+const fmt = n => n.toLocaleString('ru-RU');
+function plural(n, one, few, many){ const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; }
+const bitW = n => plural(n, 'бит', 'бита', 'бит');
+
+let cfg = { kind:'exam', type:'mix', level:1, dur:300 };
+let S = null;
+let muted = store.get('pochta:muted') === '1';
+const bestKey = () => `pochta:best:${cfg.type}:${cfg.level}:${cfg.dur}`;
+const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+
+/* ---------- инопланетные знаки (рисуются, а не берутся из шрифта) ---------- */
+function rng(seed){ let s = (seed * 2654435761) >>> 0 || 1; return () => (s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296; }
+const GLYPH_CACHE = new Map();
+function glyph(seed){
+  if (GLYPH_CACHE.has(seed)) return GLYPH_CACHE.get(seed);
+  const r = rng(seed), P = [];
+  for (let y = 0; y < 3; y++) for (let x = 0; x < 3; x++) P.push([4 + x*8, 4 + y*8]);
+  let d = '';
+  const n = 2 + Math.floor(r() * 3);
+  for (let i = 0; i < n; i++){
+    const a = Math.floor(r()*9); let b = Math.floor(r()*9); if (a === b) b = (b + 4) % 9;
+    d += `M${P[a][0]} ${P[a][1]}L${P[b][0]} ${P[b][1]}`;
+  }
+  const dot = r() < .4 ? `<circle cx="${P[Math.floor(r()*9)][0]}" cy="${P[Math.floor(r()*9)][1]}" r="2.2"/>` : '';
+  const svg = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/>${dot}</svg>`;
+  GLYPH_CACHE.set(seed, svg); return svg;
+}
+
+/* ---------- звук ---------- */
+let ac = null;
+function tone(f1, f2, dur, type, vol, delay = 0){
+  if (muted || !ac) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t+dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.connect(g).connect(ac.destination); o.start(t); o.stop(t+dur);
+}
+const sfx = {
+  tap:  () => tone(1200, 1000, .03, 'sine', .06),
+  step: () => tone(880, 1320, .12, 'sine', .12),
+  good: () => [660,880,1100,1320].forEach((f,i) => tone(f,f*1.01,.14,'sine',.13,i*.07)),
+  bad:  () => tone(240, 120, .25, 'sawtooth', .07),
+  end:  () => [880,660,440].forEach((f,i) => tone(f,f,.2,'sine',.14,i*.14))
+};
+function setMute(m){
+  muted = m; store.set('pochta:muted', m ? '1' : '0');
+  $('muteBtn').textContent = m ? '🔇' : '🔊';
+  $('muteBtn').setAttribute('aria-label', m ? 'Включить звук' : 'Выключить звук');
+}
+
+/* ---------- меню ---------- */
+function chip(html, pressed, fn){
+  const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = html;
+  b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b;
+}
+function chips(id, list){ const c = $(id); c.innerHTML = ''; list.forEach(x => c.appendChild(x)); }
+function renderMenu(){
+  chips('kindTabs', [
+    chip('📝 Контрольная на оценку', cfg.kind === 'exam', () => { cfg.kind = 'exam'; renderMenu(); }),
+    chip('🎯 Тренировка', cfg.kind === 'train', () => { cfg.kind = 'train'; renderMenu(); })
+  ]);
+  const exam = cfg.kind === 'exam';
+  $('examPanel').hidden = !exam; $('trainPanel').hidden = exam;
+  $('startBtn').textContent = exam ? `Начать работу (${EXAM.minutes} минут)` : 'Начать тренировку';
+  if (exam){
+    $('examMin').textContent = EXAM.minutes;
+    const P = EXAM.points;
+    $('critPts').innerHTML = `<tr><th>Задание</th><th>Баллы</th></tr>
+      <tr><td><b>Взвесь послание</b><br>найти вес знака, число знаков и объём</td><td>${P.weigh[1]} — уровни 1 и 2<br>${P.weigh[3]} — с байтами и килобайтами</td></tr>
+      <tr><td><b>Расставь по весу</b><br>упорядочить три послания по объёму</td><td>${P.sort}</td></tr>
+      <tr><td colspan="2">Если в задании была ошибка — минус ${EXAM.errorPenalty} балл (но не меньше 1, если задание доделано).</td></tr>`;
+    $('critGrades').innerHTML = EXAM.grades.map(([min, g], i) =>
+      `<tr><td class="g2">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${min} баллов` : `меньше ${EXAM.grades[i-1][0]} баллов`}</td></tr>`).join('');
+    $('examRules').innerHTML = [
+      `Работа идёт ровно ${EXAM.minutes} минут, закончить раньше нельзя. Когда время выйдет, оценка появится сама.`,
+      'Справка во время работы отключена. Можно пользоваться черновиком.',
+      'Задание можно пропустить, но баллов за него не будет. Незаконченное к концу времени задание не засчитывается.',
+      'Если уйти со страницы или переключить вкладку, это будет видно в результате.'
+    ].map(x => `<li>${x}</li>`).join('');
+    $('bestLine').textContent = '';
+  } else {
+    chips('cType', [['weigh','Взвесь послание'],['sort','Расставь по весу'],['mix','Вперемешку']].map(([k,l]) => chip(l, cfg.type === k, () => { cfg.type = k; renderMenu(); })));
+    chips('cLevel', Object.keys(LEVELS).map(k => chip(`${LEVELS[k].name} <small>${LEVELS[k].note}</small>`, cfg.level === +k, () => { cfg.level = +k; renderMenu(); })));
+    chips('cDur', [[300,'5 минут'],[600,'10 минут'],[0,'Без ограничения']].map(([d,l]) => chip(l, cfg.dur === d, () => { cfg.dur = d; renderMenu(); })));
+    const best = store.get(bestKey());
+    $('bestLine').textContent = best ? 'Рекорд с этими настройками: ' + best : '';
+  }
+}
+
+/* ================= ПОСЛАНИЯ ================= */
+function makeMsg(level, usedPlanets){
+  const idx = rand(PLANETS.map((_, i) => i).filter(i => !usedPlanets.has(i)));
+  usedPlanets.add(idx);
+  const L = LEVELS[level];
+  if (level < 3){
+    const N = rand(L.alphabets), K = rint(L.k[0], L.k[1]), i = bitsFor(N);
+    const seeds = Array.from({ length:K }, () => idx * 1000 + rint(0, Math.min(N, 40) - 1));
+    return { planet:PLANETS[idx], N, K, i, I:K*i, seeds, level };
+  }
+  for (let t = 0; t < 200; t++){
+    const N = rand(L.alphabets), i = bitsFor(N);
+    const pages = rand([2,4,8,16]), lines = rand([16,32,64]), chars = rand([32,64,128]);
+    const K = pages * lines * chars, I = K * i;
+    if (I % (8 * 1024)) continue;
+    return { planet:PLANETS[idx], N, K, i, I, B:I/8, KB:I/8/1024, pages, lines, chars, level,
+             seeds: Array.from({ length:6 }, () => idx * 1000 + rint(0, 39)) };
+  }
+}
+
+function makeWeigh(level){
+  const m = makeMsg(level, new Set());
+  const steps = [
+    { key:'i', label:'Вес одного знака', hint:`алфавит из ${m.N} знаков`, unit:'бит', ans:m.i },
+    { key:'K', label:'Знаков в послании', hint: level < 3 ? 'посчитай знаки' : 'страниц × строк × символов', unit:'знаков', ans:m.K }
+  ];
+  if (level < 3) steps.push({ key:'I', label:'Объём послания', hint:'I = K · i', unit:'бит', ans:m.I });
+  else steps.push({ key:'B', label:'Объём в байтах', hint:'I = K · i, потом ÷ 8', unit:'байт', ans:m.B },
+                  { key:'KB', label:'Объём в килобайтах', hint:'÷ 1024', unit:'Кбайт', ans:m.KB });
+  return { kind:'weigh', level, msgs:[m], steps, si:0, input:'', clean:true, phase:'input', tries:{} };
+}
+
+function makeSort(level){
+  for (let t = 0; t < 300; t++){
+    const used = new Set(), msgs = [makeMsg(level, used), makeMsg(level, used), makeMsg(level, used)];
+    if (new Set(msgs.map(m => m.I)).size < 3) continue;
+    const byK = [...msgs].sort((a, b) => a.K - b.K).map(m => m.planet).join();
+    const byI = [...msgs].sort((a, b) => a.I - b.I).map(m => m.planet).join();
+    if (byK === byI && Math.random() < .75) continue;      // чаще берём «ловушку»: длинное ≠ тяжёлое
+    return { kind:'sort', level, msgs, picked:[], clean:true, phase:'input' };
+  }
+}
+
+/* ================= РАУНД ================= */
+function start(){
+  const exam = cfg.kind === 'exam';
+  const name = $('studentName').value.trim();
+  if (exam && !name){ const i = $('studentName'); i.classList.add('need'); i.focus(); i.placeholder = 'Сначала впиши фамилию и имя'; return; }
+  if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+  S = { running:true, paused:false, t:0, dur: exam ? EXAM.minutes * 60 : cfg.dur, score:0, streak:0, best:0, mult:1, solved:0,
+        tasks:0, cleanTasks:0, errs:{ i:0, K:0, I:0, B:0, KB:0, sort:0 }, task:null,
+        exam, name, t0: Date.now(), startedAt: new Date(), pts:0, taskNo:0, away:0,
+        byType:{ weigh:{ n:0, ok:0, pts:0 }, sort:{ n:0, ok:0, pts:0 } } };
+  ['startScreen','endScreen','pauseScreen'].forEach(id => $(id).hidden = true);
+  $('timebar').hidden = !S.dur;
+  ['pTime','pPts','pGrade'].forEach(id => $(id).hidden = !exam);
+  ['pScore','pStreak','pSolved','helpBtn','pauseBtn'].forEach(id => $(id).hidden = exam);
+  updateHud(); newTask();
+}
+
+function newTask(){
+  let type, level;
+  if (S.exam){ type = EXAM.seq[S.taskNo % EXAM.seq.length]; level = EXAM.levelAt(S.taskNo); S.taskNo++; }
+  else { type = cfg.type === 'mix' ? rand(['weigh','sort']) : cfg.type; level = cfg.level; }
+  S.task = type === 'weigh' ? makeWeigh(level) : makeSort(level);
+  if (S.exam) S.byType[type].n++;
+  feedback(''); render();
+}
+
+function streakUp(){
+  S.streak++; S.best = Math.max(S.best, S.streak);
+  const m = Math.min(5, 1 + Math.floor(S.streak / 3));
+  if (m > S.mult){ const el = $('mult'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+  S.mult = m;
+}
+function streakBreak(){ S.streak = 0; S.mult = 1; }
+function updateHud(){
+  $('score').textContent = S.score; $('streak').textContent = S.streak; $('solved').textContent = S.solved;
+  const m = $('mult'); m.hidden = S.mult < 2; m.textContent = '×' + S.mult;
+  if (S.exam){ $('epts').textContent = S.pts; $('egrade').textContent = gradeFor(S.pts); }
+}
+function feedback(html, cls = ''){ const f = $('feedback'); f.innerHTML = html; f.className = 'feedback ' + cls; }
+
+/* ---------- отрисовка ---------- */
+function msgHtml(m, extra = ''){
+  const body = m.level < 3
+    ? `<div class="glyphs">${m.seeds.map(glyph).join('')}</div>`
+    : `<div class="glyphs">${m.seeds.map(glyph).join('')}<span style="align-self:center;color:var(--soft)">…</span></div>
+       <div class="bulk">Посылка: <b>${m.pages}</b> ${plural(m.pages,'страница','страницы','страниц')}, на каждой <b>${m.lines}</b> ${plural(m.lines,'строка','строки','строк')} по <b>${m.chars}</b> ${plural(m.chars,'символу','символа','символов')}</div>`;
+  return `<div class="planet">✦ ${m.planet}</div><div class="alpha">Алфавит: <b>${m.N}</b> ${plural(m.N,'знак','знака','знаков')}</div>${body}${extra}`;
+}
+function volText(m){
+  const base = `${m.N} знаков → i = ${m.i}; I = ${fmt(m.K)} · ${m.i} = ${fmt(m.I)} ${bitW(m.I)}`;
+  return m.level < 3 ? base : `${base} = ${fmt(m.B)} байт = ${fmt(m.KB)} Кбайт`;
+}
+
+function render(){
+  const T = S.task;
+  $('tagTask').textContent = (S.exam ? `Задание ${S.taskNo} · ` : '') + TYPES[T.kind];
+  $('tagLevel').textContent = `${LEVELS[T.level].name}: ${LEVELS[T.level].note}`;
+  const act = $('actions'); act.innerHTML = '';
+  const skipBtn = () => btn(S.exam ? '↷ Пропустить (0 баллов)' : '↻ Другое задание', '', skip);
+  if (T.kind === 'weigh'){
+    $('question').textContent = T.level < 3 ? 'Сколько информации в этом послании?' : 'Сколько займёт эта посылка в памяти телескопа?';
+    $('instr').textContent = 'Отвечай по шагам: вес одного знака → число знаков → объём. Цифры — с клавиатуры или кнопками, Enter — проверить шаг.';
+    $('msgs').className = 'msgs single';
+    $('msgs').innerHTML = `<div class="msg">${msgHtml(T.msgs[0])}</div>`;
+    renderSteps();
+    $('pad').hidden = T.phase !== 'input';
+    if (T.phase === 'done') act.appendChild(btn('Следующее послание →', 'main', newTask));
+    else act.appendChild(skipBtn());
+  } else {
+    $('question').textContent = 'Расставь послания от самого лёгкого к самому тяжёлому';
+    $('instr').textContent = 'Нажимай на послания по возрастанию информационного объёма. Осторожно: длинное послание не всегда самое тяжёлое! Клавиши 1–3 тоже работают.';
+    $('msgs').className = 'msgs';
+    $('msgs').innerHTML = '';
+    T.msgs.forEach((m, idx) => {
+      const pos = T.picked.indexOf(idx);
+      const el = document.createElement(T.phase === 'input' ? 'button' : 'div');
+      el.className = 'msg' + (pos >= 0 && T.phase === 'input' ? ' picked' : '') + (T.phase !== 'input' ? (m.ok ? ' good' : ' bad') : '');
+      el.innerHTML = msgHtml(m, T.phase !== 'input' ? `<div class="vol">${volText(m)}</div>` : '') +
+                     (pos >= 0 ? `<span class="order">${pos + 1}</span>` : '');
+      if (T.phase === 'input') el.onclick = () => pickMsg(idx);
+      $('msgs').appendChild(el);
+    });
+    $('steps').innerHTML = '';
+    $('pad').hidden = true;
+    if (T.phase === 'done') act.appendChild(btn('Следующее задание →', 'main', newTask));
+    else act.appendChild(skipBtn());
+  }
+}
+
+function renderSteps(){
+  const T = S.task;
+  $('steps').innerHTML = T.steps.map((s, k) => {
+    const st = k < T.si || T.phase === 'done' ? 'done' : k === T.si ? 'active' + (T.badStep ? ' bad' : '') : 'future';
+    const val = k < T.si || T.phase === 'done' ? fmt(s.ans) : k === T.si ? (T.input || (T.badStep ? T.lastBad : '')) : '';
+    return `<div class="step ${st}"><div class="lbl">${s.label}<small>${s.hint}</small></div><div class="box">${val || '&nbsp;'}</div><div class="unit">${s.unit}</div></div>`;
+  }).join('');
+}
+function btn(text, cls, fn){ const b = document.createElement('button'); b.className = 'btn ' + cls; b.innerHTML = text; b.onclick = fn; return b; }
+
+/* ---------- «взвесь послание» ---------- */
+const canType = () => S && S.running && !S.paused && S.task.kind === 'weigh' && S.task.phase === 'input';
+function typeDigit(d){
+  if (!canType()) return;
+  const T = S.task; if (T.input.length >= 7) return;
+  T.input = (T.input === '0' ? '' : T.input) + d; T.badStep = false; sfx.tap(); renderSteps();
+}
+function delDigit(){ if (!canType()) return; const T = S.task; T.input = T.input.slice(0, -1); T.badStep = false; renderSteps(); }
+
+function explainStep(m, key, user){
+  switch (key){
+    case 'i': return 2 ** m.i === m.N
+      ? `${m.N} = 2${sup(m.i)}, значит один знак весит ${m.i} ${bitW(m.i)}.`
+      : `${m.N} — не степень двойки: 2${sup(m.i - 1)} = ${2 ** (m.i - 1)} мало, 2${sup(m.i)} = ${2 ** m.i} хватает. Значит i = ${m.i} ${bitW(m.i)}.`;
+    case 'K': return m.level < 3
+      ? `Пересчитай знаки внимательно: их ${user < m.K ? 'больше' : 'меньше'}, чем ${user}.`
+      : `K = ${m.pages} · ${m.lines} · ${m.chars} = ${fmt(m.K)} знаков.`;
+    case 'I': return `I = K · i = ${m.K} · ${m.i} = ${m.I} ${bitW(m.I)}.`;
+    case 'B': return `I = ${fmt(m.K)} · ${m.i} = ${fmt(m.I)} бит. 1 байт = 8 бит: ${fmt(m.I)} ÷ 8 = ${fmt(m.B)} байт.`;
+    case 'KB': return `1 Кбайт = 1024 байта: ${fmt(m.B)} ÷ 1024 = ${fmt(m.KB)} Кбайт.`;
+  }
+}
+
+function checkStep(){
+  if (!canType()) return;
+  const T = S.task, s = T.steps[T.si], m = T.msgs[0];
+  if (T.input === ''){ feedback('Сначала введи число.', 'bad'); return; }
+  const user = +T.input; T.lastBad = T.input;
+  if (user === s.ans){
+    sfx.step(); T.si++; T.input = ''; T.badStep = false;
+    if (T.si >= T.steps.length) return solveWeigh();
+    feedback(`Верно! ${s.key === 'K' && m.level < 3 ? `Знаков ${m.K}.` : explainStep(m, s.key, user)}`, 'good');
+    renderSteps(); return;
+  }
+  T.clean = false; T.badStep = true; T.input = ''; S.errs[s.key]++; streakBreak();
+  S.score = Math.max(0, S.score - 3); sfx.bad();
+  T.tries[s.key] = (T.tries[s.key] || 0) + 1;
+  let msg = explainStep(m, s.key, user);
+  if (s.key === 'K' && m.level < 3 && T.tries.K >= 2) msg = `Знаков в послании ${m.K}. Попробуй посчитать их ещё раз по одному.`;
+  if (s.key === 'K' && m.level < 3 && T.tries.K < 2) feedback(msg, 'bad');
+  else feedback(`Не так. ${msg} Введи правильный ответ.`, 'bad');
+  updateHud(); renderSteps();
+}
+
+function award(kind, base){
+  const T = S.task;
+  S.solved++;
+  if (T.clean){ S.cleanTasks++; streakUp(); }
+  S.tasks++;
+  const pts = (T.clean ? 10 : 5) * S.mult; S.score += pts;
+  let msg = `+${pts}`;
+  if (S.exam){
+    const ep = Math.max(1, base - (T.clean ? 0 : EXAM.errorPenalty));
+    S.pts += ep; S.byType[kind].ok++; S.byType[kind].pts += ep;
+    msg = `+${ep} ${plural(ep,'балл','балла','баллов')}${T.clean ? '' : ' (была ошибка)'}`;
+  }
+  updateHud(); return msg;
+}
+
+function solveWeigh(){
+  const T = S.task, m = T.msgs[0];
+  T.phase = 'done'; sfx.good();
+  const msg = award('weigh', EXAM.points.weigh[T.level]);
+  feedback(`Послание принято! ${volText(m)}. ${msg}`, 'good');
+  render(); focusMain();
+}
+
+/* ---------- «расставь по весу» ---------- */
+function pickMsg(idx){
+  const T = S.task;
+  if (!S.running || S.paused || T.kind !== 'sort' || T.phase !== 'input' || T.picked.includes(idx)) return;
+  const order = T.msgs.map((m, i) => i).sort((a, b) => T.msgs[a].I - T.msgs[b].I);
+  const k = T.picked.length;
+  if (idx === order[k]){
+    T.picked.push(idx); sfx.tap();
+    if (T.picked.length === T.msgs.length - 1) T.picked.push(order[T.msgs.length - 1]);
+    if (T.picked.length === T.msgs.length){
+      T.phase = 'done'; T.msgs.forEach(m => m.ok = true); sfx.good();
+      const msg = award('sort', EXAM.points.sort);
+      feedback(`Верно! От лёгкого к тяжёлому: ${order.map(i => `${T.msgs[i].planet} (${fmt(T.msgs[i].I)} ${bitW(T.msgs[i].I)})`).join(' < ')}. ${msg}`, 'good');
+      render(); focusMain(); return;
+    }
+    render(); return;
+  }
+  // ошибка — показываем объёмы и правильный порядок
+  T.clean = false; S.errs.sort++; streakBreak(); sfx.bad();
+  T.phase = 'done'; T.picked = order;
+  T.msgs.forEach((m, i) => m.ok = i !== idx);
+  S.tasks++;
+  const wrong = T.msgs[idx], right = T.msgs[order[k]];
+  feedback(`Не так: ${wrong.planet} весит ${fmt(wrong.I)} ${bitW(wrong.I)}, а ${right.planet} — ${fmt(right.I)} ${bitW(right.I)}, оно легче. Правильный порядок отмечен цифрами.`, 'bad');
+  updateHud(); render(); focusMain();
+}
+
+function focusMain(){ setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0); }
+function skip(){
+  if (!S.running || S.paused) return;
+  if (S.task.phase !== 'done') streakBreak();
+  updateHud(); newTask();
+}
+
+/* ---------- конец ---------- */
+function end(){
+  if (!S || !S.running) return;
+  S.running = false; S.paused = false; sfx.end();
+  $('pauseScreen').hidden = true; $('helpScreen').hidden = true;
+  $('rExam').hidden = !S.exam; $('rTrain').hidden = S.exam; $('againBtn').hidden = S.exam;
+  if (S.exam){
+    $('clock').textContent = '0:00';
+    $('xGrade').textContent = gradeFor(S.pts);
+    $('xName').textContent = S.name;
+    $('xDate').textContent = S.startedAt.toLocaleString('ru-RU', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) + ` · ${EXAM.minutes} минут`;
+    $('xPts').textContent = S.pts;
+    $('xAway').textContent = S.away ? `Уходил со страницы: ${S.away} раз(а)` : 'Со страницы не уходил';
+    $('xAway').style.color = S.away ? 'var(--bad)' : 'var(--good)';
+    $('xTable').innerHTML = '<tr><th>Задание</th><th>Решено</th><th>Баллы</th></tr>' +
+      Object.keys(S.byType).map(k => `<tr><td>${TYPES[k]}</td><td>${S.byType[k].ok} из ${S.byType[k].n}</td><td>${S.byType[k].pts}</td></tr>`).join('') +
+      `<tr><th>Итого</th><th>${Object.values(S.byType).reduce((s, x) => s + x.ok, 0)}</th><th>${S.pts}</th></tr>`;
+  } else {
+    $('rScore').textContent = S.score; $('rSolved').textContent = S.solved; $('rStreak').textContent = S.best;
+    $('rAcc').textContent = (S.tasks ? Math.round(S.cleanTasks / S.tasks * 100) : 0) + '%';
+    const prev = +store.get(bestKey()) || 0;
+    $('rRecord').hidden = !(S.score > prev && S.score > 0);
+    if (S.score > prev) store.set(bestKey(), S.score);
+  }
+  const weak = Object.entries(S.errs).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+  $('rWeak').innerHTML = weak.length
+    ? `<h3 style="color:var(--signal)">Над чем поработать</h3><ul class="weak">${weak.map(([k, n]) => `<li><b>${ERR_TIPS[k][0]}</b> — ошибок: ${n}<br><span class="x">${ERR_TIPS[k][1]}</span></li>`).join('')}</ul>`
+    : '';
+  $('endScreen').hidden = false; (S.exam ? $('menuBtn') : $('againBtn')).focus();
+}
+
+/* ---------- пауза, справка, время ---------- */
+function setPause(p){
+  if (!S || !S.running || S.exam) return;
+  S.paused = p; $('pauseScreen').hidden = !p; if (p) $('resumeBtn').focus();
+}
+let helpResume = false;
+function openHelp(){
+  if (S && S.running && S.exam) return;
+  if (S && S.running && !S.paused){ S.paused = true; helpResume = true; }
+  $('helpScreen').hidden = false; $('helpClose').focus();
+}
+function closeHelp(){
+  $('helpScreen').hidden = true;
+  if (helpResume && S && S.running) S.paused = false;
+  helpResume = false;
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden || !S || !S.running) return;
+  if (S.exam) S.away++;
+  else if ($('helpScreen').hidden) setPause(true);
+});
+
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (S && S.running && S.exam){
+    S.t = (Date.now() - S.t0) / 1000;
+    const left = Math.max(0, Math.ceil(S.dur - S.t));
+    $('clock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    $('pTime').classList.toggle('warn', left <= 60);
+  }
+  if (S && S.running && S.dur && (S.exam || !S.paused)){
+    if (!S.exam) S.t += dt;
+    $('timefill').style.transform = `scaleX(${Math.max(0, 1 - S.t / S.dur)})`;
+    $('timebar').classList.toggle('low', S.dur - S.t < 30);
+    if (S.t >= S.dur) end();
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- управление ---------- */
+$('pad').addEventListener('click', e => {
+  const k = e.target.closest('.key'); if (!k) return;
+  const v = k.dataset.v;
+  if (v === 'del') delDigit(); else if (v === 'ok') checkStep(); else typeDigit(v);
+});
+addEventListener('keydown', e => {
+  if (!$('helpScreen').hidden){ if (e.key === 'Escape') closeHelp(); return; }
+  if (!S || !S.running) return;
+  if (e.key === 'Escape'){ if (!S.exam) setPause(!S.paused); return; }
+  if (S.paused) return;
+  const T = S.task;
+  if (T.phase === 'input' && T.kind === 'weigh'){
+    if (/^[0-9]$/.test(e.key)){ e.preventDefault(); typeDigit(e.key); }
+    else if (e.key === 'Backspace' || e.key === 'Delete'){ e.preventDefault(); delDigit(); }
+    else if (e.key === 'Enter'){ e.preventDefault(); checkStep(); }
+  } else if (T.phase === 'input' && T.kind === 'sort'){
+    const k = +e.key;
+    if (k >= 1 && k <= T.msgs.length){ e.preventDefault(); pickMsg(k - 1); }
+  } else if (T.phase === 'done' && e.key === 'Enter'){
+    if (document.activeElement && document.activeElement.classList.contains('main')) return;
+    e.preventDefault(); newTask();
+  }
+});
+$('startBtn').onclick = start;
+$('againBtn').onclick = start;
+$('menuBtn').onclick = () => {
+  $('endScreen').hidden = true; $('startScreen').hidden = false;
+  ['pTime','pPts','pGrade'].forEach(id => $(id).hidden = true);
+  ['pScore','pStreak','pSolved','helpBtn','pauseBtn'].forEach(id => $(id).hidden = false);
+  renderMenu();
+};
+$('studentName').addEventListener('input', e => e.target.classList.remove('need'));
+$('studentName').addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+$('helpBtn').onclick = openHelp;
+$('helpBtn2').onclick = openHelp;
+$('helpClose').onclick = closeHelp;
+$('pauseBtn').onclick = () => setPause(true);
+$('resumeBtn').onclick = () => setPause(false);
+$('finishBtn').onclick = end;
+$('quitBtn').onclick = () => { S.running = false; S.paused = false; $('pauseScreen').hidden = true; $('startScreen').hidden = false; renderMenu(); };
+$('muteBtn').onclick = () => setMute(!muted);
+
+// пример на фоне меню
+S = { running:false, paused:false, score:0, streak:0, mult:1, solved:0, task:null };
+S.task = makeWeigh(1); render();
+setMute(muted); renderMenu(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

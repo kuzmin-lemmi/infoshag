@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Поисковые круги</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700&family=JetBrains+Mono:wght@500;700&family=Rubik:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F7; --card:#FFFFFF; --ink:#1D2340; --soft:#5E6688; --line:#D8DDEA;
+  --paper:#FFFFFF; --c0:#FF7F6E; --c1:#5AAEFF; --c2:#FFD23F; --blend:multiply; --circle-op:.55;
+  --accent:#3A44D8; --accent-ink:#FFFFFF; --good:#1E9B57; --bad:#E0413A; --good-bg:#DDF4E6; --bad-bg:#FDE1DE;
+  --sel:#1D2340; --step:#FFB000;
+  --display:'Rubik','Arial Black',system-ui,sans-serif;
+  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',Consolas,'Courier New',monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#12152A; --card:#1B1F38; --ink:#E8EBFF; --soft:#A3AAD0; --line:#2E3458;
+    --paper:#0F1224; --c0:#E0533F; --c1:#2F7FE0; --c2:#D9A800; --blend:screen; --circle-op:.7;
+    --accent:#8C93FF; --accent-ink:#12152A; --good-bg:#16402B; --bad-bg:#4A1E22; --sel:#FFFFFF; }
+}
+:root[data-theme="dark"]{ --bg:#12152A; --card:#1B1F38; --ink:#E8EBFF; --soft:#A3AAD0; --line:#2E3458;
+  --paper:#0F1224; --c0:#E0533F; --c1:#2F7FE0; --c2:#D9A800; --blend:screen; --circle-op:.7;
+  --accent:#8C93FF; --accent-ink:#12152A; --good-bg:#16402B; --bad-bg:#4A1E22; --sel:#FFFFFF; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{min-height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--body)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#app{max-width:1180px;margin:0 auto;padding:12px clamp(16px,3vw,32px) 28px;display:flex;flex-direction:column;gap:14px}
+
+/* шапка */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;flex-shrink:0}
+.brand h1{font:800 clamp(24px,4vmin,36px)/1 var(--display);margin:0}
+.brand small{display:block;color:var(--soft);font-size:14px;margin-top:4px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;font-size:clamp(14px,1.8vmin,16px)}
+.pill b{font-family:var(--mono);margin-left:4px;color:var(--accent)}
+.pill.warn b{color:var(--bad)}
+.pill[hidden],.ibtn[hidden]{display:none}
+.mult{position:absolute;right:-10px;top:-12px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 7px;font:700 13px/1.4 var(--mono)}
+.mult[hidden]{display:none}
+.mult.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.5)}}
+.ibtn{width:42px;height:38px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;font-size:18px}
+.timebar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.timebar[hidden]{display:none}
+.timebar i{display:block;height:100%;background:var(--accent);transform-origin:left}
+.timebar.low i{background:var(--bad)}
+
+/* рабочая область */
+.board{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+.panel{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:clamp(12px,2.2vmin,22px)}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.tag{border:1.5px solid var(--line);border-radius:999px;padding:3px 12px;font:600 14px/1.3 var(--body);color:var(--soft)}
+.tag.main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+#diagram{display:block;width:100%;height:auto;max-height:64vh;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+#diagram.clickable{cursor:pointer}
+.circ{mix-blend-mode:var(--blend);opacity:var(--circle-op)}
+.circ-line{fill:none;stroke:var(--ink);stroke-width:2.5;opacity:.75}
+.uni{fill:var(--paper);stroke:var(--ink);stroke-width:2;opacity:1}
+.r-sel{fill:url(#hatch);}
+.r-sel-solid{fill:var(--sel);opacity:.16}
+.r-hover{fill:var(--sel);opacity:.10}
+.r-step{fill:var(--step);opacity:.55}
+.r-miss{fill:none}
+.r-extra{fill:url(#xhatch)}
+.miss-line{fill:none;stroke:var(--good);stroke-width:5;stroke-dasharray:10 7}
+.badge circle,.badge rect{fill:var(--card);stroke:var(--ink);stroke-width:2}
+.badge text{font:700 22px var(--mono);fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.badge.on circle,.badge.on rect{fill:var(--sel)}
+.badge.on text{fill:var(--card)}
+.badge.miss circle{stroke:var(--good);stroke-width:4}
+.badge.extra circle{stroke:var(--bad);stroke-width:4}
+.badge.count rect{fill:var(--card)}
+.badge.count text{font-size:20px}
+.name rect{stroke:var(--ink);stroke-width:2}
+.name text{font:700 21px var(--body);fill:#1D2340;text-anchor:middle;dominant-baseline:central}
+
+.query{display:flex;align-items:center;gap:12px;border:2px solid var(--ink);border-radius:16px;padding:12px 16px;background:var(--paper);
+  font:700 clamp(18px,2.8vmin,26px)/1.35 var(--mono);box-shadow:4px 4px 0 var(--ink);overflow-x:auto}
+.query svg{width:26px;height:26px;flex-shrink:0;stroke:var(--ink);stroke-width:2.5;fill:none}
+.query .q{white-space:nowrap}
+.q .n0{color:color-mix(in srgb,var(--c0) 70%,var(--ink))}
+.q .n1{color:color-mix(in srgb,var(--c1) 70%,var(--ink))}
+.q .n2{color:color-mix(in srgb,var(--c2) 55%,var(--ink))}
+.instr{margin:12px 0;color:var(--soft);font-size:clamp(15px,2vmin,17px);line-height:1.45}
+.answer{min-height:44px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 12px}
+.answer .empty{color:var(--soft)}
+.achip{font:700 18px var(--mono);border:2px solid var(--ink);border-radius:999px;min-width:40px;height:36px;display:grid;place-items:center;padding:0 10px;background:var(--sel);color:var(--card)}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1.5px solid var(--line);border-radius:12px;padding:.6em 1.1em;background:var(--card);font-weight:700;font-size:clamp(15px,2vmin,17px)}
+.btn.main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:active{transform:translateY(2px)}
+.feedback{margin-top:12px;font-size:clamp(15px,2vmin,18px);font-weight:600;line-height:1.45;color:var(--soft);min-height:1.4em}
+.feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
+.steps{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.steps:empty{display:none}
+.steps .cap{font-size:14px;color:var(--soft);font-weight:600}
+.step{text-align:left;border:1.5px solid var(--line);border-radius:12px;padding:.5em .8em;background:transparent;font-size:clamp(14px,1.9vmin,16px);line-height:1.4}
+.step b{font-family:var(--mono)}
+.step.on{border-color:var(--step);background:color-mix(in srgb,var(--step) 18%,transparent)}
+
+.options{display:grid;gap:10px}
+.opt{text-align:left;border:2px solid var(--line);border-radius:14px;background:var(--card);padding:.6em .8em;font:700 clamp(16px,2.3vmin,21px)/1.35 var(--mono);display:flex;gap:.6em;align-items:baseline}
+.opt:hover{border-color:var(--ink)}
+.opt .k{font:700 13px/1 var(--body);background:var(--ink);color:var(--card);border-radius:999px;padding:4px 8px;flex-shrink:0}
+.opt.good{background:var(--good-bg);border-color:var(--good)}
+.opt.bad{background:var(--bad-bg);border-color:var(--bad)}
+
+table.qt{width:100%;border-collapse:collapse;margin:4px 0 12px;font-size:clamp(15px,2.1vmin,19px)}
+.qt th,.qt td{border:1.5px solid var(--line);padding:.45em .7em;text-align:left}
+.qt th{font-size:14px;color:var(--soft);font-weight:600}
+.qt td.code{font:700 1em var(--mono)}
+.qt td.num{font:700 1em var(--mono);text-align:right;white-space:nowrap}
+.qt tr.ask td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.inbox{font:700 clamp(24px,4vmin,34px)/1.2 var(--mono);text-align:right;border:2.5px solid var(--accent);border-radius:12px;padding:.2em .6em;min-width:6em;display:inline-block;background:var(--paper)}
+.inbox.bad{border-color:var(--bad);color:var(--bad)}
+.pad{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pad[hidden]{display:none}
+.key{min-width:54px;height:54px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);font:700 24px/1 var(--mono)}
+.key.wide{font:700 15px/1 var(--body);padding:0 14px}
+.key.ok{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* экраны */
+.screen{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;overflow-y:auto;background:rgba(15,18,40,.5);backdrop-filter:blur(3px)}
+.screen[hidden]{display:none}
+.sheet{background:var(--card);border:1.5px solid var(--line);border-radius:22px;padding:clamp(20px,4vmin,36px);width:min(720px,100%);box-shadow:0 30px 80px rgba(0,0,0,.25)}
+.sheet h2{font:800 clamp(28px,5vmin,44px)/1.05 var(--display);margin:0 0 .4em}
+.sheet h3{font-size:17px;margin:1.1em 0 .4em}
+.lead{font-size:clamp(16px,2.1vmin,19px);line-height:1.5;margin:0 0 1em}
+.group{margin:0 0 1em}
+.group > span{display:block;font-weight:700;margin-bottom:.45em}
+.chips,.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs{margin-bottom:1.1em}
+.chip{border:1.5px solid var(--line);border-radius:999px;background:transparent;padding:.45em .95em;font-weight:600;font-size:clamp(14px,1.9vmin,17px)}
+.chip small{color:var(--soft);font-weight:400}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.75}
+.go{display:block;width:100%;margin-top:.7em;border:none;border-radius:14px;padding:.75em;background:var(--accent);color:var(--accent-ink);font:700 clamp(18px,2.7vmin,23px)/1 var(--body)}
+.go.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-size:clamp(15px,2.1vmin,18px)}
+.go[hidden]{display:none}
+.name-in{display:block;font-weight:700;margin:0 0 1em}
+.name-in input{display:block;width:100%;margin-top:.4em;border:1.5px solid var(--line);border-radius:12px;padding:.6em .8em;font:600 18px var(--body);background:var(--paper);color:var(--ink)}
+.name-in input.need{border-color:var(--bad);box-shadow:0 0 0 3px var(--bad-bg)}
+.crit{width:100%;border-collapse:collapse;margin:.3em 0 1em;font-size:clamp(14px,1.9vmin,17px)}
+.crit th,.crit td{border:1.5px solid var(--line);padding:.45em .7em;text-align:left;vertical-align:top}
+.crit th{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.crit td.g2{font:700 1.3em/1 var(--mono);text-align:center;width:3em;color:var(--accent)}
+.rules{margin:.2em 0 .6em;padding-left:1.2em;line-height:1.5;font-size:clamp(14px,1.9vmin,17px)}
+.rules li{margin:.25em 0}
+.examhead{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:.8em}
+.bigmark{font:800 clamp(70px,14vmin,120px)/1 var(--display);width:1.5em;height:1.5em;display:grid;place-items:center;border:4px solid var(--accent);color:var(--accent);border-radius:50%;transform:rotate(-8deg)}
+.examhead p{margin:.15em 0;font-size:clamp(15px,2vmin,18px)}
+.result{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:.6em}
+.result div{flex:1 1 120px;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.result b{display:block;font:700 clamp(24px,4.4vmin,36px)/1.1 var(--mono);color:var(--accent)}
+.result small{color:var(--soft)}
+.record{color:var(--good);font-weight:700}
+.weak{margin:0;padding:0;list-style:none;line-height:1.5}
+.weak li{margin:.45em 0}
+.weak .x{color:var(--soft)}
+.help{font-size:clamp(15px,2vmin,17px);line-height:1.5}
+.help p{margin:.4em 0}
+.ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:.6em 0}
+.ops figure{margin:0;border:1.5px solid var(--line);border-radius:14px;padding:8px;text-align:center}
+.ops svg{width:100%;height:auto}
+.ops figcaption{font-size:14px;line-height:1.35}
+.ops figcaption b{font-family:var(--mono)}
+@media (max-width:860px){ .board{grid-template-columns:1fr} #diagram{max-height:52vh} }
+@media (prefers-reduced-motion: reduce){ .mult.bump{animation:none} }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="18" cy="20" r="13" fill="var(--c0)" opacity=".8"/><circle cx="30" cy="20" r="13" fill="var(--c1)" opacity=".8"/><circle cx="24" cy="31" r="13" fill="var(--c2)" opacity=".8"/>
+        <circle cx="24" cy="24" r="22" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+      </svg>
+      <div><h1>Поисковые круги</h1><small>запросы, круги Эйлера и логика · 8–9 класс</small></div>
+    </div>
+    <div class="stats">
+      <div class="pill" id="pTime" hidden>⏱ <b id="clock">10:00</b></div>
+      <div class="pill" id="pPts" hidden>Баллы <b id="epts">0</b></div>
+      <div class="pill" id="pGrade" hidden>Сейчас это <b id="egrade">2</b></div>
+      <div class="pill" id="pScore">Очки <b id="score">0</b></div>
+      <div class="pill" id="pStreak">Серия <b id="streak">0</b><span class="mult" id="mult" hidden>×2</span></div>
+      <div class="pill" id="pSolved">Решено <b id="solved">0</b></div>
+      <button class="ibtn" id="helpBtn" aria-label="Справка">📖</button>
+      <button class="ibtn" id="pauseBtn" aria-label="Пауза">⏸</button>
+      <button class="ibtn" id="muteBtn" aria-label="Выключить звук">🔊</button>
+    </div>
+  </header>
+  <div class="timebar" id="timebar" hidden><i id="timefill"></i></div>
+
+  <div class="board">
+    <section class="panel">
+      <div class="meta"><span class="tag main" id="tagTask">Закрась запрос</span><span class="tag" id="tagLevel">Уровень 1</span></div>
+      <svg id="diagram" viewBox="0 0 600 520" role="img" aria-label="Диаграмма Эйлера"></svg>
+    </section>
+    <section class="panel" id="side"></section>
+  </div>
+</div>
+
+<section class="screen" id="startScreen">
+  <div class="sheet">
+    <h2>Поисковые круги</h2>
+    <p class="lead" style="margin-bottom:.8em">Каждый круг — страницы, на которых есть слово. Запрос с «и», «или», «не» выбирает часть диаграммы. Найди её, угадай запрос по картинке или посчитай, сколько страниц найдёт поисковик.</p>
+    <div class="tabs" id="kindTabs"></div>
+
+    <div id="examPanel">
+      <p class="lead">Работа длится <b id="examMin">10</b> минут. Задания идут по кругу: «закрась запрос», «угадай запрос», «сколько страниц». С каждым кругом они становятся сложнее. Решай, сколько успеешь: оценка зависит от набранных баллов.</p>
+      <label class="name-in">Фамилия и имя<input id="studentName" autocomplete="off" placeholder="Например: Иванов Пётр, 8Б"></label>
+      <h3>За что даются баллы</h3>
+      <table class="crit" id="critPts"></table>
+      <h3>Оценка</h3>
+      <table class="crit" id="critGrades"></table>
+      <h3>Правила</h3>
+      <ul class="rules" id="examRules"></ul>
+    </div>
+
+    <div id="trainPanel">
+      <div class="group"><span>Задания</span><div class="chips" id="cType"></div></div>
+      <div class="group"><span>Уровень</span><div class="chips" id="cLevel"></div></div>
+      <div class="group"><span>Время</span><div class="chips" id="cDur"></div></div>
+    </div>
+    <div class="group"><span>Запись операций</span><div class="chips" id="cNote"></div></div>
+
+    <button class="go" id="startBtn">Начать</button>
+    <button class="go ghost" id="helpBtn2">Справка: И, ИЛИ, НЕ на кругах</button>
+    <div id="bestLine" style="font-size:15px;color:var(--soft);margin-top:.9em;text-align:center"></div>
+  </div>
+</section>
+
+<section class="screen" id="helpScreen" hidden>
+  <div class="sheet help">
+    <h2>Справка</h2>
+    <p>Прямоугольник — все страницы, которые знает поисковик. Круг — страницы, на которых есть слово. Область <b>0</b> — страницы, где нет ни одного из слов.</p>
+    <div class="ops" id="helpOps"></div>
+    <h3>Порядок действий</h3>
+    <p>Сначала скобки, потом <b>НЕ</b>, потом <b>И</b>, потом <b>ИЛИ</b>. Например, в «Кошки | Собаки &amp; Хомяки» сначала выполняется «Собаки &amp; Хомяки».</p>
+    <h3>Как решать</h3>
+    <p>Разбери запрос на части, начиная с самой внутренней. Для каждой части отметь её области, потом объедини (ИЛИ) или пересеки (И) их.</p>
+    <h3>Сколько страниц найдёт поисковик</h3>
+    <p>Если сложить страницы со словом A и со словом B, общая часть посчитается дважды. Поэтому<br>
+       <b>A | B = A + B − A &amp; B</b>.<br>Отсюда: <b>A &amp; B = A + B − A | B</b> и <b>B = A | B − A + A &amp; B</b>.</p>
+    <button class="go" id="helpClose">Понятно</button>
+  </div>
+</section>
+
+<section class="screen" id="pauseScreen" hidden>
+  <div class="sheet" style="width:min(440px,100%);text-align:center">
+    <h2>Пауза</h2>
+    <button class="go" id="resumeBtn">Продолжить</button>
+    <button class="go ghost" id="finishBtn">Завершить раунд</button>
+    <button class="go ghost" id="quitBtn">Выйти в меню</button>
+  </div>
+</section>
+
+<section class="screen" id="endScreen" hidden>
+  <div class="sheet">
+    <div id="rExam" hidden>
+      <h2>Работа завершена</h2>
+      <div class="examhead">
+        <div class="bigmark" id="xGrade">5</div>
+        <div><p><b id="xName"></b></p><p id="xDate"></p><p>Набрано баллов: <b id="xPts"></b></p><p id="xAway"></p></div>
+      </div>
+      <table class="crit" id="xTable"></table>
+    </div>
+    <div id="rTrain">
+      <h2>Раунд окончен</h2>
+      <div class="result">
+        <div><b id="rScore">0</b><small>очков</small></div>
+        <div><b id="rSolved">0</b><small>заданий решено</small></div>
+        <div><b id="rAcc">0%</b><small>верно с первой попытки</small></div>
+        <div><b id="rStreak">0</b><small>лучшая серия</small></div>
+      </div>
+      <p class="record" id="rRecord" hidden>Новый рекорд!</p>
+    </div>
+    <div id="rWeak"></div>
+    <button class="go" id="againBtn">Сыграть ещё раз</button>
+    <button class="go ghost" id="menuBtn">В меню</button>
+  </div>
+</section>
+
+<script>
+/* ================= НАСТРОЙКИ ================= */
+const TYPES = { shade:'Закрась запрос', guess:'Угадай запрос', count:'Сколько страниц' };
+const LEVELS = {
+  1: { name:'Уровень 1', note:'одна операция' },
+  2: { name:'Уровень 2', note:'две операции' },
+  3: { name:'Уровень 3', note:'со скобками и НЕ' }
+};
+const NAMES = [
+  ['Математика','Физика','Информатика'], ['Кошки','Собаки','Хомяки'], ['Пушкин','Лермонтов','Тютчев'],
+  ['Крейсер','Линкор','Эсминец'], ['Футбол','Хоккей','Баскетбол'], ['Москва','Казань','Сочи'],
+  ['Python','Pascal','C++'], ['Яблоки','Груши','Сливы'], ['Солнце','Луна','Звёзды'],
+  ['Гитара','Скрипка','Барабан'], ['Волга','Обь','Енисей'], ['Лиса','Волк','Заяц']
+];
+
+/* ===== КОНТРОЛЬНАЯ: всё, что может захотеть поменять учитель ===== */
+const EXAM = {
+  minutes: 10,
+  seq: ['shade', 'guess', 'count'],                       // задания идут по кругу
+  levelAt: n => n < 3 ? 1 : n < 6 ? 2 : 3,                // уровень по номеру задания (с нуля)
+  points: { shade:2, guess:2, count:3 },
+  errorPenalty: 1,                                        // минус, если ответ исправлен со второй попытки
+  grades: [[14, 5], [10, 4], [6, 3], [0, 2]]              // [от скольких баллов, оценка]
+};
+const ERR_TIPS = {
+  and:   ['И (&)', 'И — это общая часть кругов: страница должна содержать оба слова.'],
+  or:    ['ИЛИ (|)', 'ИЛИ — всё, что входит хотя бы в один круг, вместе с общими частями.'],
+  not:   ['НЕ', 'НЕ — всё, что вне круга, в том числе область 0 снаружи всех кругов.'],
+  guess: ['Угадай запрос', 'Проверяй варианты по областям: подходит ли каждая отмеченная и не попала ли лишняя.'],
+  count: ['Сколько страниц', 'A | B = A + B − A & B: общая часть при сложении считается дважды.']
+};
+
+/* ================= ОБЩЕЕ ================= */
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const rint = (a, b) => a + Math.floor(Math.random()*(b - a + 1));
+const shuffle = a => { for (let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmt = n => n.toLocaleString('ru-RU');
+function plural(n, one, few, many){ const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; }
+const store = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k,v) }catch(e){} }
+};
+let cfg = { kind:'exam', type:'mix', level:1, nt:'sym', dur:300 };
+let S = null;
+let muted = store.get('krugi:muted') === '1';
+const bestKey = () => `krugi:best:${cfg.type}:${cfg.level}:${cfg.dur}`;
+const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+
+/* ================= ГЕОМЕТРИЯ ДИАГРАММЫ ================= */
+const U = { x:12, y:12, w:576, h:496 };
+const GEOM = {
+  2: { circles:[ { x:215, y:262, r:150 }, { x:385, y:262, r:150 } ],
+       namePos:[ { x:150, y:84 }, { x:450, y:84 } ] },
+  3: { circles:[ { x:228, y:200, r:138 }, { x:372, y:200, r:138 }, { x:300, y:322, r:138 } ],
+       namePos:[ { x:142, y:40 }, { x:458, y:40 }, { x:300, y:488 } ] }
+};
+// номера областей: слева направо, сверху вниз; 0 — вне всех кругов
+const LABELS = { 2:{ 1:1, 3:2, 2:3, 0:0 }, 3:{ 1:1, 3:2, 2:3, 5:4, 7:5, 6:6, 4:7, 0:0 } };
+const maskOf = (n, label) => +Object.keys(LABELS[n]).find(m => LABELS[n][m] === label);
+const masksOf = n => Object.keys(LABELS[n]).map(Number);
+
+function memberMask(n, x, y){
+  if (x < U.x || y < U.y || x > U.x + U.w || y > U.y + U.h) return -1;
+  let m = 0;
+  GEOM[n].circles.forEach((c, i) => { if ((x - c.x) ** 2 + (y - c.y) ** 2 <= c.r * c.r) m |= 1 << i; });
+  return m;
+}
+// точка для номера области: самая «глубокая» точка внутри неё
+const LABEL_PT = {};
+for (const n of [2, 3]){
+  const best = {};
+  for (let x = U.x + 6; x < U.x + U.w; x += 4) for (let y = U.y + 6; y < U.y + U.h; y += 4){
+    const m = memberMask(n, x, y);
+    let margin = Math.min(x - U.x, U.x + U.w - x, y - U.y, U.y + U.h - y);
+    GEOM[n].circles.forEach(c => { margin = Math.min(margin, Math.abs(Math.hypot(x - c.x, y - c.y) - c.r)); });
+    if (!best[m] || margin > best[m].margin) best[m] = { x, y, margin };
+  }
+  best[0] = { x:46, y:474 };
+  LABEL_PT[n] = best;
+}
+
+/* ================= ЗАПРОСЫ ================= */
+const SYM = { sym:{ and:'&', or:'|', not:'¬' }, word:{ and:'И', or:'ИЛИ', not:'НЕ' } };
+const PREC = { or:1, and:2, not:3, v:4 };
+const isBin = n => n.t === 'and' || n.t === 'or';
+// И и ИЛИ ассоциативны, поэтому скобки нужны только при более слабой операции внутри
+const needParen = (c, p) => isBin(c) && PREC[c.t] < PREC[p.t];
+
+function txt(n, names, nt, html){
+  const s = SYM[nt];
+  if (n.t === 'v') return html ? `<span class="n${n.i}">${esc(names[n.i])}</span>` : names[n.i];
+  if (n.t === 'not'){
+    const inner = isBin(n.a) ? `(${txt(n.a, names, nt, html)})` : txt(n.a, names, nt, html);
+    return (html ? esc(s.not) : s.not) + (nt === 'word' ? ' ' : '') + inner;
+  }
+  const side = (c, k) => needParen(c, n, k) ? `(${txt(c, names, nt, html)})` : txt(c, names, nt, html);
+  return `${side(n.a,'a')} ${html ? esc(s[n.t]) : s[n.t]} ${side(n.b,'b')}`;
+}
+const key = n => txt(n, ['A','B','C'], 'sym');
+function evalM(n, m){
+  if (n.t === 'v') return (m >> n.i) & 1;
+  if (n.t === 'not') return 1 - evalM(n.a, m);
+  return n.t === 'and' ? evalM(n.a, m) & evalM(n.b, m) : evalM(n.a, m) | evalM(n.b, m);
+}
+const regionsOf = (n, nc) => masksOf(nc).filter(m => evalM(n, m));
+const setKey = (n, nc) => regionsOf(n, nc).map(m => LABELS[nc][m]).sort((a, b) => a - b).join(',');
+function opsIn(n, s = new Set()){ if (n.t !== 'v'){ s.add(n.t); opsIn(n.a, s); if (n.b) opsIn(n.b, s); } return s; }
+function varsIn(n, s = new Set()){ if (n.t === 'v') s.add(n.i); else { varsIn(n.a, s); if (n.b) varsIn(n.b, s); } return s; }
+function countOps(n){ return n.t === 'v' ? 0 : 1 + countOps(n.a) + (n.b ? countOps(n.b) : 0); }
+// операнды цепочки одинаковых операций: A & B & C → [A, B, C]
+function chain(n, op, out = []){ if (n.t === op){ chain(n.a, op, out); chain(n.b, op, out); } else out.push(key(n)); return out; }
+// без «мусора»: двойного НЕ, повторов (A & B & A) и лишних частей (A | A & B — это просто A)
+function sane(n){
+  if (n.t === 'v') return true;
+  if (n.t === 'not') return n.a.t !== 'not' && sane(n.a);
+  const ops = chain(n, n.t);
+  if (new Set(ops).size !== ops.length) return false;
+  const k = setKey(n, 3);
+  if (k === setKey(n.a, 3) || k === setKey(n.b, 3)) return false;
+  return sane(n.a) && sane(n.b);
+}
+function build(k, nc, allowNot){
+  if (k === 0) return { t:'v', i: rint(0, nc - 1) };
+  if (allowNot && Math.random() < .3) return { t:'not', a: build(k - 1, nc, allowNot) };
+  const l = rint(0, k - 1);
+  return { t: Math.random() < .5 ? 'and' : 'or', a: build(l, nc, allowNot), b: build(k - 1 - l, nc, allowNot) };
+}
+function shapeFor(level){
+  if (level === 1) return { nc: rand([2, 3, 3]), ops:[1, 1], not:false };
+  if (level === 2) return Math.random() < .7 ? { nc:3, ops:[2, 2], not:false } : { nc:2, ops:[2, 2], not:true, needNot:true };
+  return { nc:3, ops:[2, 3], not:true, needNot:true };
+}
+function genQuery(level){
+  for (let t = 0; t < 800; t++){
+    const sh = shapeFor(level), k = rint(sh.ops[0], sh.ops[1]);
+    const tree = build(k, sh.nc, sh.not);
+    if (!sane(tree) || countOps(tree) !== k) continue;
+    if (sh.needNot && !opsIn(tree).has('not')) continue;
+    if (sh.nc === 3 && level >= 2 && varsIn(tree).size < 3) continue;
+    const reg = regionsOf(tree, sh.nc);
+    if (!reg.length || reg.length === masksOf(sh.nc).length) continue;
+    // не берём запросы, которые сводятся к одному слову (поглощение)
+    const sk = setKey(tree, sh.nc);
+    let trivial = false;
+    for (let i = 0; i < sh.nc && !trivial; i++){
+      const v = { t:'v', i };
+      if (setKey(v, sh.nc) === sk || setKey({ t:'not', a:v }, sh.nc) === sk) trivial = tree.t !== 'v' && !(tree.t === 'not' && tree.a.t === 'v');
+    }
+    if (trivial) continue;
+    return { tree, nc: sh.nc, names: rand(NAMES) };
+  }
+  return { tree:{ t:'and', a:{ t:'v', i:0 }, b:{ t:'v', i:1 } }, nc:2, names:NAMES[0] };
+}
+function clone(n){ return n.t === 'v' ? { t:'v', i:n.i } : n.t === 'not' ? { t:'not', a:clone(n.a) } : { t:n.t, a:clone(n.a), b:clone(n.b) }; }
+function mutate(tree, nc, allowNot = true){
+  const root = { x: clone(tree) }, refs = [];
+  (function walk(n, set){
+    refs.push({ n, set });
+    if (n.t === 'not') walk(n.a, v => n.a = v);
+    else if (n.t !== 'v'){ walk(n.a, v => n.a = v); walk(n.b, v => n.b = v); }
+  })(root.x, v => root.x = v);
+  const kind = rand(allowNot ? ['flip','flip','flip','neg','var'] : ['flip','flip','var']);
+  const bins = refs.filter(r => isBin(r.n));
+  if (kind === 'flip' && bins.length){ const r = rand(bins); r.n.t = r.n.t === 'and' ? 'or' : 'and'; return root.x; }
+  if (kind === 'var'){
+    const vs = refs.filter(r => r.n.t === 'v'), r = rand(vs);
+    r.n.i = rand([...Array(nc).keys()].filter(i => i !== r.n.i)); return root.x;
+  }
+  const r = rand(refs);
+  if (r.n.t === 'not') r.set(r.n.a); else r.set({ t:'not', a:r.n });
+  return root.x;
+}
+// разбор запроса по шагам: каждая операция — свой шаг со своими областями
+function stepsOf(q, nt){
+  const out = [], seen = new Set();
+  (function post(n){
+    if (n.t === 'v') return;
+    post(n.a); if (n.b) post(n.b);
+    const k = key(n); if (seen.has(k)) return; seen.add(k);
+    const what = n.t === 'and' ? 'общая часть (И)' : n.t === 'or' ? 'объединение (ИЛИ)'
+      : n.a.t === 'v' ? `всё вне круга «${q.names[n.a.i]}» (НЕ)` : 'всё, что не вошло в предыдущую часть (НЕ)';
+    out.push({ text: txt(n, q.names, nt, true), what, regs: regionsOf(n, q.nc) });
+  })(q.tree);
+  if (!out.length) out.push({ text: txt(q.tree, q.names, nt, true), what:'круг', regs: regionsOf(q.tree, q.nc) });
+  return out;
+}
+const regList = (regs, nc) => regs.map(m => LABELS[nc][m]).sort((a, b) => a - b).join(', ');
+
+/* ================= ОТРИСОВКА ДИАГРАММЫ ================= */
+let DG = null;   // { nc, names, sel:Set(mask), click, hover, steps, diff, counts, hideBadges }
+function regionShape(m, nc, cls, prefix = 'd'){
+  const out = GEOM[nc].circles.map((_, i) => i).filter(i => !(m >> i & 1));
+  let inner = `<rect class="${cls}" x="${U.x}" y="${U.y}" width="${U.w}" height="${U.h}"${out.length ? ` mask="url(#${prefix}ex${m})"` : ''}/>`;
+  GEOM[nc].circles.forEach((_, i) => { if (m >> i & 1) inner = `<g clip-path="url(#${prefix}cp${i})">${inner}</g>`; });
+  return inner;
+}
+function defsFor(nc, prefix = 'd'){
+  let d = '<defs>';
+  GEOM[nc].circles.forEach((c, i) => { d += `<clipPath id="${prefix}cp${i}"><circle cx="${c.x}" cy="${c.y}" r="${c.r}"/></clipPath>`; });
+  masksOf(nc).forEach(m => {
+    const out = GEOM[nc].circles.filter((_, i) => !(m >> i & 1));
+    if (!out.length) return;
+    d += `<mask id="${prefix}ex${m}" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="520"><rect x="0" y="0" width="600" height="520" fill="#fff"/>${out.map(c => `<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="#000"/>`).join('')}</mask>`;
+  });
+  if (prefix === 'd'){
+    d += `<pattern id="hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="var(--sel)" fill-opacity=".22"/><rect width="5" height="12" fill="var(--sel)" fill-opacity=".65"/></pattern>`;
+    d += `<pattern id="xhatch" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="14" height="14" fill="var(--bad)" fill-opacity=".25"/><rect width="4" height="14" fill="var(--bad)" fill-opacity=".8"/><rect width="14" height="4" fill="var(--bad)" fill-opacity=".8"/></pattern>`;
+  }
+  return d + '</defs>';
+}
+function circlesSvg(nc){
+  return `<g style="isolation:isolate">${GEOM[nc].circles.map((c, i) => `<circle class="circ" cx="${c.x}" cy="${c.y}" r="${c.r}" fill="var(--c${i})"/>`).join('')}</g>`;
+}
+function drawDiagram(){
+  const d = DG, nc = d.nc, g = GEOM[nc];
+  let h = defsFor(nc);
+  h += `<rect class="uni" x="${U.x}" y="${U.y}" width="${U.w}" height="${U.h}" rx="14"/>`;
+  h += circlesSvg(nc);
+  const diff = d.diff;
+  masksOf(nc).forEach(m => {
+    if (d.steps && d.steps.has(m)) h += regionShape(m, nc, 'r-step');
+    if (diff && diff.extra.has(m)) h += regionShape(m, nc, 'r-extra');
+    else if (d.sel.has(m)) h += regionShape(m, nc, 'r-sel');
+  });
+  h += `<g id="hoverLayer"></g>`;
+  g.circles.forEach(c => { h += `<circle class="circ-line" cx="${c.x}" cy="${c.y}" r="${c.r}"/>`; });
+  // недостающие области — пунктирный контур
+  if (diff) diff.miss.forEach(m => { h += regionOutline(m, nc); });
+  // подписи кругов
+  g.circles.forEach((c, i) => {
+    const p = g.namePos[i], w = Math.max(70, d.names[i].length * 12.5 + 28);
+    h += `<g class="name"><rect x="${p.x - w/2}" y="${p.y - 17}" width="${w}" height="34" rx="17" fill="var(--c${i})"/><text x="${p.x}" y="${p.y + 1}">${esc(d.names[i])}</text></g>`;
+  });
+  // номера или количества
+  masksOf(nc).forEach(m => {
+    const p = LABEL_PT[nc][m];
+    if (d.counts){
+      if (d.counts[m] === undefined) return;
+      const t = d.counts[m] === null ? '?' : fmt(d.counts[m]), w = Math.max(44, t.length * 13 + 20);
+      h += `<g class="badge count"><rect x="${p.x - w/2}" y="${p.y - 18}" width="${w}" height="36" rx="18"/><text x="${p.x}" y="${p.y + 1}">${t}</text></g>`;
+      return;
+    }
+    const cls = ['badge'];
+    if (d.sel.has(m)) cls.push('on');
+    if (diff && diff.miss.has(m)) cls.push('miss');
+    if (diff && diff.extra.has(m)) cls.push('extra');
+    h += `<g class="${cls.join(' ')}"><circle cx="${p.x}" cy="${p.y}" r="20"/><text x="${p.x}" y="${p.y + 1}">${LABELS[nc][m]}</text></g>`;
+  });
+  const svg = $('diagram');
+  svg.innerHTML = h;
+  svg.classList.toggle('clickable', !!d.click);
+  svg.setAttribute('aria-label', `Диаграмма Эйлера: ${d.names.slice(0, nc).join(', ')}`);
+}
+// контур области: пунктир по всем границам, обрезанный по самой области
+function regionOutline(m, nc){
+  const parts = [];
+  GEOM[nc].circles.forEach(c => { parts.push(`<circle class="miss-line" cx="${c.x}" cy="${c.y}" r="${c.r}"/>`); });
+  parts.push(`<rect class="miss-line" x="${U.x}" y="${U.y}" width="${U.w}" height="${U.h}" rx="14"/>`);
+  // обрезаем пунктир по самой области (с запасом в толщину линии)
+  return `<g>${regionShapeRaw(m, nc, parts.join(''))}</g>`;
+}
+function regionShapeRaw(m, nc, content){
+  const out = GEOM[nc].circles.map((_, i) => i).filter(i => !(m >> i & 1));
+  let inner = out.length ? `<g mask="url(#dex${m})">${content}</g>` : content;
+  GEOM[nc].circles.forEach((_, i) => { if (m >> i & 1) inner = `<g clip-path="url(#dcp${i})">${inner}</g>`; });
+  return inner;
+}
+function svgPoint(e){
+  const svg = $('diagram'), pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  const ctm = svg.getScreenCTM(); if (!ctm) return null;
+  return pt.matrixTransform(ctm.inverse());
+}
+$('diagram').addEventListener('pointerdown', e => {
+  if (!DG || !DG.click) return;
+  const p = svgPoint(e); if (!p) return;
+  const m = memberMask(DG.nc, p.x, p.y); if (m < 0) return;
+  e.preventDefault(); DG.click(m);
+});
+$('diagram').addEventListener('pointermove', e => {
+  const layer = document.getElementById('hoverLayer'); if (!layer) return;
+  if (!DG || !DG.click || e.pointerType === 'touch'){ layer.innerHTML = ''; return; }
+  const p = svgPoint(e); const m = p ? memberMask(DG.nc, p.x, p.y) : -1;
+  if (m === DG.hover) return;
+  DG.hover = m; layer.innerHTML = m >= 0 ? regionShape(m, DG.nc, 'r-hover') : '';
+});
+$('diagram').addEventListener('pointerleave', () => { const l = document.getElementById('hoverLayer'); if (l) l.innerHTML = ''; if (DG) DG.hover = -1; });
+
+/* ---------- звук ---------- */
+let ac = null;
+function tone(f1, f2, dur, type, vol, delay = 0){
+  if (muted || !ac) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t+dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.connect(g).connect(ac.destination); o.start(t); o.stop(t+dur);
+}
+const sfx = {
+  tap:  () => tone(900, 700, .05, 'triangle', .08),
+  good: () => [523,659,784,1047].forEach((f,i) => tone(f,f,.14,'sine',.13,i*.07)),
+  bad:  () => tone(230, 120, .25, 'sawtooth', .07),
+  end:  () => [784,659,523].forEach((f,i) => tone(f,f,.2,'sine',.14,i*.14))
+};
+function setMute(m){
+  muted = m; store.set('krugi:muted', m ? '1' : '0');
+  $('muteBtn').textContent = m ? '🔇' : '🔊';
+  $('muteBtn').setAttribute('aria-label', m ? 'Включить звук' : 'Выключить звук');
+}
+
+/* ---------- меню ---------- */
+function chip(html, pressed, fn){
+  const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = html;
+  b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b;
+}
+function chips(id, list){ const c = $(id); c.innerHTML = ''; list.forEach(x => c.appendChild(x)); }
+function renderMenu(){
+  chips('kindTabs', [
+    chip('📝 Контрольная на оценку', cfg.kind === 'exam', () => { cfg.kind = 'exam'; renderMenu(); }),
+    chip('🎯 Тренировка', cfg.kind === 'train', () => { cfg.kind = 'train'; renderMenu(); })
+  ]);
+  const exam = cfg.kind === 'exam';
+  $('examPanel').hidden = !exam; $('trainPanel').hidden = exam;
+  $('startBtn').textContent = exam ? `Начать работу (${EXAM.minutes} минут)` : 'Начать тренировку';
+  if (exam){
+    $('examMin').textContent = EXAM.minutes;
+    const P = EXAM.points;
+    $('critPts').innerHTML = `<tr><th>Задание</th><th>Баллы</th></tr>
+      <tr><td><b>Закрась запрос</b><br>отметить на кругах области, которые найдёт запрос</td><td>${P.shade}</td></tr>
+      <tr><td><b>Угадай запрос</b><br>выбрать запрос по отмеченным областям</td><td>${P.guess}</td></tr>
+      <tr><td><b>Сколько страниц</b><br>посчитать, сколько страниц найдёт запрос</td><td>${P.count}</td></tr>
+      <tr><td colspan="2">Со второй попытки — на ${EXAM.errorPenalty} балл меньше. Если и вторая неверна, баллов нет.</td></tr>`;
+    $('critGrades').innerHTML = EXAM.grades.map(([min, g], i) =>
+      `<tr><td class="g2">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${min} баллов` : `меньше ${EXAM.grades[i-1][0]} баллов`}</td></tr>`).join('');
+    $('examRules').innerHTML = [
+      `Работа идёт ровно ${EXAM.minutes} минут. Закончить раньше нельзя: когда время выйдет, оценка появится сама.`,
+      'Справка во время работы отключена. Можно пользоваться черновиком.',
+      'Задание можно пропустить, но баллов за него не будет. Незаконченное к концу времени задание не засчитывается.',
+      'Если уйти со страницы или переключить вкладку, это будет видно в результате.'
+    ].map(x => `<li>${x}</li>`).join('');
+    $('bestLine').textContent = '';
+  } else {
+    chips('cType', [['shade','Закрась запрос'],['guess','Угадай запрос'],['count','Сколько страниц'],['mix','Вперемешку']].map(([k,l]) => chip(l, cfg.type === k, () => { cfg.type = k; renderMenu(); })));
+    chips('cLevel', Object.keys(LEVELS).map(k => chip(`${LEVELS[k].name} <small>${LEVELS[k].note}</small>`, cfg.level === +k, () => { cfg.level = +k; renderMenu(); })));
+    chips('cDur', [[300,'5 минут'],[600,'10 минут'],[0,'Без ограничения']].map(([d,l]) => chip(l, cfg.dur === d, () => { cfg.dur = d; renderMenu(); })));
+    const best = store.get(bestKey());
+    $('bestLine').textContent = best ? 'Рекорд с этими настройками: ' + best : '';
+  }
+  chips('cNote', [
+    chip('&amp; | ¬ <small>как в ОГЭ</small>', cfg.nt === 'sym', () => { cfg.nt = 'sym'; renderMenu(); }),
+    chip('И ИЛИ НЕ', cfg.nt === 'word', () => { cfg.nt = 'word'; renderMenu(); })
+  ]);
+}
+
+/* ================= ЗАДАНИЯ ================= */
+function makeShade(level){
+  const q = genQuery(level);
+  return { kind:'shade', level, q, sel:new Set(), tries:0, clean:true, phase:'input', steps:stepsOf(q, cfg.nt) };
+}
+function makeGuess(level){
+  for (let t = 0; t < 50; t++){
+    const q = genQuery(level), sk = setKey(q.tree, q.nc);
+    const opts = [{ tree:q.tree, ok:true }], seenS = new Set([sk]), seenT = new Set([key(q.tree)]);
+    for (let i = 0; i < 400 && opts.length < 4; i++){
+      let tr = mutate(q.tree, q.nc, level > 1);
+      if (Math.random() < .3) tr = mutate(tr, q.nc, level > 1);
+      if (!sane(tr)) continue;
+      const s = setKey(tr, q.nc), k = key(tr);
+      if (!s || seenS.has(s) || seenT.has(k) || s.split(',').length === masksOf(q.nc).length) continue;
+      seenS.add(s); seenT.add(k); opts.push({ tree:tr, ok:false });
+    }
+    if (opts.length < 4) continue;
+    return { kind:'guess', level, q, opts: shuffle(opts), answered:false, chosen:-1, clean:true, phase:'input', steps:stepsOf(q, cfg.nt) };
+  }
+  return makeShade(level);
+}
+function makeCount(level){
+  const names = rand(NAMES).slice(0, 2);
+  let a, ab, b;
+  const step = level === 1 ? 100 : level === 2 ? 10 : 1;
+  const big = level === 1 ? 50 : level === 2 ? 600 : 5000;
+  a = rint(5, big) * step; b = rint(5, big) * step; ab = rint(1, Math.max(2, Math.round(big / 3))) * step;
+  const V = { A:a + ab, B:b + ab, OR:a + ab + b, AND:ab, ANB:a };
+  const kinds = level < 3 ? ['OR','AND','B','B','OR','AND'] : ['OR','AND','B','ANB1','ANB2'];
+  const kind = rand(kinds);
+  const nA = { t:'v', i:0 }, nB = { t:'v', i:1 };
+  const Q = { A:nA, B:nB, OR:{ t:'or', a:nA, b:nB }, AND:{ t:'and', a:nA, b:nB }, ANB:{ t:'and', a:nA, b:{ t:'not', a:nB } } };
+  let given, ask;
+  if (kind === 'OR'){ given = ['A','B','AND']; ask = 'OR'; }
+  else if (kind === 'AND'){ given = ['OR','A','B']; ask = 'AND'; }
+  else if (kind === 'B'){ given = ['OR','A','AND']; ask = 'B'; }
+  else if (kind === 'ANB1'){ given = ['A','AND','B']; ask = 'ANB'; }
+  else { given = ['OR','B','A']; ask = 'ANB'; }
+  return { kind:'count', level, names, V, Q, given, ask, sub:kind, input:'', tries:0, clean:true, phase:'input',
+           regions:{ 1:a, 3:ab, 2:b } };
+}
+
+/* ================= РАУНД ================= */
+function start(){
+  const exam = cfg.kind === 'exam';
+  const name = $('studentName').value.trim();
+  if (exam && !name){ const i = $('studentName'); i.classList.add('need'); i.focus(); i.placeholder = 'Сначала впиши фамилию и имя'; return; }
+  if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+  S = { running:true, paused:false, t:0, dur: exam ? EXAM.minutes * 60 : cfg.dur, score:0, streak:0, best:0, mult:1, solved:0,
+        tasks:0, firstOk:0, errs:{ and:0, or:0, not:0, guess:0, count:0 }, task:null,
+        exam, name, t0: Date.now(), startedAt: new Date(), pts:0, taskNo:0, away:0,
+        byType:{ shade:{ n:0, ok:0, pts:0 }, guess:{ n:0, ok:0, pts:0 }, count:{ n:0, ok:0, pts:0 } } };
+  ['startScreen','endScreen','pauseScreen'].forEach(id => $(id).hidden = true);
+  $('timebar').hidden = !S.dur;
+  ['pTime','pPts','pGrade'].forEach(id => $(id).hidden = !exam);
+  ['pScore','pStreak','pSolved','helpBtn','pauseBtn'].forEach(id => $(id).hidden = exam);
+  updateHud(); newTask();
+}
+function newTask(){
+  let type, level;
+  if (S.exam){ type = EXAM.seq[S.taskNo % EXAM.seq.length]; level = EXAM.levelAt(S.taskNo); S.taskNo++; }
+  else { type = cfg.type === 'mix' ? rand(['shade','guess','count']) : cfg.type; level = cfg.level; }
+  S.task = type === 'shade' ? makeShade(level) : type === 'guess' ? makeGuess(level) : makeCount(level);
+  if (S.exam) S.byType[S.task.kind].n++;
+  render();
+}
+function streakUp(){
+  S.streak++; S.best = Math.max(S.best, S.streak);
+  const m = Math.min(5, 1 + Math.floor(S.streak / 3));
+  if (m > S.mult){ const el = $('mult'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+  S.mult = m;
+}
+function streakBreak(){ S.streak = 0; S.mult = 1; }
+function updateHud(){
+  $('score').textContent = S.score; $('streak').textContent = S.streak; $('solved').textContent = S.solved;
+  const m = $('mult'); m.hidden = S.mult < 2; m.textContent = '×' + S.mult;
+  if (S.exam){ $('epts').textContent = S.pts; $('egrade').textContent = gradeFor(S.pts); }
+}
+// итог задания: firstTry — с первой попытки, solved — решено вообще
+function finish(solved){
+  const T = S.task; T.phase = 'done'; S.tasks++;
+  let msg = '';
+  if (solved){
+    S.solved++;
+    if (T.clean){ S.firstOk++; streakUp(); }
+    const pts = (T.clean ? 10 : 5) * S.mult; S.score += pts; msg = `+${pts}`;
+    if (S.exam){
+      const ep = Math.max(1, EXAM.points[T.kind] - (T.clean ? 0 : EXAM.errorPenalty));
+      S.pts += ep; S.byType[T.kind].ok++; S.byType[T.kind].pts += ep;
+      msg = `+${ep} ${plural(ep,'балл','балла','баллов')}${T.clean ? '' : ' (со второй попытки)'}`;
+    }
+    sfx.good();
+  } else { streakBreak(); sfx.bad(); }
+  updateHud(); return msg;
+}
+function noteErr(T){
+  if (T.kind === 'count'){ S.errs.count++; return; }
+  if (T.kind === 'guess'){ S.errs.guess++; return; }
+  opsIn(T.q.tree).forEach(o => S.errs[o]++);
+}
+
+/* ---------- отрисовка заданий ---------- */
+const SEARCH_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M15.5 15.5L22 22" stroke-linecap="round"/></svg>';
+function btn(text, cls, fn){ const b = document.createElement('button'); b.className = 'btn ' + cls; b.innerHTML = text; b.onclick = fn; return b; }
+const skipLabel = () => S.exam ? '↷ Пропустить (0 баллов)' : '↻ Другое задание';
+
+function render(){
+  const T = S.task;
+  $('tagTask').textContent = (S.exam ? `Задание ${S.taskNo} · ` : '') + TYPES[T.kind];
+  $('tagLevel').textContent = `${LEVELS[T.level].name}: ${LEVELS[T.level].note}`;
+  if (T.kind === 'shade') renderShade();
+  else if (T.kind === 'guess') renderGuess();
+  else renderCount();
+}
+function stepsHtml(T){
+  return `<span class="cap">Разбор по шагам — нажми на шаг, чтобы подсветить его области:</span>` +
+    T.steps.map((s, i) => `<button class="step${T.stepOn === i ? ' on' : ''}" data-i="${i}">${i + 1}) <b>${s.text}</b> — ${s.what}: области <b>${regList(s.regs, T.q.nc)}</b></button>`).join('');
+}
+function bindSteps(T){
+  $('side').querySelectorAll('.step').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i; T.stepOn = T.stepOn === i ? -1 : i;
+    DG.steps = T.stepOn >= 0 ? new Set(T.steps[T.stepOn].regs) : null;
+    drawDiagram(); $('side').querySelectorAll('.step').forEach(x => x.classList.toggle('on', +x.dataset.i === T.stepOn));
+  });
+}
+
+/* закрась запрос */
+function renderShade(){
+  const T = S.task, q = T.q, done = T.phase === 'done';
+  DG = { nc:q.nc, names:q.names, sel:T.sel, hover:-1, diff:T.diff || null, steps:null,
+         click: done ? null : m => toggleRegion(m) };
+  drawDiagram();
+  const regsNow = [...T.sel].map(m => LABELS[q.nc][m]).sort((a, b) => a - b);
+  $('side').innerHTML = `
+    <div class="query">${SEARCH_ICON}<span class="q">${txt(q.tree, q.names, cfg.nt, true)}</span></div>
+    <p class="instr">Отметь на диаграмме все области, которые найдёт этот запрос. Нажимай на области или клавиши ${q.nc === 3 ? '0–7' : '0–3'}; повторное нажатие снимает отметку. Enter — проверить.</p>
+    <div class="answer">${regsNow.length ? regsNow.map(r => `<span class="achip">${r}</span>`).join('') : '<span class="empty">Пока ничего не отмечено</span>'}</div>
+    <div class="actions" id="acts"></div>
+    <div class="feedback ${T.fbCls || ''}" id="feedback" aria-live="polite">${T.fb || ''}</div>
+    <div class="steps" id="steps">${done ? stepsHtml(T) : ''}</div>`;
+  const acts = $('acts');
+  if (done) acts.appendChild(btn('Следующее задание →', 'main', newTask));
+  else {
+    acts.appendChild(btn('✓ Проверить', 'main', checkShade));
+    acts.appendChild(btn('Очистить', '', () => { T.sel.clear(); T.fb = ''; render(); }));
+    if (!S.exam) acts.appendChild(btn('Показать решение', '', () => revealShade(true)));
+    acts.appendChild(btn(skipLabel(), '', skip));
+  }
+  if (done) bindSteps(T);
+}
+function toggleRegion(m){
+  const T = S.task;
+  if (!S.running || S.paused || T.kind !== 'shade' || T.phase !== 'input') return;
+  T.sel.has(m) ? T.sel.delete(m) : T.sel.add(m);
+  sfx.tap(); render();
+}
+function checkShade(){
+  const T = S.task;
+  if (!S.running || S.paused || T.kind !== 'shade' || T.phase !== 'input') return;
+  if (!T.sel.size){ T.fb = 'Сначала отметь хотя бы одну область.'; T.fbCls = 'bad'; render(); return; }
+  const right = new Set(regionsOf(T.q.tree, T.q.nc));
+  const extra = [...T.sel].filter(m => !right.has(m)), miss = [...right].filter(m => !T.sel.has(m));
+  T.tries++;
+  if (!extra.length && !miss.length){
+    const msg = finish(true);
+    T.fb = `Верно! ${msg}. Ответ: ${regList([...right], T.q.nc)}.`; T.fbCls = 'good';
+    render(); focusMain(); return;
+  }
+  T.clean = false; noteErr(T);
+  if (T.tries === 1){
+    streakBreak(); sfx.bad();
+    const parts = [];
+    if (extra.length) parts.push(`отмечено лишних областей — ${extra.length}`);
+    if (miss.length) parts.push(`не отмечено нужных — ${miss.length}`);
+    const first = T.steps[0];
+    T.fb = `Не совсем: ${parts.join(', ')}. Исправь и проверь ещё раз. Подсказка: начни с части «${first.text}».`; T.fbCls = 'bad';
+    updateHud(); render(); return;
+  }
+  revealShade(false);
+}
+function revealShade(byButton){
+  const T = S.task, right = new Set(regionsOf(T.q.tree, T.q.nc));
+  if (byButton) T.clean = false;
+  T.diff = { extra:new Set([...T.sel].filter(m => !right.has(m))), miss:new Set([...right].filter(m => !T.sel.has(m))) };
+  finish(false);
+  T.fb = byButton
+    ? `Решение: области ${regList([...right], T.q.nc)}. Разбери шаги ниже — за это задание очков нет.`
+    : `Правильный ответ: ${regList([...right], T.q.nc)}. Зелёный пунктир — пропущенные области, красная штриховка — лишние.`;
+  T.fbCls = byButton ? '' : 'bad';
+  T.sel = new Set([...T.sel].filter(m => right.has(m))); right.forEach(m => T.sel.add(m));
+  render(); focusMain();
+}
+
+/* угадай запрос */
+function renderGuess(){
+  const T = S.task, q = T.q, right = new Set(regionsOf(q.tree, q.nc));
+  let diff = null;
+  if (T.answered && T.chosen >= 0 && !T.opts[T.chosen].ok){
+    const ch = new Set(regionsOf(T.opts[T.chosen].tree, q.nc));
+    diff = { extra:new Set([...ch].filter(m => !right.has(m))), miss:new Set([...right].filter(m => !ch.has(m))) };
+  }
+  DG = { nc:q.nc, names:q.names, sel:right, hover:-1, diff, steps:null, click:null };
+  drawDiagram();
+  $('side').innerHTML = `
+    <div class="query">${SEARCH_ICON}<span class="q" style="color:var(--soft)">какой запрос?</span></div>
+    <p class="instr">На диаграмме ${right.size === 1 ? 'заштрихована область' : 'заштрихованы области'} ${regList([...right], q.nc)}. Какой запрос найдёт ровно их? Клавиши 1–4 выбирают вариант.</p>
+    <div class="options" id="opts"></div>
+    <div class="actions" id="acts" style="margin-top:12px"></div>
+    <div class="feedback ${T.fbCls || ''}" id="feedback" aria-live="polite">${T.fb || ''}</div>
+    <div class="steps">${T.answered ? stepsHtml(T) : ''}</div>`;
+  T.opts.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (T.answered && o.ok ? ' good' : '') + (T.answered && i === T.chosen && !o.ok ? ' bad' : '');
+    b.innerHTML = `<span class="k">${i + 1}</span><span class="q">${txt(o.tree, q.names, cfg.nt, true)}</span>`;
+    b.onclick = () => chooseGuess(i);
+    $('opts').appendChild(b);
+  });
+  $('acts').appendChild(T.answered ? btn('Следующее задание →', 'main', newTask) : btn(skipLabel(), '', skip));
+  if (T.answered) bindSteps(T);
+}
+function chooseGuess(i){
+  const T = S.task;
+  if (!S.running || S.paused || T.kind !== 'guess' || T.answered) return;
+  T.answered = true; T.chosen = i;
+  if (T.opts[i].ok){
+    const msg = finish(true);
+    T.fb = `Верно! ${msg}.`; T.fbCls = 'good';
+  } else {
+    T.clean = false; noteErr(T); finish(false);
+    const ch = regList(regionsOf(T.opts[i].tree, T.q.nc), T.q.nc);
+    T.fb = `Этот запрос найдёт области ${ch}, а нужны ${regList(regionsOf(T.q.tree, T.q.nc), T.q.nc)}. На диаграмме: красное — лишнее, зелёный пунктир — пропущенное. Верный запрос отмечен зелёным.`;
+    T.fbCls = 'bad';
+  }
+  render(); focusMain();
+}
+
+/* сколько страниц */
+function qName(T, k){ return txt(T.Q[k], T.names, cfg.nt, true); }
+function renderCount(){
+  const T = S.task, done = T.phase === 'done';
+  const counts = done ? { 1:T.regions[1], 3:T.regions[3], 2:T.regions[2] } : { 1:null, 3:null, 2:null };
+  DG = { nc:2, names:T.names, sel:new Set(), hover:-1, diff:null, steps: done ? new Set(regionsOf(T.Q[T.ask], 2)) : null, click:null, counts };
+  drawDiagram();
+  const rows = T.given.map(k => `<tr><td class="code q">${qName(T, k)}</td><td class="num">${fmt(T.V[k])}</td></tr>`).join('') +
+    `<tr class="ask"><td class="code q">${qName(T, T.ask)}</td><td class="num">${done ? fmt(T.V[T.ask]) : '?'}</td></tr>`;
+  $('side').innerHTML = `
+    <p class="instr" style="margin-top:0">В таблице — запросы и количество страниц, которые нашёл поисковый сервер. Сколько страниц он найдёт по последнему запросу? Считается, что за время запросов страницы не менялись.</p>
+    <table class="qt"><tr><th>Запрос</th><th style="text-align:right">Найдено страниц</th></tr>${rows}</table>
+    ${done ? '' : `<div><span class="inbox${T.bad ? ' bad' : ''}" id="inbox">${T.input ? fmt(+T.input) : '&nbsp;'}</span></div>`}
+    <div class="pad" id="pad"${done ? ' hidden' : ''}>
+      ${[1,2,3,4,5,6,7,8,9,0].map(d => `<button class="key" data-v="${d}">${d}</button>`).join('')}
+      <button class="key wide" data-v="del">⌫</button><button class="key wide ok" data-v="ok">✓ Проверить</button>
+    </div>
+    <div class="actions" id="acts" style="margin-top:12px"></div>
+    <div class="feedback ${T.fbCls || ''}" id="feedback" aria-live="polite">${T.fb || ''}</div>`;
+  $('acts').appendChild(done ? btn('Следующее задание →', 'main', newTask) : btn(skipLabel(), '', skip));
+  $('pad').onclick = e => {
+    const k = e.target.closest('.key'); if (!k) return;
+    const v = k.dataset.v;
+    if (v === 'del') delDigit(); else if (v === 'ok') checkCount(); else typeDigit(v);
+  };
+}
+function countExplain(T){
+  const V = T.V, n = k => `«${txt(T.Q[k], T.names, cfg.nt, false)}»`;
+  switch (T.sub){
+    case 'OR':  return `${n('OR')} = ${n('A')} + ${n('B')} − ${n('AND')} = ${fmt(V.A)} + ${fmt(V.B)} − ${fmt(V.AND)} = ${fmt(V.OR)}. Общая часть при сложении посчиталась дважды — её вычитаем.`;
+    case 'AND': return `${n('AND')} = ${n('A')} + ${n('B')} − ${n('OR')} = ${fmt(V.A)} + ${fmt(V.B)} − ${fmt(V.OR)} = ${fmt(V.AND)}.`;
+    case 'B':   return `${n('B')} = ${n('OR')} − ${n('A')} + ${n('AND')} = ${fmt(V.OR)} − ${fmt(V.A)} + ${fmt(V.AND)} = ${fmt(V.B)}.`;
+    case 'ANB1':return `${n('ANB')} — страницы, где есть первое слово, но нет второго: ${n('A')} − ${n('AND')} = ${fmt(V.A)} − ${fmt(V.AND)} = ${fmt(V.ANB)}.`;
+    default:    return `${n('ANB')} — часть круга «${T.names[0]}» без второго круга: ${n('OR')} − ${n('B')} = ${fmt(V.OR)} − ${fmt(V.B)} = ${fmt(V.ANB)}.`;
+  }
+}
+function countHint(T){
+  if (T.sub === 'ANB1' || T.sub === 'ANB2') return 'Подумай, какую часть диаграммы находит запрос с НЕ, и из чего её можно получить вычитанием.';
+  return 'Если сложить страницы двух слов, общая часть посчитается дважды: A | B = A + B − A & B.';
+}
+const canType = () => S && S.running && !S.paused && S.task.kind === 'count' && S.task.phase === 'input';
+function typeDigit(d){
+  if (!canType()) return; const T = S.task;
+  if (T.input.length >= 7) return;
+  T.input = (T.input === '0' ? '' : T.input) + d; T.bad = false; sfx.tap(); updInbox();
+}
+function delDigit(){ if (!canType()) return; const T = S.task; T.input = T.input.slice(0, -1); T.bad = false; updInbox(); }
+function updInbox(){ const T = S.task, b = $('inbox'); if (!b) return; b.innerHTML = T.input ? fmt(+T.input) : '&nbsp;'; b.classList.toggle('bad', !!T.bad); }
+function checkCount(){
+  if (!canType()) return;
+  const T = S.task;
+  if (!T.input){ T.fb = 'Сначала введи число.'; T.fbCls = 'bad'; render(); return; }
+  T.tries++;
+  if (+T.input === T.V[T.ask]){
+    const msg = finish(true);
+    T.fb = `Верно! ${msg}. ${countExplain(T)}`; T.fbCls = 'good';
+    render(); focusMain(); return;
+  }
+  T.clean = false; noteErr(T);
+  if (T.tries === 1){
+    streakBreak(); sfx.bad(); T.bad = true; T.input = '';
+    T.fb = `Неверно. ${countHint(T)} Попробуй ещё раз.`; T.fbCls = 'bad';
+    updateHud(); render(); return;
+  }
+  finish(false);
+  T.fb = `Неверно. ${countExplain(T)} На диаграмме — количество страниц в каждой части.`; T.fbCls = 'bad';
+  render(); focusMain();
+}
+
+function focusMain(){ setTimeout(() => { const b = $('side').querySelector('.btn.main'); if (b && S.task.phase === 'done' || (b && S.task.answered)) b.focus(); }, 0); }
+function skip(){
+  if (!S.running || S.paused) return;
+  if (S.task.phase !== 'done' && !S.task.answered) streakBreak();
+  updateHud(); newTask();
+}
+
+/* ---------- конец ---------- */
+function end(){
+  if (!S || !S.running) return;
+  S.running = false; S.paused = false; sfx.end();
+  $('pauseScreen').hidden = true; $('helpScreen').hidden = true;
+  $('rExam').hidden = !S.exam; $('rTrain').hidden = S.exam; $('againBtn').hidden = S.exam;
+  if (S.exam){
+    $('clock').textContent = '0:00';
+    $('xGrade').textContent = gradeFor(S.pts);
+    $('xName').textContent = S.name;
+    $('xDate').textContent = S.startedAt.toLocaleString('ru-RU', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) + ` · ${EXAM.minutes} минут`;
+    $('xPts').textContent = S.pts;
+    $('xAway').textContent = S.away ? `Уходил со страницы: ${S.away} раз(а)` : 'Со страницы не уходил';
+    $('xAway').style.color = S.away ? 'var(--bad)' : 'var(--good)';
+    $('xTable').innerHTML = '<tr><th>Задание</th><th>Решено</th><th>Баллы</th></tr>' +
+      Object.keys(S.byType).map(k => `<tr><td>${TYPES[k]}</td><td>${S.byType[k].ok} из ${S.byType[k].n}</td><td>${S.byType[k].pts}</td></tr>`).join('') +
+      `<tr><th>Итого</th><th>${Object.values(S.byType).reduce((s, x) => s + x.ok, 0)}</th><th>${S.pts}</th></tr>`;
+  } else {
+    $('rScore').textContent = S.score; $('rSolved').textContent = S.solved; $('rStreak').textContent = S.best;
+    $('rAcc').textContent = (S.tasks ? Math.round(S.firstOk / S.tasks * 100) : 0) + '%';
+    const prev = +store.get(bestKey()) || 0;
+    $('rRecord').hidden = !(S.score > prev && S.score > 0);
+    if (S.score > prev) store.set(bestKey(), S.score);
+  }
+  const weak = Object.entries(S.errs).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+  $('rWeak').innerHTML = weak.length
+    ? `<h3>Над чем поработать</h3><ul class="weak">${weak.map(([k, n]) => `<li><b>${ERR_TIPS[k][0]}</b> — ошибок: ${n}<br><span class="x">${ERR_TIPS[k][1]}</span></li>`).join('')}</ul>`
+    : '';
+  $('endScreen').hidden = false; (S.exam ? $('menuBtn') : $('againBtn')).focus();
+}
+
+/* ---------- пауза, справка, время ---------- */
+function setPause(p){
+  if (!S || !S.running || S.exam) return;
+  S.paused = p; $('pauseScreen').hidden = !p; if (p) $('resumeBtn').focus();
+}
+let helpResume = false;
+function openHelp(){
+  if (S && S.running && S.exam) return;
+  if (S && S.running && !S.paused){ S.paused = true; helpResume = true; }
+  renderHelpOps();
+  $('helpScreen').hidden = false; $('helpClose').focus();
+}
+function closeHelp(){
+  $('helpScreen').hidden = true;
+  if (helpResume && S && S.running) S.paused = false;
+  helpResume = false;
+}
+function renderHelpOps(){
+  const s = SYM[cfg.nt], A = { t:'v', i:0 }, B = { t:'v', i:1 };
+  const items = [
+    [{ t:'and', a:A, b:B }, `<b>A ${esc(s.and)} B</b> — И, пересечение: оба слова сразу`],
+    [{ t:'or', a:A, b:B }, `<b>A ${esc(s.or)} B</b> — ИЛИ, объединение: хотя бы одно слово`],
+    [{ t:'not', a:A }, `<b>${esc(s.not)}${cfg.nt === 'word' ? ' ' : ''}A</b> — НЕ: всё, где нет слова A, включая область 0`],
+    [{ t:'and', a:A, b:{ t:'not', a:B } }, `<b>A ${esc(s.and)} ${esc(s.not)}${cfg.nt === 'word' ? ' ' : ''}B</b> — есть A, но нет B`]
+  ];
+  $('helpOps').innerHTML = items.map(([tree, cap], k) => {
+    const p = 'h' + k + '_';
+    let svg = `<svg viewBox="0 0 600 520" aria-hidden="true">${defsFor(2, p)}<rect class="uni" x="${U.x}" y="${U.y}" width="${U.w}" height="${U.h}" rx="14"/>`;
+    regionsOf(tree, 2).forEach(m => { svg += regionShape(m, 2, '', p).replace('<rect class=""', '<rect fill="var(--accent)" opacity=".75"'); });
+    GEOM[2].circles.forEach(c => { svg += `<circle class="circ-line" cx="${c.x}" cy="${c.y}" r="${c.r}"/>`; });
+    svg += `<text x="150" y="90" font-size="56" font-weight="800" text-anchor="middle" fill="var(--ink)">A</text><text x="450" y="90" font-size="56" font-weight="800" text-anchor="middle" fill="var(--ink)">B</text></svg>`;
+    return `<figure>${svg}<figcaption>${cap}</figcaption></figure>`;
+  }).join('');
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden || !S || !S.running) return;
+  if (S.exam) S.away++;
+  else if ($('helpScreen').hidden) setPause(true);
+});
+
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (S && S.running && S.exam){
+    S.t = (Date.now() - S.t0) / 1000;
+    const left = Math.max(0, Math.ceil(S.dur - S.t));
+    $('clock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    $('pTime').classList.toggle('warn', left <= 60);
+  }
+  if (S && S.running && S.dur && (S.exam || !S.paused)){
+    if (!S.exam) S.t += dt;
+    $('timefill').style.transform = `scaleX(${Math.max(0, 1 - S.t / S.dur)})`;
+    $('timebar').classList.toggle('low', S.dur - S.t < 30);
+    if (S.t >= S.dur) end();
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- управление ---------- */
+addEventListener('keydown', e => {
+  if (!$('helpScreen').hidden){ if (e.key === 'Escape') closeHelp(); return; }
+  if (!S || !S.running) return;
+  if (e.key === 'Escape'){ if (!S.exam) setPause(!S.paused); return; }
+  if (S.paused) return;
+  const T = S.task;
+  if (e.target && e.target.tagName === 'INPUT') return;
+  if (T.kind === 'shade' && T.phase === 'input'){
+    const d = +e.key;
+    if (/^[0-7]$/.test(e.key) && d <= (T.q.nc === 3 ? 7 : 3)){ e.preventDefault(); toggleRegion(maskOf(T.q.nc, d)); }
+    else if (e.key === 'Enter'){ e.preventDefault(); checkShade(); }
+  } else if (T.kind === 'guess' && !T.answered){
+    const k = +e.key; if (k >= 1 && k <= T.opts.length){ e.preventDefault(); chooseGuess(k - 1); }
+  } else if (T.kind === 'count' && T.phase === 'input'){
+    if (/^[0-9]$/.test(e.key)){ e.preventDefault(); typeDigit(e.key); }
+    else if (e.key === 'Backspace' || e.key === 'Delete'){ e.preventDefault(); delDigit(); }
+    else if (e.key === 'Enter'){ e.preventDefault(); checkCount(); }
+  } else if (e.key === 'Enter'){
+    if (document.activeElement && document.activeElement.classList.contains('main')) return;
+    e.preventDefault(); newTask();
+  }
+});
+$('startBtn').onclick = start;
+$('againBtn').onclick = start;
+$('menuBtn').onclick = () => {
+  $('endScreen').hidden = true; $('startScreen').hidden = false;
+  ['pTime','pPts','pGrade'].forEach(id => $(id).hidden = true);
+  ['pScore','pStreak','pSolved','helpBtn','pauseBtn'].forEach(id => $(id).hidden = false);
+  renderMenu();
+};
+$('studentName').addEventListener('input', e => e.target.classList.remove('need'));
+$('studentName').addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+$('helpBtn').onclick = openHelp;
+$('helpBtn2').onclick = openHelp;
+$('helpClose').onclick = closeHelp;
+$('pauseBtn').onclick = () => setPause(true);
+$('resumeBtn').onclick = () => setPause(false);
+$('finishBtn').onclick = end;
+$('quitBtn').onclick = () => { S.running = false; S.paused = false; $('pauseScreen').hidden = true; $('startScreen').hidden = false; renderMenu(); };
+$('muteBtn').onclick = () => setMute(!muted);
+
+// пример на фоне меню
+S = { running:false, paused:false, score:0, streak:0, mult:1, solved:0, task:null };
+S.task = makeShade(2); render();
+setMute(muted); renderMenu(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

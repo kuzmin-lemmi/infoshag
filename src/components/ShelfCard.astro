@@ -2,7 +2,7 @@
 // Карточка на полке витрины: превью оживает при наведении
 import Preview from './Preview.astro';
 import { ACCESS } from '../config';
-import { openHref, pageHref, gradeLabel, downloadHref, downloadName } from '../lib';
+import { playHref, pageHref, gradeLabel, downloadHref, downloadName } from '../lib';
 const { item } = Astro.props;
 const d = item.data;
 const external = /^https?:/.test(d.url);
@@ -19,7 +19,7 @@ const dl = downloadHref(d);
     <h3><a href={pageHref(item.id)}>{d.title}</a></h3>
     {d.topic && <p class="topic">{d.topic}</p>}
     <div class="act">
-      <a class="play" href={openHref(d.url)} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
+      <a class="play" href={playHref(item)} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
         {external ? 'Открыть ↗' : '▶ Играть'}
       </a>
       {dl && <a class="dl" href={dl} download={downloadName(d.url)} title="Скачать игру бесплатно — один HTML-файл">⬇ Скачать</a>}

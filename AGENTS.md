@@ -43,7 +43,7 @@ npm run preview
 
 Адрес сайта задаётся в `astro.config.mjs` (`site`, `base`). Сейчас `base: '/personal_ebsite'`.
 **Все внутренние ссылки строй через `import.meta.env.BASE_URL`** или функции из `src/lib.ts`
-(`openHref`, `pageHref`). Ссылки вида `href="/catalog"` сломаются на GitHub Pages.
+(`playHref`, `pageHref`, `openHref`). Кнопка «Играть» — всегда `playHref` (ведёт на `/igra/<slug>/`). Ссылки вида `href="/catalog"` сломаются на GitHub Pages.
 
 ## 3. Структура
 
@@ -52,12 +52,17 @@ src/
   config.ts              название сайта, автор, ссылки, словари TYPES и ACCESS
   content.config.ts      схема карточки (zod) — единственный источник правды о полях
   content/items/*.md     карточки материалов, одна на файл; имя файла = адрес страницы
-  lib.ts                 openHref, pageHref, gradeLabel
-  layouts/Base.astro     шапка, подвал, мета-теги
+  lib.ts                 playHref, pageHref, openHref, downloadHref, ogImage, gradeLabel
+  layouts/Base.astro     шапка, подвал
+  components/Meta.astro  заголовок, описание, превью ссылки (og:image)
+  components/Logo.astro  знак «АК»
   components/Card.astro  карточка в списках
   pages/index.astro      главная: разделы по классам, курсы, программы
   pages/catalog.astro    каталог с фильтрами (type, grade, q — сохраняются в адресе)
   pages/item/[id].astro  страница материала: превью (ролик/картинка/игра), «Скачать»
+  pages/igra/[id].astro  постоянный адрес игры: игра на весь экран
+  pages/og/[id].png.ts   картинка превью ссылки для каждого материала (собирается при сборке)
+  pages/404.astro        страница «не найдено»
   styles/global.css      токены цвета и шрифтов, светлая и тёмная тема
 public/
   games/*.html           сами игры — самодостаточные HTML-файлы
@@ -101,7 +106,7 @@ poster: posts/zvezdnaya-pochta.jpg   # необязательно: картин�
    Бесплатные игры (`access: free`, файл на сайте) автоматически получают кнопку «⬇ Скачать».
    QR-коды на сайте не используем: ученики работают за компьютерами, а не с телефонов.
 4. Строковые значения с двоеточием, кавычками или тире в начале **бери в кавычки** — иначе YAML не разберётся.
-5. Запусти `npm run build` и убедись, что появилась страница `/item/<slug>/`.
+5. Запусти `npm run build` и убедись, что появились страницы `/item/<slug>/` и `/igra/<slug>/`.
 
 Нужно новое поле? Сначала добавь его в `src/content.config.ts` (с `.optional()` или `.default()`,
 чтобы старые карточки не сломались), потом выводи в шаблонах.

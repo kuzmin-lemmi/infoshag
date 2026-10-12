@@ -1,0 +1,37 @@
+---
+// Постоянный адрес игры: /igra/<slug>/ открывает игру на весь экран.
+// Наружу (посты ВК, письма, печать) даём только этот адрес — файл игры потом можно будет закрыть подпиской.
+import { getCollection } from 'astro:content';
+import Meta from '../../components/Meta.astro';
+import { openHref, pageHref, isLocalGame, ogImage } from '../../lib';
+
+export async function getStaticPaths() {
+  const items = (await getCollection('items')).filter(i => isLocalGame(i.data.url));
+  return items.map(item => ({ params: { id: item.id }, props: { item } }));
+}
+const { item } = Astro.props;
+const d = item.data;
+const src = openHref(d.url);
+---
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <Meta title={`${d.title} — играть · Инфошаг`} description={d.summary} image={ogImage(item)} />
+  <style>
+    html,body{margin:0;height:100%;background:#081430;overflow:hidden}
+    iframe{display:block;width:100vw;height:100vh;height:100dvh;border:0}
+    noscript a{position:fixed;inset:auto 16px 16px;color:#fff;font:600 16px system-ui,sans-serif}
+  </style>
+</head>
+<body>
+  <iframe id="game" src={src} title={d.title} allow="fullscreen; autoplay" allowfullscreen></iframe>
+  <noscript><a href={pageHref(item.id)}>{d.title} — описание и как использовать на уроке</a></noscript>
+  <script>
+    // фокус сразу в игру — чтобы с клавиатуры можно было играть без лишнего щелчка
+    const f = document.getElementById('game') as HTMLIFrameElement;
+    f.addEventListener('load', () => { try { f.contentWindow?.focus(); } catch {} });
+  </script>
+</body>
+</html>

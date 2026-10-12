@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import Preview from '../../components/Preview.astro';
 import { TYPES, ACCESS } from '../../config';
-import { openHref, gradeLabel, downloadHref, downloadName } from '../../lib';
+import { playHref, ogImage, gradeLabel, downloadHref, downloadName } from '../../lib';
 
 export async function getStaticPaths() {
   const items = await getCollection('items');
@@ -13,7 +13,7 @@ const { item } = Astro.props;
 const d = item.data;
 const { Content } = await render(item);
 const external = /^https?:/.test(d.url);
-const href = openHref(d.url);
+const href = playHref(item);
 const abs = external ? d.url : new URL(href, Astro.site).toString();
 const dl = downloadHref(d);
 const rows = [
@@ -27,7 +27,7 @@ const rows = [
   ['Доступ', ACCESS[d.access]],
 ].filter(([, v]) => v);
 ---
-<Base title={d.title} description={d.summary}>
+<Base title={d.title} description={d.summary} image={ogImage(item)}>
   <section class="top" style={`--c:${d.color}`}>
     <div class="wrap layout">
       <div>

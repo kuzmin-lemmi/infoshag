@@ -7,7 +7,7 @@ import { Picture } from 'astro:assets';
 import heroArt from '../assets/infoshag-hero.png';
 import { getCollection } from 'astro:content';
 import { SITE, ACCESS } from '../config';
-import { openHref, pageHref, gradeLabel, klassHref, klassName } from '../lib';
+import { playHref, pageHref, gradeLabel, klassHref, klassName } from '../lib';
 const all = (await getCollection('items')).sort((a, b) => a.data.order - b.data.order);
 const school = all.filter(i => i.data.type === 'game' || i.data.type === 'trainer');
 const grades = [...new Set(school.flatMap(i => i.data.grades))].sort((a, b) => a - b);
@@ -51,7 +51,7 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
             <span>{ACCESS[h.access]}</span>
           </p>
           <div class="cta">
-            <a class="btn primary" href={openHref(h.url)} target={heroExternal ? '_blank' : undefined} rel={heroExternal ? 'noopener' : undefined}>
+            <a class="btn primary" href={playHref(hero)} target={heroExternal ? '_blank' : undefined} rel={heroExternal ? 'noopener' : undefined}>
               {heroExternal ? 'Открыть ↗' : '▶ Играть'}
             </a>
             <a class="btn" href={pageHref(hero.id)}>Как использовать на уроке</a>

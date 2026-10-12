@@ -1,0 +1,98 @@
+---
+// Живое превью материала: ролик (если есть) или сама игра в уменьшенном виде без управления.
+// load="visible" — включается, когда превью на экране; load="hover" — при наведении на карточку.
+import { openHref } from '../lib';
+interface Props { item: any; load?: 'visible' | 'hover'; }
+const { item, load = 'hover' } = Astro.props;
+const d = item.data;
+const base = import.meta.env.BASE_URL;
+const live = !d.video && !/^https?:/.test(d.url) && d.url.endsWith('.html');
+---
+<div class="pv" style={`--c:${d.color}`} data-load={load} data-src={live ? openHref(d.url) : undefined}>
+  <div class="cover" aria-hidden="true"><span>{d.emoji}</span></div>
+  {d.video && <video muted loop playsinline preload="none" poster={d.poster ? base + d.poster : undefined} src={base + d.video}></video>}
+  {(live || d.video) && <span class="hint" aria-hidden="true">{load === 'hover' ? 'Наведи — покажу' : 'Превью'}</span>}
+</div>
+
+<style>
+  .pv{position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:inherit;isolation:isolate;
+    background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--c) 55%,#fff),var(--c))}
+  .cover{position:absolute;inset:0;display:grid;place-items:center}
+  .cover span{font-size:clamp(48px,9cqi,96px);filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+  .pv{container-type:inline-size}
+  .pv :global(iframe){position:absolute;left:0;top:0;width:1280px;height:800px;border:0;pointer-events:none;
+    transform:scale(var(--s,.25));transform-origin:0 0;opacity:0;transition:opacity .35s;background:#fff}
+  .pv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}
+  .pv.on :global(iframe),.pv.on video{opacity:1}
+  .hint{position:absolute;right:10px;bottom:10px;z-index:2;font-size:13px;font-weight:600;color:#fff;
+    background:rgba(0,0,0,.45);padding:.2em .6em;border-radius:999px;transition:opacity .3s}
+  .pv.on .hint{opacity:0}
+  @media (hover:none){ .pv[data-load="hover"] .hint{display:none} }
+</style>
+
+<script>
+  const W = 1280;
+  const MAX_LIVE = 2;                        // одновременно «живых» превью на экране
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+    || (navigator as any).connection?.saveData;
+  const live: HTMLElement[] = [];
+
+  const fit = (el: HTMLElement) => el.style.setProperty('--s', String(el.clientWidth / W));
+
+  function start(el: HTMLElement) {
+    const video = el.querySelector('video');
+    if (video) {
+      if (!video.src) return;
+      video.play().then(() => el.classList.add('on')).catch(() => {});
+    } else if (el.dataset.src && !el.querySelector('iframe')) {
+      const f = document.createElement('iframe');
+      f.src = el.dataset.src;
+      f.tabIndex = -1;
+      f.title = '';
+      f.setAttribute('aria-hidden', 'true');
+      f.setAttribute('inert', '');
+      f.addEventListener('load', () => {
+        // игра на том же сайте: без звука сразу запускаем тренировку, чтобы показать сам процесс, а не меню
+        try {
+          const w = f.contentWindow as any, doc = f.contentDocument!;
+          w.AudioContext = w.webkitAudioContext = undefined;
+          [...doc.querySelectorAll('button')].find(b => b.textContent?.includes('Тренировка'))?.click();
+          doc.getElementById('startBtn')?.click();
+        } catch {}
+        setTimeout(() => el.classList.add('on'), 150);
+      });
+      fit(el);
+      el.appendChild(f);
+    } else return;
+    live.push(el);
+    while (live.length > MAX_LIVE) stop(live[0]);
+  }
+
+  function stop(el: HTMLElement) {
+    el.classList.remove('on');
+    el.querySelector('video')?.pause();
+    el.querySelector('iframe')?.remove();
+    const i = live.indexOf(el);
+    if (i >= 0) live.splice(i, 1);
+  }
+
+  const ro = new ResizeObserver(es => es.forEach(e => fit(e.target as HTMLElement)));
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    const el = e.target as HTMLElement;
+    e.isIntersecting ? start(el) : stop(el);
+  }), { threshold: 0.5 });
+
+  document.querySelectorAll<HTMLElement>('.pv').forEach(el => {
+    if (!el.dataset.src && !el.querySelector('video')) return;
+    ro.observe(el);
+    if (el.dataset.load === 'visible') {
+      if (!calm) io.observe(el);
+      return;
+    }
+    // превью при наведении на всю карточку, с задержкой — чтобы не грузить игры при быстром проходе мышью
+    const host = el.closest<HTMLElement>('[data-pv-host]') ?? el;
+    let t = 0;
+    host.addEventListener('mouseenter', () => { t = window.setTimeout(() => start(el), 250); });
+    host.addEventListener('mouseleave', () => { clearTimeout(t); stop(el); });
+  });
+</script>

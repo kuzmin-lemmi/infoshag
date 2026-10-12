@@ -1,0 +1,46 @@
+---
+// Журнал по урокам: игры класса по порядку учебника, у каждой — ролик и «как использовать на уроке»
+import Base from '../../layouts/Base.astro';
+import LessonRow from '../../components/LessonRow.astro';
+import { getCollection } from 'astro:content';
+import { klassHref, klassName } from '../../lib';
+
+export async function getStaticPaths() {
+  const school = (await getCollection('items')).filter(i => i.data.type === 'game' || i.data.type === 'trainer');
+  const grades = [...new Set(school.flatMap(i => i.data.grades))].sort((a, b) => a - b);
+  return grades.map(g => ({ params: { grade: String(g) }, props: { grades } }));
+}
+
+const { grades } = Astro.props;
+const g = Number(Astro.params.grade);
+const items = (await getCollection('items'))
+  .filter(i => (i.data.type === 'game' || i.data.type === 'trainer') && i.data.grades.includes(g))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+<Base title={`Информатика, ${klassName(g)}`} description={`Игры и тренажёры для уроков информатики в ${g} классе — по порядку учебника Босовой.`}>
+  <section class="top">
+    <div class="wrap">
+      <nav class="tabs" aria-label="Класс">
+        {grades.map(x => <a href={klassHref(x)} aria-current={x === g ? 'page' : undefined}>{klassName(x)}</a>)}
+      </nav>
+      <h1>Информатика · {klassName(g)}</h1>
+      <p class="lead">Игры и тренажёры по порядку учебника Босовой. У каждой — как встроить её в урок.</p>
+    </div>
+  </section>
+  <section class="list">
+    <div class="wrap rows">
+      {items.map((i, n) => <LessonRow item={i} n={n + 1} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .top{padding-bottom:8px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .tabs a{text-decoration:none;font-weight:700;padding:.5em 1em;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--soft)}
+  .tabs a:hover{color:var(--ink)}
+  .tabs a[aria-current]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .lead{color:var(--soft);font-size:clamp(17px,1.8vw,20px);margin:0;max-width:56ch}
+  .list{padding-top:16px}
+  .rows{display:flex;flex-direction:column;gap:20px}
+</style>

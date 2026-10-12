@@ -1,68 +1,114 @@
 ---
 import Base from '../layouts/Base.astro';
-import Card from '../components/Card.astro';
+import Preview from '../components/Preview.astro';
+import ShelfCard from '../components/ShelfCard.astro';
 import { getCollection } from 'astro:content';
-import { SITE } from '../config';
-const base = import.meta.env.BASE_URL;
+import { SITE, ACCESS } from '../config';
+import { openHref, pageHref, gradeLabel, klassHref, klassName } from '../lib';
 const all = (await getCollection('items')).sort((a, b) => a.data.order - b.data.order);
 const school = all.filter(i => i.data.type === 'game' || i.data.type === 'trainer');
 const grades = [...new Set(school.flatMap(i => i.data.grades))].sort((a, b) => a - b);
-const courses = all.filter(i => i.data.type === 'course');
-const apps = all.filter(i => i.data.type === 'app');
+const more = all.filter(i => i.data.type === 'course' || i.data.type === 'app');
+const hero = school.find(i => i.data.featured) ?? school[0];
+const h = hero.data;
 ---
 <Base>
-  <section class="hero">
-    <div class="wrap">
-      <p class="kicker">Библиотека разработок</p>
-      <h1>{SITE.name}</h1>
-      <p class="lead">{SITE.tagline}</p>
-      <div class="cta">
-        <a class="btn primary" href={`${base}catalog/`}>Открыть каталог</a>
-        <a class="btn" href={`${base}catalog/?type=game`}>Игры для урока</a>
+  <section class="hero" style={`--c:${h.color}`}>
+    <div class="wrap hero-in">
+      <div class="txt">
+        <p class="kicker">{SITE.short} · игры для уроков информатики</p>
+        <h1>{h.emoji} {h.title}</h1>
+        <p class="lead">{h.summary}</p>
+        <p class="facts">
+          {gradeLabel(h.grades) && <span>{gradeLabel(h.grades)}</span>}
+          {h.duration && <span>⏱ {h.duration}</span>}
+          <span>{ACCESS[h.access]}</span>
+        </p>
+        <div class="cta">
+          <a class="btn primary big" href={openHref(h.url)}>▶ Играть</a>
+          <a class="btn big" href={pageHref(hero.id)}>Как использовать на уроке</a>
+        </div>
       </div>
-      <ul class="nums">
-        <li><b>{school.length}</b> игр и тренажёров</li>
-        <li><b>{courses.length}</b> курса</li>
-        <li><b>{apps.length}</b> {apps.length === 1 ? 'сервис' : 'сервиса'}</li>
-      </ul>
+      <a class="screen" href={pageHref(hero.id)} aria-label={h.title}><Preview item={hero} load="visible" /></a>
+    </div>
+  </section>
+
+  <section class="pick">
+    <div class="wrap">
+      <h2>Уроки по классам</h2>
+      <div class="tiles">
+        {grades.map(g => {
+          const n = school.filter(i => i.data.grades.includes(g)).length;
+          return (
+            <a class="tile" href={klassHref(g)}>
+              <b>{g}</b>
+              <span>{klassName(g)}</span>
+              <small>{n} {n === 1 ? 'игра' : n < 5 ? 'игры' : 'игр'} по порядку учебника →</small>
+            </a>
+          );
+        })}
+      </div>
     </div>
   </section>
 
   {grades.map(g => (
-    <section class="band">
+    <section class="shelf">
       <div class="wrap">
-        <div class="head"><h2>Информатика · {g} класс</h2><a href={`${base}catalog/?grade=${g}`}>Все материалы {g} класса →</a></div>
-        <div class="grid">{school.filter(i => i.data.grades.includes(g)).map(i => <Card item={i} />)}</div>
+        <div class="head"><h2>{klassName(g)}</h2><a href={klassHref(g)}>Все уроки {g} класса →</a></div>
+      </div>
+      <div class="track">
+        {school.filter(i => i.data.grades.includes(g)).map(i => <ShelfCard item={i} />)}
       </div>
     </section>
   ))}
 
-  <section class="band">
-    <div class="wrap">
-      <div class="head"><h2>Курсы</h2><a href={`${base}catalog/?type=course`}>Все курсы →</a></div>
-      <p class="muted note">Пока курсы проходят на Stepik — скоро их можно будет проходить прямо здесь.</p>
-      <div class="grid">{courses.map(i => <Card item={i} />)}</div>
-    </div>
-  </section>
-
-  <section class="band">
-    <div class="wrap">
-      <div class="head"><h2>Программы и сервисы</h2><a href={SITE.github}>Все проекты на GitHub ↗</a></div>
-      <div class="grid">{apps.map(i => <Card item={i} />)}</div>
-    </div>
-  </section>
+  {more.length > 0 && (
+    <section class="shelf">
+      <div class="wrap">
+        <div class="head"><h2>Курсы и программы</h2><a href={SITE.github}>Все проекты на GitHub ↗</a></div>
+      </div>
+      <div class="track">{more.map(i => <ShelfCard item={i} />)}</div>
+    </section>
+  )}
 </Base>
+
 <style>
-  .hero{padding:clamp(40px,8vw,96px) 0 clamp(24px,4vw,40px);
-    background:radial-gradient(ellipse at 85% 0%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 60%)}
-  .kicker{font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;font-size:14px;margin:0 0 12px}
-  .lead{font-size:clamp(18px,2.2vw,22px);color:var(--soft);max-width:46ch;margin:0 0 24px}
+  .hero{padding:clamp(28px,5vw,64px) 0;background:
+    radial-gradient(ellipse at 80% 10%,color-mix(in srgb,var(--c) 30%,transparent),transparent 60%),
+    color-mix(in srgb,var(--c) 7%,var(--bg))}
+  .hero-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:clamp(20px,4vw,48px);align-items:center}
+  .kicker{font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;font-size:13px;margin:0 0 14px}
+  h1{font-size:clamp(30px,4.4vw,52px)}
+  .lead{font-size:clamp(17px,1.8vw,20px);color:var(--soft);margin:0 0 14px;max-width:44ch}
+  .facts{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 22px;font-weight:600}
   .cta{display:flex;gap:10px;flex-wrap:wrap}
-  .nums{list-style:none;padding:0;margin:32px 0 0;display:flex;gap:28px;flex-wrap:wrap;color:var(--soft)}
-  .nums b{display:block;font:800 clamp(26px,3.4vw,36px)/1 var(--display);color:var(--ink)}
-  .band + .band{padding-top:0}
-  .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .big{padding:.85em 1.4em;font-size:17px}
+  .hero .primary{background:var(--c);border-color:var(--c);color:#fff}
+  .screen{display:block;border-radius:calc(var(--r) + 4px);overflow:hidden;border:6px solid var(--surface);
+    box-shadow:0 30px 70px color-mix(in srgb,var(--c) 35%,transparent),0 4px 14px rgba(0,0,0,.12);transform:rotate(-.6deg)}
+
+  .pick{padding-bottom:0}
+  .tiles{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+  .tile{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:16px;align-items:center;
+    padding:18px 20px;border-radius:var(--r);background:var(--surface);border:1.5px solid var(--line);text-decoration:none;transition:border-color .2s,transform .2s}
+  .tile:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .tile b{grid-row:span 2;font:800 44px/1 var(--display);color:var(--accent)}
+  .tile span{font-weight:700;font-size:19px}
+  .tile small{color:var(--soft);font-size:14px}
+
+  .shelf{padding-bottom:0}
+  .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
   .head h2{margin:0}
   .head a{font-weight:600;color:var(--accent);text-decoration:none}
-  .note{margin:-6px 0 16px}
+  /* полка с прокруткой вбок; отступы выровнены по .wrap */
+  .track{--pad:max(clamp(16px,4vw,40px),calc((100vw - 1180px) / 2 + clamp(16px,4vw,40px)));
+    display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,320px);gap:18px;overflow-x:auto;
+    padding:6px var(--pad) 22px;scroll-padding-inline:var(--pad);scroll-snap-type:x mandatory;scrollbar-width:thin}
+  .track > :global(*){scroll-snap-align:start}
+
+  @media (max-width:820px){
+    .hero-in{grid-template-columns:1fr}
+    .screen{order:-1;transform:none}
+  }
+  @media (prefers-reduced-motion:reduce){ .screen{transform:none} .tile,.tile:hover{transition:none;transform:none} }
 </style>

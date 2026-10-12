@@ -22,6 +22,9 @@ const items = defineCollection({
     tags: z.array(z.string()).default([]),
     repo: z.string().optional(),
     order: z.number().default(100),
+    video: z.string().optional(),             // ролик геймплея: 'posts/<slug>.mp4' (без звука, 15–30 с)
+    poster: z.string().optional(),            // первый кадр ролика: 'posts/<slug>.jpg'
+    featured: z.boolean().default(false),     // большой трейлер наверху главной
     updated: z.coerce.date().optional(),
   }),
 });

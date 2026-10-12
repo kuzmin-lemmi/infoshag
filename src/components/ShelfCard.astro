@@ -1,0 +1,40 @@
+---
+// Карточка на полке витрины: превью оживает при наведении
+import Preview from './Preview.astro';
+import { ACCESS } from '../config';
+import { openHref, pageHref, gradeLabel } from '../lib';
+const { item } = Astro.props;
+const d = item.data;
+const external = /^https?:/.test(d.url);
+---
+<article class="sc" style={`--c:${d.color}`} data-pv-host>
+  <a class="media" href={pageHref(item.id)} aria-label={d.title}><Preview item={item} /></a>
+  <div class="body">
+    <p class="meta">
+      {d.grades.length > 0 ? gradeLabel(d.grades) : d.type === 'course' ? 'Курс' : 'Программа'}
+      {d.duration && <> · {d.duration}</>}
+      {d.access !== 'free' && <> · {ACCESS[d.access]}</>}
+    </p>
+    <h3><a href={pageHref(item.id)}>{d.title}</a></h3>
+    {d.topic && <p class="topic">{d.topic}</p>}
+    <a class="play" href={openHref(d.url)} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
+      {external ? 'Открыть ↗' : '▶ Играть'}
+    </a>
+  </div>
+</article>
+
+<style>
+  .sc{display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);overflow:hidden;
+    transition:transform .2s,box-shadow .2s,border-color .2s}
+  .sc:hover{transform:translateY(-4px);border-color:var(--c);box-shadow:0 18px 40px color-mix(in srgb,var(--c) 28%,transparent)}
+  .media{display:block;border-radius:var(--r) var(--r) 0 0;overflow:hidden}
+  .body{display:flex;flex-direction:column;gap:4px;padding:14px 16px 16px;flex:1}
+  .meta{margin:0;font-size:14px;font-weight:600;color:var(--soft)}
+  h3{margin:.15em 0 0;font-size:19px}
+  h3 a{text-decoration:none}
+  .topic{margin:0;color:var(--soft);font-size:15px;flex:1}
+  .play{align-self:flex-start;margin-top:10px;font-weight:700;text-decoration:none;color:#fff;background:var(--c);
+    padding:.45em .95em;border-radius:10px;font-size:15px}
+  .play:hover{filter:brightness(1.1)}
+  @media (prefers-reduced-motion:reduce){ .sc,.sc:hover{transition:none;transform:none} }
+</style>

@@ -8,5 +8,6 @@ url: https://stepik.org/course/266999
 access: external
 tags: [Python, aiogram, асинхронность]
 order: 200
+added: 2026-10-11
 ---
 Сейчас курс проходит на Stepik. Позже он появится здесь — с прохождением прямо на сайте.

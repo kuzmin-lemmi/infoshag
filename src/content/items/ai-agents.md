@@ -8,5 +8,6 @@ url: https://stepik.org/course/276752
 access: external
 tags: [Python, LLM, Ollama, LiteLLM]
 order: 210
+added: 2026-10-11
 ---
 Сейчас курс проходит на Stepik. Позже он появится здесь — с прохождением прямо на сайте.

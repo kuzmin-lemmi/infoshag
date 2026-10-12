@@ -55,9 +55,9 @@ const h = hero.data;
     <section class="shelf">
       <div class="wrap">
         <div class="head"><h2>{klassName(g)}</h2><a href={klassHref(g)}>Все уроки {g} класса →</a></div>
-      </div>
-      <div class="track">
-        {school.filter(i => i.data.grades.includes(g)).map(i => <ShelfCard item={i} />)}
+        <div class="cards">
+          {school.filter(i => i.data.grades.includes(g)).map(i => <ShelfCard item={i} />)}
+        </div>
       </div>
     </section>
   ))}
@@ -66,49 +66,47 @@ const h = hero.data;
     <section class="shelf">
       <div class="wrap">
         <div class="head"><h2>Курсы и программы</h2><a href={SITE.github}>Все проекты на GitHub ↗</a></div>
+        <div class="cards">{more.map(i => <ShelfCard item={i} />)}</div>
       </div>
-      <div class="track">{more.map(i => <ShelfCard item={i} />)}</div>
     </section>
   )}
 </Base>
 
 <style>
-  .hero{padding:clamp(28px,5vw,64px) 0;background:
-    radial-gradient(ellipse at 80% 10%,color-mix(in srgb,var(--c) 30%,transparent),transparent 60%),
+  .hero{padding:clamp(20px,3vw,36px) 0;background:
+    radial-gradient(ellipse at 80% 10%,color-mix(in srgb,var(--c) 26%,transparent),transparent 60%),
     color-mix(in srgb,var(--c) 7%,var(--bg))}
-  .hero-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:clamp(20px,4vw,48px);align-items:center}
-  .kicker{font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;font-size:13px;margin:0 0 14px}
-  h1{font-size:clamp(30px,4.4vw,52px)}
-  .lead{font-size:clamp(17px,1.8vw,20px);color:var(--soft);margin:0 0 14px;max-width:44ch}
-  .facts{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 22px;font-weight:600}
-  .cta{display:flex;gap:10px;flex-wrap:wrap}
-  .big{padding:.85em 1.4em;font-size:17px}
+  .hero-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(20px,3.5vw,44px);align-items:center}
+  .kicker{font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;font-size:12px;margin:0 0 10px}
+  h1{font-size:clamp(24px,3vw,36px)}
+  .lead{font-size:16px;color:var(--soft);margin:0 0 12px;max-width:46ch}
+  .facts{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0 0 18px;font-weight:600;font-size:15px}
+  .cta{display:flex;gap:8px;flex-wrap:wrap}
+  .big{padding:.65em 1.1em;font-size:15px}
   .hero .primary{background:var(--c);border-color:var(--c);color:#fff}
-  .screen{display:block;border-radius:calc(var(--r) + 4px);overflow:hidden;border:6px solid var(--surface);
-    box-shadow:0 30px 70px color-mix(in srgb,var(--c) 35%,transparent),0 4px 14px rgba(0,0,0,.12);transform:rotate(-.6deg)}
+  .screen{display:block;width:100%;max-width:560px;justify-self:end;border-radius:calc(var(--r) + 2px);overflow:hidden;border:5px solid var(--surface);
+    box-shadow:0 24px 50px color-mix(in srgb,var(--c) 30%,transparent),0 3px 10px rgba(0,0,0,.12)}
 
   .pick{padding-bottom:0}
-  .tiles{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
-  .tile{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:16px;align-items:center;
-    padding:18px 20px;border-radius:var(--r);background:var(--surface);border:1.5px solid var(--line);text-decoration:none;transition:border-color .2s,transform .2s}
-  .tile:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .tile b{grid-row:span 2;font:800 44px/1 var(--display);color:var(--accent)}
-  .tile span{font-weight:700;font-size:19px}
-  .tile small{color:var(--soft);font-size:14px}
+  .pick h2{font-size:clamp(18px,1.8vw,22px)}
+  .tiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+  .tile{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:14px;align-items:center;
+    padding:12px 16px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);text-decoration:none;transition:border-color .2s}
+  .tile:hover{border-color:var(--accent)}
+  .tile b{grid-row:span 2;font:800 32px/1 var(--display);color:var(--accent)}
+  .tile span{font-weight:700;font-size:16px}
+  .tile small{color:var(--soft);font-size:13px}
 
   .shelf{padding-bottom:0}
-  .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-  .head h2{margin:0}
-  .head a{font-weight:600;color:var(--accent);text-decoration:none}
-  /* полка с прокруткой вбок; отступы выровнены по .wrap */
-  .track{--pad:max(clamp(16px,4vw,40px),calc((100vw - 1180px) / 2 + clamp(16px,4vw,40px)));
-    display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,320px);gap:18px;overflow-x:auto;
-    padding:6px var(--pad) 22px;scroll-padding-inline:var(--pad);scroll-snap-type:x mandatory;scrollbar-width:thin}
-  .track > :global(*){scroll-snap-align:start}
+  .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .head h2{margin:0;font-size:clamp(18px,1.8vw,22px)}
+  .head a{font-weight:600;font-size:15px;color:var(--accent);text-decoration:none}
+  /* сетка без прокрутки: на широком экране 4–5 карточек в ряд, дальше переносится */
+  .cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr))}
 
   @media (max-width:820px){
     .hero-in{grid-template-columns:1fr}
-    .screen{order:-1;transform:none}
+    .screen{order:-1;justify-self:stretch;max-width:none}
   }
-  @media (prefers-reduced-motion:reduce){ .screen{transform:none} .tile,.tile:hover{transition:none;transform:none} }
+  @media (prefers-reduced-motion:reduce){ .tile{transition:none} }
 </style>

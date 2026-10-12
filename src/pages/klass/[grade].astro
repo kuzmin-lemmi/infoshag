@@ -35,12 +35,13 @@ const items = (await getCollection('items'))
 </Base>
 
 <style>
-  .top{padding-bottom:8px}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
-  .tabs a{text-decoration:none;font-weight:700;padding:.5em 1em;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--soft)}
+  .top{padding-bottom:4px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .tabs a{text-decoration:none;font-weight:700;font-size:14.5px;padding:.4em .9em;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--soft)}
   .tabs a:hover{color:var(--ink)}
   .tabs a[aria-current]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-  .lead{color:var(--soft);font-size:clamp(17px,1.8vw,20px);margin:0;max-width:56ch}
-  .list{padding-top:16px}
-  .rows{display:flex;flex-direction:column;gap:20px}
+  h1{font-size:clamp(22px,2.6vw,32px)}
+  .lead{color:var(--soft);font-size:16px;margin:0;max-width:60ch}
+  .list{padding-top:14px}
+  .rows{display:flex;flex-direction:column;gap:14px}
 </style>

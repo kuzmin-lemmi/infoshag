@@ -23,6 +23,11 @@ const grades = [...new Set(school.flatMap(i => i.data.grades))].sort((a, b) => a
     </div>
   </section>
 </Base>
+<script>
+  // старые ссылки вида github.io/personal_ebsite/… приходят сюда как /personal_ebsite/… — переводим на новый адрес
+  const old = '/personal_ebsite/';
+  if (location.pathname.startsWith(old)) location.replace('/' + location.pathname.slice(old.length) + location.search + location.hash);
+</script>
 
 <style>
   .nf{padding:clamp(48px,8vw,96px) 0;text-align:center}

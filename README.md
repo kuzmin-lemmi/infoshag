@@ -5,7 +5,7 @@
 подписку на отдельные продукты.
 
 Сайт сделан на [Astro](https://astro.build) и публикуется на GitHub Pages:
-`https://kuzmin-lemmi.github.io/personal_ebsite/` (до покупки своего домена).
+https://infoshag.ru
 
 ## С чего начать (человеку или ИИ-агенту)
 
@@ -25,7 +25,7 @@
 
 ```bash
 npm install
-npm run dev      # http://localhost:4321/personal_ebsite/
+npm run dev      # http://localhost:4321/
 npm run build    # проверка сборки — должна проходить без ошибок
 ```
 

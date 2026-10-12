@@ -36,12 +36,12 @@
 
 ```bash
 npm install
-npm run dev       # http://localhost:4321/personal_ebsite/
+npm run dev       # http://localhost:4321/
 npm run build     # обязательно перед завершением задачи — сборка должна пройти без ошибок
 npm run preview
 ```
 
-Адрес сайта задаётся в `astro.config.mjs` (`site`, `base`). Сейчас `base: '/personal_ebsite'`.
+Адрес сайта задаётся в `astro.config.mjs` (`site`, `base`). Сайт — https://infoshag.ru, `base: '/'`.
 **Все внутренние ссылки строй через `import.meta.env.BASE_URL`** или функции из `src/lib.ts`
 (`playHref`, `pageHref`, `openHref`). Кнопка «Играть» — всегда `playHref` (ведёт на `/igra/<slug>/`). Ссылки вида `href="/catalog"` сломаются на GitHub Pages.
 

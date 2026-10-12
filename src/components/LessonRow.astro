@@ -2,10 +2,11 @@
 // Строка журнала: ролик слева, справа — как использовать на уроке
 import Preview from './Preview.astro';
 import { ACCESS, TYPES } from '../config';
-import { openHref, pageHref, howTo } from '../lib';
+import { openHref, pageHref, howTo, downloadHref, downloadName } from '../lib';
 const { item, n } = Astro.props;
 const d = item.data;
 const external = /^https?:/.test(d.url);
+const dl = downloadHref(d);
 const facts = [d.duration && `⏱ ${d.duration}`, d.format.length && `🖥 ${d.format.join(', ')}`].filter(Boolean);
 ---
 <article class="row" style={`--c:${d.color}`}>
@@ -22,7 +23,8 @@ const facts = [d.duration && `⏱ ${d.duration}`, d.format.length && `🖥 ${d.f
     {d.modes.length > 0 && <p class="modes">Режимы: {d.modes.join(' · ')}</p>}
     <div class="act">
       <a class="btn play" href={openHref(d.url)} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>▶ Играть</a>
-      <a class="btn" href={pageHref(item.id)}>Подробнее и QR</a>
+      {dl && <a class="btn" href={dl} download={downloadName(d.url)}>⬇ Скачать</a>}
+      <a class="btn" href={pageHref(item.id)}>Подробнее</a>
       {d.access !== 'free' && <span class="chip">{ACCESS[d.access]}</span>}
     </div>
   </div>

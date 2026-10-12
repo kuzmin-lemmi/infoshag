@@ -2,10 +2,11 @@
 // Карточка на полке витрины: превью оживает при наведении
 import Preview from './Preview.astro';
 import { ACCESS } from '../config';
-import { openHref, pageHref, gradeLabel } from '../lib';
+import { openHref, pageHref, gradeLabel, downloadHref, downloadName } from '../lib';
 const { item } = Astro.props;
 const d = item.data;
 const external = /^https?:/.test(d.url);
+const dl = downloadHref(d);
 ---
 <article class="sc" style={`--c:${d.color}`} data-pv-host>
   <a class="media" href={pageHref(item.id)} aria-label={d.title}><Preview item={item} /></a>
@@ -17,9 +18,12 @@ const external = /^https?:/.test(d.url);
     </p>
     <h3><a href={pageHref(item.id)}>{d.title}</a></h3>
     {d.topic && <p class="topic">{d.topic}</p>}
-    <a class="play" href={openHref(d.url)} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
-      {external ? 'Открыть ↗' : '▶ Играть'}
-    </a>
+    <div class="act">
+      <a class="play" href={openHref(d.url)} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
+        {external ? 'Открыть ↗' : '▶ Играть'}
+      </a>
+      {dl && <a class="dl" href={dl} download={downloadName(d.url)} title="Скачать игру бесплатно — один HTML-файл">⬇ Скачать</a>}
+    </div>
   </div>
 </article>
 
@@ -33,7 +37,10 @@ const external = /^https?:/.test(d.url);
   h3{margin:.2em 0 0;font-size:15px;line-height:1.25}
   h3 a{text-decoration:none}
   .topic{margin:0;color:var(--soft);font-size:13.5px;line-height:1.4;flex:1}
-  .play{align-self:flex-start;margin-top:8px;font-weight:700;text-decoration:none;color:#fff;background:var(--c);
+  .act{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .dl{font-weight:700;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);padding:calc(.35em - 1.5px) .7em;border-radius:8px;font-size:13.5px}
+  .dl:hover{border-color:var(--c)}
+  .play{font-weight:700;text-decoration:none;color:#fff;background:var(--c);
     padding:.35em .8em;border-radius:8px;font-size:13.5px}
   .play:hover{filter:brightness(1.1)}
   @media (prefers-reduced-motion:reduce){ .sc{transition:none} }

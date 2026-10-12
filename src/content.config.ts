@@ -23,7 +23,7 @@ const items = defineCollection({
     repo: z.string().optional(),
     order: z.number().default(100),
     video: z.string().optional(),             // ролик геймплея: 'posts/<slug>.mp4' (без звука, 15–30 с)
-    poster: z.string().optional(),            // первый кадр ролика: 'posts/<slug>.jpg'
+    poster: z.string().optional(),            // картинка из игры или первый кадр ролика: 'posts/<slug>.jpg'
     featured: z.boolean().default(false),     // при равных датах added — показать в блоке «Новое» первым
     added: z.coerce.date().optional(),        // дата публикации: самый свежий материал попадает в блок «Новое» на главной
     updated: z.coerce.date().optional(),

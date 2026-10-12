@@ -1,9 +1,10 @@
 ---
 import { TYPES, ACCESS } from '../config';
-import { openHref, pageHref, gradeLabel } from '../lib';
+import { openHref, pageHref, gradeLabel, downloadHref, downloadName } from '../lib';
 const { item } = Astro.props;
 const d = item.data;
 const external = /^https?:/.test(d.url);
+const dl = downloadHref(d);
 ---
 <article class="card" style={`--c:${d.color}`}
   data-type={d.type} data-grades={d.grades.join(' ')}
@@ -22,6 +23,7 @@ const external = /^https?:/.test(d.url);
       <a class="btn primary" href={openHref(d.url)} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
         {d.type === 'course' ? 'К курсу' : 'Открыть'} {external ? '↗' : '▶'}
       </a>
+      {dl && <a class="btn" href={dl} download={downloadName(d.url)}>⬇ Скачать</a>}
       <a class="btn" href={pageHref(item.id)}>Подробнее</a>
     </div>
   </div>

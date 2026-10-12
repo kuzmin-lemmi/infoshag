@@ -1,24 +1,27 @@
+/* Палитра «Инфошага» — как в оформлении сообщества ВК (design/vk/): тёмно-синий, голубой, бирюзовый, фиолетовый акцент */
 :root{
-  --bg:#F3F5FA; --surface:#FFFFFF; --ink:#141A2E; --soft:#5B6382; --line:#DCE1EE; --accent:#3D4BFF; --accent-ink:#FFFFFF;
-  --display:'Unbounded','Arial Black',system-ui,sans-serif;
+  --bg:#F2F7FD; --surface:#FFFFFF; --ink:#0B1F4D; --soft:#4E5F85; --line:#D6E3F3; --accent:#0A6FE0; --accent-ink:#FFFFFF;
+  --teal:#12BFB0; --violet:#8E72D8; --tint:#E3F0FD;
+  --brand:linear-gradient(120deg,#0A2E78 0%,#0A82F0 55%,#14DCC4 100%);
+  --display:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
   --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
   --r:18px;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){ --bg:#0F1220; --surface:#171B2E; --ink:#E9ECFA; --soft:#9AA2C4; --line:#2A3050; --accent:#7C86FF; --accent-ink:#0F1220; color-scheme:dark; }
+  :root:not([data-theme="light"]){ --bg:#081430; --surface:#0F2147; --ink:#EAF2FF; --soft:#9DB0D6; --line:#22386A; --accent:#3DA2FF; --accent-ink:#06122B; --teal:#2FE0CF; --violet:#A891EE; --tint:#0D1C40; --logo-bg:#FFFFFF; color-scheme:dark; }
 }
-:root[data-theme="dark"]{ --bg:#0F1220; --surface:#171B2E; --ink:#E9ECFA; --soft:#9AA2C4; --line:#2A3050; --accent:#7C86FF; --accent-ink:#0F1220; color-scheme:dark; }
+:root[data-theme="dark"]{ --bg:#081430; --surface:#0F2147; --ink:#EAF2FF; --soft:#9DB0D6; --line:#22386A; --accent:#3DA2FF; --accent-ink:#06122B; --teal:#2FE0CF; --violet:#A891EE; --tint:#0D1C40; --logo-bg:#FFFFFF; color-scheme:dark; }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:80px}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}
 a{color:inherit}
 img,svg{max-width:100%}
 .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,40px)}
-h1,h2,h3{font-family:var(--display);line-height:1.12;margin:0 0 .5em;letter-spacing:-.01em}
+h1,h2,h3{font-family:var(--display);line-height:1.12;margin:0 0 .5em;letter-spacing:-.02em}
 h1{font-size:clamp(26px,3.6vw,42px);font-weight:800}
-h2{font-size:clamp(20px,2.2vw,26px);font-weight:700}
-h3{font-size:clamp(16px,1.5vw,19px);font-weight:700}
+h2{font-size:clamp(20px,2.2vw,26px);font-weight:800}
+h3{font-size:clamp(16px,1.5vw,19px);font-weight:800}
 .muted{color:var(--soft)}
 .btn{display:inline-flex;align-items:center;gap:.5em;border-radius:12px;padding:.7em 1.15em;font-weight:700;text-decoration:none;border:1.5px solid var(--line);background:var(--surface)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}

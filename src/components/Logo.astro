@@ -1,0 +1,45 @@
+---
+// Знак «АК» — векторная копия аватара сообщества ВК (design/vk/infoshag-avatar.png).
+// Координаты — в пикселях исходного PNG 1254×1254, центр колец (622, 615).
+interface Props { size?: number; class?: string; }
+const { size = 36, class: cls } = Astro.props;
+const uid = `ak${Math.random().toString(36).slice(2, 8)}`;
+const C = [622, 615];
+const pt = (r: number, a: number) => {
+  const t = (a * Math.PI) / 180;
+  return [C[0] + r * Math.cos(t), C[1] + r * Math.sin(t)].map(v => v.toFixed(1)).join(' ');
+};
+// дуга по часовой стрелке от угла a1 до a2 (0° — вправо, 90° — вниз)
+const arc = (r: number, a1: number, a2: number) =>
+  `M${pt(r, a1)} A${r} ${r} 0 ${a2 - a1 > 180 ? 1 : 0} 1 ${pt(r, a2)}`;
+const outer = 442, inner = 373;
+const nodes = [309, 137].map(a => pt(inner, a).split(' ').map(Number));
+---
+<svg class={cls} width={size} height={size} viewBox="140 135 965 965" role="img" aria-label="Инфошаг" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id={`${uid}r`} x1="200" y1="1000" x2="1050" y2="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#082A66" />
+      <stop offset=".5" stop-color="#0A82F0" />
+      <stop offset="1" stop-color="#14DCC4" />
+    </linearGradient>
+    <linearGradient id={`${uid}l`} x1="300" y1="850" x2="950" y2="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0A2E78" />
+      <stop offset="1" stop-color="#0A78D2" />
+    </linearGradient>
+  </defs>
+  <circle cx="622" cy="617" r="482" fill="var(--logo-bg, transparent)" />
+  <g fill="none" stroke={`url(#${uid}r)`} stroke-linecap="butt">
+    <path d={arc(outer, 78, 150)} stroke-width="50" />
+    <path d={arc(outer, 156, 434)} stroke-width="50" />
+    <path d={arc(inner, 164, 306)} stroke-width="38" />
+    <path d={arc(inner, 332, 385)} stroke-width="38" />
+    <path d={arc(inner, 44, 134)} stroke-width="38" />
+    {nodes.map(([x, y]) => <circle cx={x} cy={y} r="24" stroke-width="18" />)}
+  </g>
+  <g fill={`url(#${uid}l)`}>
+    <path d="M510 410 712 800H636L505 535 285 860 220 840Z" />
+    <path d="M458 648H562L590 705H420Z" />
+    <path d="M648 452H710V598L925 360 962 410 710 685V742L648 618Z" />
+    <path d="M742 685 790 632 960 808 920 862Z" />
+  </g>
+</svg>

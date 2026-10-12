@@ -26,13 +26,16 @@ function wrap(text: string, max: number, lines: number) {
   return out;
 }
 
+// ширина текста — с запасом под самый широкий из запасных шрифтов (DejaVu Sans на сервере сборки)
+const W = 660, EM_TITLE = .66, EM_TOPIC = .7, EM_TAG = .62;
 const FONT = "'Golos Text','Segoe UI','DejaVu Sans','Liberation Sans',Arial,sans-serif";
 
 export const GET: APIRoute = async ({ props }) => {
   const d = (props as any).item.data;
   const logo = (await readFile(join(process.cwd(), 'public/favicon.svg'))).toString('base64');
   const title = wrap(d.title, 18, 2);
-  const topic = wrap(d.topic ?? d.summary, 34, 2);
+  const topic = wrap(d.topic ?? d.summary, Math.floor(W / (32 * EM_TOPIC)), 2);
+  const fs = Math.min(78, Math.floor(W / (Math.max(...title.map(l => l.length)) * EM_TITLE)));
   const tag = [d.grades.length ? gradeLabel(d.grades) : TYPES[d.type as keyof typeof TYPES].label, ACCESS[d.access as keyof typeof ACCESS]].join(' · ');
   const ty = title.length > 1 ? 250 : 300;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -49,9 +52,9 @@ export const GET: APIRoute = async ({ props }) => {
   <circle cx="366" cy="520" r="8" fill="#0A6FE0" fill-opacity=".45"/>
   <image x="70" y="56" width="84" height="84" href="data:image/svg+xml;base64,${logo}"/>
   <text x="170" y="114" font-family="${FONT}" font-size="40" font-weight="800" fill="#0B1F4D">Инфошаг</text>
-  ${title.map((l, i) => `<text x="70" y="${ty + i * 86}" font-family="${FONT}" font-size="78" font-weight="800" fill="#0B1F4D">${esc(l)}</text>`).join('')}
+  ${title.map((l, i) => `<text x="70" y="${ty + i * 86}" font-family="${FONT}" font-size="${fs}" font-weight="800" fill="#0B1F4D">${esc(l)}</text>`).join('')}
   ${topic.map((l, i) => `<text x="72" y="${ty + (title.length - 1) * 86 + 70 + i * 42}" font-family="${FONT}" font-size="32" font-weight="600" fill="#4E5F85">${esc(l)}</text>`).join('')}
-  <rect x="70" y="490" width="${tag.length * 17 + 56}" height="64" rx="32" fill="${d.color}"/>
+  <rect x="70" y="490" width="${Math.ceil(tag.length * 30 * EM_TAG) + 56}" height="64" rx="32" fill="${d.color}"/>
   <text x="98" y="532" font-family="${FONT}" font-size="30" font-weight="700" fill="#fff">${esc(tag)}</text>
 </svg>`;
   const png = await sharp(Buffer.from(svg)).png({ compressionLevel: 9, palette: true }).toBuffer();

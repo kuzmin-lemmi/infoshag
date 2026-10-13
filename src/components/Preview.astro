@@ -46,11 +46,13 @@ const hasDark = posterDark && existsSync(join(process.cwd(), 'public', posterDar
 
 <script>
   const W = 1280;
-  const MAX_LIVE = 2;                        // одновременно «живых» превью на экране
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
     || (navigator as any).connection?.saveData;
   const live: HTMLElement[] = [];
   const touch = matchMedia('(hover: none)').matches;
+  const MAX_LIVE = touch ? 1 : 2;             // одновременно «живых» превью: на телефоне одно — легче прокрутке
+  const SETTLE = 400;                         // на телефоне игра грузится, когда палец остановился
+  const timers = new WeakMap<HTMLElement, number>();
 
   const fit = (el: HTMLElement) => el.style.setProperty('--s', String(el.clientWidth / W));
 
@@ -71,6 +73,10 @@ const hasDark = posterDark && existsSync(join(process.cwd(), 'public', posterDar
         try {
           const w = f.contentWindow as any, doc = f.contentDocument!;
           w.AudioContext = w.webkitAudioContext = undefined;
+          // превью не забирает фокус: иначе браузер прокручивает страницу назад к игре (скачки на телефоне)
+          const noop = () => {};
+          w.HTMLElement.prototype.focus = w.SVGElement.prototype.focus = noop;
+          w.Element.prototype.scrollIntoView = noop;
           [...doc.querySelectorAll('button')].find(b => b.textContent?.includes('Тренировка'))?.click();
           doc.getElementById('startBtn')?.click();
         } catch {}
@@ -94,7 +100,10 @@ const hasDark = posterDark && existsSync(join(process.cwd(), 'public', posterDar
   const ro = new ResizeObserver(es => es.forEach(e => fit(e.target as HTMLElement)));
   const io = new IntersectionObserver(es => es.forEach(e => {
     const el = e.target as HTMLElement;
-    e.isIntersecting ? start(el) : stop(el);
+    clearTimeout(timers.get(el));
+    if (!e.isIntersecting) { stop(el); return; }
+    if (touch) timers.set(el, window.setTimeout(() => start(el), SETTLE));
+    else start(el);
   }), { threshold: 0.5 });
 
   document.querySelectorAll<HTMLElement>('.pv').forEach(el => {

@@ -1,5 +1,5 @@
 ---
-// Журнал по урокам: игры класса по порядку учебника, у каждой — ролик и «как использовать на уроке»
+// Журнал по урокам: игры класса по порядку учебника, у каждой — ролик и описание
 import Base from '../../layouts/Base.astro';
 import LessonRow from '../../components/LessonRow.astro';
 import { getCollection } from 'astro:content';
@@ -24,7 +24,7 @@ const items = (await getCollection('items'))
         {grades.map(x => <a href={klassHref(x)} aria-current={x === g ? 'page' : undefined}>{klassName(x)}</a>)}
       </nav>
       <h1>Информатика · {klassName(g)}</h1>
-      <p class="lead">Игры и тренажёры по порядку учебника Босовой. У каждой — как встроить её в урок.</p>
+      <p class="lead">Игры и тренажёры по порядку учебника Босовой. Каждую можно открыть на доске или скачать.</p>
     </div>
   </section>
   <section class="list">

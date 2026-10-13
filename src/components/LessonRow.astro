@@ -1,8 +1,8 @@
 ---
-// Строка журнала: ролик слева, справа — как использовать на уроке
+// Строка журнала: ролик слева, справа — описание игры
 import Preview from './Preview.astro';
 import { ACCESS, TYPES } from '../config';
-import { playHref, pageHref, howTo, downloadHref, downloadName } from '../lib';
+import { playHref, pageHref, downloadHref, downloadName } from '../lib';
 const { item, n } = Astro.props;
 const d = item.data;
 const external = /^https?:/.test(d.url);
@@ -15,10 +15,6 @@ const facts = [d.duration && `⏱ ${d.duration}`, d.format.length && `🖥 ${d.f
     <p class="kicker"><span class="n">{n}</span>{d.topic ?? TYPES[d.type].label}</p>
     <h3><a href={pageHref(item.id)}>{d.title}</a></h3>
     <p class="sum">{d.summary}</p>
-    <div class="howto">
-      <b>Как использовать на уроке</b>
-      <p>{howTo(item.body)}</p>
-    </div>
     {facts.length > 0 && <ul class="facts">{facts.map(f => <li>{f}</li>)}</ul>}
     {d.modes.length > 0 && <p class="modes">Режимы: {d.modes.join(' · ')}</p>}
     <div class="act">
@@ -40,8 +36,6 @@ const facts = [d.duration && `⏱ ${d.duration}`, d.format.length && `🖥 ${d.f
   h3{margin:0;font-size:clamp(17px,1.7vw,21px)}
   h3 a{text-decoration:none}
   .sum{margin:0;color:var(--soft);font-size:15px}
-  .howto{background:color-mix(in srgb,var(--c) 8%,var(--surface));border-left:3px solid var(--c);padding:8px 12px;font-size:14.5px}
-  .howto p{margin:2px 0 0}
   .facts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--soft);font-size:14px}
   .modes{margin:0;color:var(--soft);font-size:13.5px}
   .act{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}

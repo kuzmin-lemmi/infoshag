@@ -27,7 +27,7 @@ const src = openHref(d.url);
 </head>
 <body>
   <iframe id="game" src={src} title={d.title} allow="fullscreen; autoplay" allowfullscreen></iframe>
-  <noscript><a href={pageHref(item.id)}>{d.title} — описание и как использовать на уроке</a></noscript>
+  <noscript><a href={pageHref(item.id)}>{d.title} — описание игры</a></noscript>
   <script>
     // фокус сразу в игру — чтобы с клавиатуры можно было играть без лишнего щелчка
     const f = document.getElementById('game') as HTMLIFrameElement;

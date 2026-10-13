@@ -13,5 +13,5 @@ export const gradeLabel = (g: number[]) => g.length ? g.map(x => `${x} клас�
 export const downloadHref = (d: { url: string; access: string }) =>
   d.access === 'free' && isLocalGame(d.url) ? openHref(d.url) : '';
 export const downloadName = (url: string) => url.split('/').pop() ?? url;
-// Картинка превью ссылки: своя картинка из игры (poster) или карточка, собранная при сборке
-export const ogImage = (item: { id: string; data: { poster?: string } }) => item.data.poster ?? `og/${item.id}.png`;
+// Картинка превью ссылки — карточка с названием игры, собранная при сборке (src/pages/og/[id].png.ts)
+export const ogImage = (item: { id: string }) => `og/${item.id}.png`;

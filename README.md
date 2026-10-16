@@ -1,6 +1,6 @@
 <div align="center">
 
-[![Инфошаг — игры и тренажёры по информатике](public/og/infoshag.jpg)](https://infoshag.ru)
+[![Инфошаг — игры и тренажёры по информатике](design/vk/infoshag-cover.png)](https://infoshag.ru)
 
 # Инфошаг
 

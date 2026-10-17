@@ -38,8 +38,12 @@ const items = (await getCollection('items'))
   .top{padding-bottom:4px}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
   .tabs a{text-decoration:none;font-weight:700;font-size:14.5px;padding:.4em .9em;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--soft)}
-  .tabs a:hover{color:var(--ink)}
+  .tabs a{transition:color 160ms var(--ease-out),transform 160ms var(--ease-out)}
+  @media (hover:hover) and (pointer:fine){ .tabs a:hover{color:var(--ink)} }
+  .tabs a:active{transform:scale(.97)}
   .tabs a[aria-current]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  @media (pointer:coarse){ .tabs a{display:inline-flex;align-items:center;min-height:44px} }
+  @media (prefers-reduced-motion:reduce){ .tabs a:active{transform:none} }
   h1{font-size:clamp(22px,2.6vw,32px)}
   .lead{color:var(--soft);font-size:16px;margin:0;max-width:60ch}
   .list{padding-top:14px}

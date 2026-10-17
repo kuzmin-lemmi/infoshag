@@ -7,7 +7,7 @@ import { Picture } from 'astro:assets';
 import heroArt from '../assets/infoshag-hero.png';
 import { getCollection } from 'astro:content';
 import { SITE, ACCESS } from '../config';
-import { playHref, pageHref, gradeLabel, klassHref, klassName } from '../lib';
+import { playHref, pageHref, gradeLabel, klassHref, klassName, colorVars } from '../lib';
 const all = (await getCollection('items')).sort((a, b) => a.data.order - b.data.order);
 const school = all.filter(i => i.data.type === 'game' || i.data.type === 'trainer');
 const grades = [...new Set(school.flatMap(i => i.data.grades))].sort((a, b) => a - b);
@@ -37,7 +37,7 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
     </div>
   </section>
 
-  <section class="feat" style={`--c:${h.color}`}>
+  <section class="feat" style={colorVars(h.color)}>
     <div class="wrap">
       <div class="feat-in">
         <a class="screen" href={pageHref(hero.id)} aria-label={h.title}><Preview item={hero} load="visible" /></a>
@@ -125,15 +125,16 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
   .feat h2{font-size:clamp(22px,2.6vw,30px)}
   .lead2{color:var(--soft);margin:0 0 10px;max-width:50ch}
   .facts{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0 0 16px;font-weight:600;font-size:15px}
-  .feat .primary{background:var(--c);border-color:var(--c);color:#fff}
+  .feat .primary{background:var(--cb);border-color:var(--cb);color:#fff}
   .screen{display:block;border-radius:var(--r);overflow:hidden;box-shadow:0 18px 40px color-mix(in srgb,var(--c) 28%,transparent),0 3px 10px rgba(0,0,0,.1)}
 
   .pick{padding-bottom:0}
   .pick h2{font-size:clamp(18px,1.8vw,22px)}
   .tiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
   .tile{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:14px;align-items:center;
-    padding:12px 16px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);text-decoration:none;transition:border-color .2s}
-  .tile:hover{border-color:var(--accent)}
+    padding:12px 16px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);text-decoration:none;transition:border-color 180ms var(--ease-out),transform 160ms var(--ease-out)}
+  @media (hover:hover) and (pointer:fine){ .tile:hover{border-color:var(--accent)} }
+  .tile:active{transform:scale(.98)}
   .tile b{grid-row:span 2;font:800 32px/1 var(--display);color:var(--accent)}
   .tile span{font-weight:700;font-size:16px}
   .tile small{color:var(--soft);font-size:13px}
@@ -142,6 +143,7 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
   .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
   .head h2{margin:0;font-size:clamp(18px,1.8vw,22px)}
   .head a{font-weight:600;font-size:15px;color:var(--accent);text-decoration:none}
+  @media (pointer:coarse){ .head a{display:inline-flex;align-items:center;min-height:44px} .tile{min-height:56px} }
   /* сетка без прокрутки: на широком экране 4–5 карточек в ряд, дальше переносится */
   .cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr))}
 
@@ -152,5 +154,5 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
     :global(.art){max-height:210px;-webkit-mask-image:linear-gradient(180deg,transparent,#000 25%);mask-image:linear-gradient(180deg,transparent,#000 25%)}
     .feat-in{grid-template-columns:1fr}
   }
-  @media (prefers-reduced-motion:reduce){ .tile{transition:none} }
+  @media (prefers-reduced-motion:reduce){ .tile{transition:border-color 180ms linear} .tile:active{transform:none} }
 </style>

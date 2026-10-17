@@ -1,11 +1,12 @@
 /* Палитра «Инфошага» — как в оформлении сообщества ВК (design/vk/): тёмно-синий, голубой, бирюзовый, фиолетовый акцент */
 :root{
-  --bg:#F2F7FD; --surface:#FFFFFF; --ink:#0B1F4D; --soft:#4E5F85; --line:#D6E3F3; --accent:#0A6FE0; --accent-ink:#FFFFFF;
+  --bg:#F2F7FD; --surface:#FFFFFF; --ink:#0B1F4D; --soft:#4E5F85; --line:#D6E3F3; --accent:#0A68D6; --accent-ink:#FFFFFF;
   --teal:#12BFB0; --violet:#8E72D8; --tint:#E3F0FD;
   --brand:linear-gradient(120deg,#0A2E78 0%,#0A82F0 55%,#14DCC4 100%);
   --display:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
   --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
   --r:18px;
+  --ease-out:cubic-bezier(.23,1,.32,1);
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -23,10 +24,17 @@ h1{font-size:clamp(26px,3.6vw,42px);font-weight:800}
 h2{font-size:clamp(20px,2.2vw,26px);font-weight:800}
 h3{font-size:clamp(16px,1.5vw,19px);font-weight:800}
 .muted{color:var(--soft)}
-.btn{display:inline-flex;align-items:center;gap:.5em;border-radius:12px;padding:.7em 1.15em;font-weight:700;text-decoration:none;border:1.5px solid var(--line);background:var(--surface)}
+.btn{display:inline-flex;align-items:center;gap:.5em;border-radius:12px;padding:.7em 1.15em;font-weight:700;text-decoration:none;border:1.5px solid var(--line);background:var(--surface);
+  transition:filter 160ms var(--ease-out),transform 160ms var(--ease-out)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.btn:hover{filter:brightness(1.05)}
+@media (hover:hover) and (pointer:fine){ .btn:hover{filter:brightness(1.05)} }
+.btn:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){ .btn{transition:filter 160ms linear} .btn:active{transform:none} }
 .chip{display:inline-block;border:1.5px solid var(--line);border-radius:999px;padding:.2em .7em;font-size:14px;font-weight:600;color:var(--soft);background:var(--surface)}
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
 section{padding:clamp(24px,3.5vw,40px) 0}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+/* цвет игры для текста: --cb/--cd считает colorVars() в lib.ts, чтобы контраст был не ниже 4.5:1 в обеих темах */
+.ink-c{color:var(--cb,var(--c))}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .ink-c{color:var(--cd,var(--c))} }
+:root[data-theme="dark"] .ink-c{color:var(--cd,var(--c))}

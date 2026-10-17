@@ -2,17 +2,17 @@
 // Строка журнала: ролик слева, справа — описание игры
 import Preview from './Preview.astro';
 import { ACCESS, TYPES } from '../config';
-import { playHref, pageHref, downloadHref, downloadName } from '../lib';
+import { playHref, pageHref, downloadHref, downloadName, colorVars } from '../lib';
 const { item, n } = Astro.props;
 const d = item.data;
 const external = /^https?:/.test(d.url);
 const dl = downloadHref(d);
 const facts = [d.duration && `⏱ ${d.duration}`, d.format.length && `🖥 ${d.format.join(', ')}`].filter(Boolean);
 ---
-<article class="row" style={`--c:${d.color}`}>
-  <a class="media" href={pageHref(item.id)} aria-label={d.title}><Preview item={item} load="visible" /></a>
+<article class="row" style={colorVars(d.color)}>
+  <a class="media" href={pageHref(item.id)} tabindex="-1" aria-hidden="true"><Preview item={item} load="visible" /></a>
   <div class="body">
-    <p class="kicker"><span class="n">{n}</span>{d.topic ?? TYPES[d.type].label}</p>
+    <p class="kicker ink-c"><span class="n">{n}</span>{d.topic ?? TYPES[d.type].label}</p>
     <h3><a href={pageHref(item.id)}>{d.title}</a></h3>
     <p class="sum">{d.summary}</p>
     {facts.length > 0 && <ul class="facts">{facts.map(f => <li>{f}</li>)}</ul>}
@@ -31,8 +31,8 @@ const facts = [d.duration && `⏱ ${d.duration}`, d.format.length && `🖥 ${d.f
     padding:16px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px}
   .media{display:block;border-radius:12px;overflow:hidden}
   .body{display:flex;flex-direction:column;gap:6px;min-width:0}
-  .kicker{margin:0;display:flex;align-items:center;gap:8px;font-weight:700;color:var(--c);filter:saturate(1.2);font-size:13.5px}
-  .n{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--c);color:#fff;font:800 11px var(--display)}
+  .kicker{margin:0;display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px}
+  .n{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--cb);color:#fff;font:800 11px var(--display)}
   h3{margin:0;font-size:clamp(17px,1.7vw,21px)}
   h3 a{text-decoration:none}
   .sum{margin:0;color:var(--soft);font-size:15px}
@@ -40,6 +40,7 @@ const facts = [d.duration && `⏱ ${d.duration}`, d.format.length && `🖥 ${d.f
   .modes{margin:0;color:var(--soft);font-size:13.5px}
   .act{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
   .act .btn{padding:.5em .9em;font-size:14.5px}
-  .play{background:var(--c);border-color:var(--c);color:#fff}
+  @media (pointer:coarse){ .act .btn{min-height:44px;justify-content:center} }
+  .play{background:var(--cb);border-color:var(--cb);color:#fff}
   @media (max-width:760px){ .row{grid-template-columns:1fr} }
 </style>

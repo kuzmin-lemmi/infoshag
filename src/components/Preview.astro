@@ -35,8 +35,8 @@ const hasDark = posterDark && existsSync(join(process.cwd(), 'public', posterDar
   .cover span{font-size:clamp(34px,16cqi,80px);filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
   .pv{container-type:inline-size}
   .pv :global(iframe){position:absolute;left:0;top:0;width:1280px;height:800px;border:0;pointer-events:none;
-    transform:scale(var(--s,.25));transform-origin:0 0;opacity:0;transition:opacity .35s;background:#fff}
-  .pv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}
+    transform:scale(var(--s,.25));transform-origin:0 0;opacity:0;transition:opacity 250ms var(--ease-out);background:#fff}
+  .pv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 250ms var(--ease-out)}
   .pv.on :global(iframe),.pv.on video{opacity:1}
   .hint{position:absolute;right:8px;bottom:8px;z-index:2;display:grid;place-items:center;width:26px;height:26px;
     font-size:11px;color:#fff;background:rgba(0,0,0,.4);border-radius:50%;transition:opacity .3s}
@@ -53,10 +53,22 @@ const hasDark = posterDark && existsSync(join(process.cwd(), 'public', posterDar
   const MAX_LIVE = touch ? 1 : 2;             // одновременно «живых» превью: на телефоне одно — легче прокрутке
   const SETTLE = 400;                         // на телефоне игра грузится, когда палец остановился
   const timers = new WeakMap<HTMLElement, number>();
+  const leaving = new WeakMap<HTMLElement, number>();   // iframe ещё в DOM, пока плавно гаснет
+  const FADE = 260;                                     // чуть дольше transition opacity (250 мс)
 
   const fit = (el: HTMLElement) => el.style.setProperty('--s', String(el.clientWidth / W));
 
   function start(el: HTMLElement) {
+    // игра ещё не успела исчезнуть — возвращаем её на экран, не создавая заново
+    const pending = leaving.get(el);
+    if (pending) {
+      clearTimeout(pending);
+      leaving.delete(el);
+      el.classList.add('on');
+      live.push(el);
+      while (live.length > MAX_LIVE) stop(live[0]);
+      return;
+    }
     const video = el.querySelector('video');
     if (video) {
       if (!video.src) return;
@@ -92,7 +104,11 @@ const hasDark = posterDark && existsSync(join(process.cwd(), 'public', posterDar
   function stop(el: HTMLElement) {
     el.classList.remove('on');
     el.querySelector('video')?.pause();
-    el.querySelector('iframe')?.remove();
+    const frame = el.querySelector('iframe');
+    if (frame) {
+      clearTimeout(leaving.get(el));
+      leaving.set(el, window.setTimeout(() => { frame.remove(); leaving.delete(el); }, FADE));
+    }
     const i = live.indexOf(el);
     if (i >= 0) live.splice(i, 1);
   }

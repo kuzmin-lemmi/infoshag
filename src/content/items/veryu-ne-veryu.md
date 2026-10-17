@@ -5,14 +5,13 @@ summary: "Трассировка программ на Python: прочитай 
 emoji: 🐍
 color: "#3572A5"
 url: games/veryu-ne-veryu.html
-grades: [8]
+grades: [7]
 topic: "Начала программирования: линейные программы, ветвление, циклы"
-textbook: "Босова, 8 класс — начала программирования на Python"
 duration: "10 минут"
 format: [за компьютерами, на доске]
 modes: [линейные программы, ветвление, цикл while, цикл for, контрольная на 10 минут с оценкой]
 tags: [Python, трассировка, if, while, for, range, ОГЭ]
-order: 80
+order: 25
 added: 2026-10-17
 poster: posts/veryu-ne-veryu.jpg
 ---

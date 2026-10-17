@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Верю — не верю</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Golos+Text:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F3EA; --grid:rgba(120,100,60,.12); --card:#FFFDF8; --ink:#2A2620; --ink-soft:#6B6457;
+  --margin:#3572A5; --good:#2E8B57; --bad:#C8402E; --bad-bg:#FBDCD5; --good-bg:#DDF1E3; --hl:#FFF1B8;
+  --kw:#9B3FB5; --fn:#2D62A8; --num:#C2541E; --str:#2E8B57;
+  --hand:'Caveat','Comic Sans MS',cursive;
+  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',Consolas,'Courier New',monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#1B1A17; --grid:rgba(255,240,200,.06); --card:#26241F; --ink:#EFE9DC; --ink-soft:#ADA593;
+    --margin:#7FB2E5; --good:#5BC489; --bad:#F07A66; --bad-bg:#53281F; --good-bg:#1F4430; --hl:#4A4220;
+    --kw:#D99AEB; --fn:#8EB8F0; --num:#F2A271; --str:#7FD39F; }
+}
+:root[data-theme="dark"]{ --paper:#1B1A17; --grid:rgba(255,240,200,.06); --card:#26241F; --ink:#EFE9DC; --ink-soft:#ADA593;
+  --margin:#7FB2E5; --good:#5BC489; --bad:#F07A66; --bad-bg:#53281F; --good-bg:#1F4430; --hl:#4A4220;
+  --kw:#D99AEB; --fn:#8EB8F0; --num:#F2A271; --str:#7FD39F; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%}
+body{min-height:100%;margin:0;color:var(--ink);font-family:var(--body);
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--margin);outline-offset:2px}
+#app{max-width:1180px;overflow-x:clip;margin:0 auto;padding:12px max(clamp(12px,3vw,32px),env(safe-area-inset-left,0px)) 24px;display:flex;flex-direction:column;gap:14px}
+
+/* шапка */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font:700 clamp(30px,5vmin,46px)/1 var(--hand);margin:0}
+.brand h1 span{color:var(--margin)}
+.brand small{display:block;color:var(--ink-soft);font-size:14px;margin-top:2px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{position:relative;background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;font-weight:700;font-size:clamp(14px,1.8vmin,17px);box-shadow:3px 3px 0 var(--ink)}
+.pill b{font-family:var(--mono);margin-left:4px;font-variant-numeric:tabular-nums}
+.pill[hidden],.ibtn[hidden]{display:none}
+.pill.warn b{color:var(--bad)}
+.mult{position:absolute;right:-10px;top:-12px;background:var(--margin);color:#fff;border-radius:999px;padding:1px 7px;font:700 13px/1.4 var(--mono)}
+.mult[hidden]{display:none}
+.mult.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.5)}}
+.ibtn{width:42px;height:38px;background:var(--card);border:2px solid var(--ink);border-radius:12px;box-shadow:3px 3px 0 var(--ink);font-size:18px}
+.timebar{height:6px;border-radius:3px;background:var(--grid);overflow:hidden}
+.timebar[hidden]{display:none}
+.timebar i{display:block;height:100%;background:var(--ink);transform-origin:left}
+.timebar.low i{background:var(--bad)}
+
+/* листы */
+.sheet{position:relative;background:var(--card);border:2px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:clamp(14px,2.6vmin,24px)}
+.ptab{position:absolute;top:-13px;left:16px;background:var(--card);border:2px solid var(--ink);border-radius:8px;padding:1px 10px;font:700 13px/1.4 var(--mono);color:var(--ink-soft)}
+.board{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(220px,1fr);gap:16px;align-items:start}
+.side{display:flex;flex-direction:column;gap:16px}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 12px}
+.tag{border:2px solid var(--ink);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700}
+.tag.mode{background:var(--ink);color:var(--card)}
+.progress{margin-left:auto;color:var(--ink-soft);font-weight:600;font-size:15px}
+
+/* код */
+ol.src{list-style:none;margin:0;padding:0;font:500 clamp(17px,2.5vmin,25px)/1.6 var(--mono);counter-reset:ln;overflow-x:auto}
+.src li{counter-increment:ln;display:flex;border-radius:8px;padding:0 .4em 0 0;transition:background .15s}
+.src li > span.ln{white-space:pre}
+.src li::before{content:counter(ln);min-width:2.2em;padding-right:.9em;text-align:right;color:var(--ink-soft);opacity:.55;flex-shrink:0}
+.src li.cur{background:var(--hl);box-shadow:inset 4px 0 0 var(--margin)}
+.src .k{color:var(--kw);font-weight:700} .src .f{color:var(--fn)} .src .n{color:var(--num)} .src .s{color:var(--str)}
+.note{margin-top:12px;min-height:1.6em;font:600 clamp(14px,1.9vmin,17px)/1.45 var(--mono);color:var(--ink-soft);border-top:2px dashed var(--grid);padding-top:10px}
+.note b{color:var(--ink)}
+
+/* панели справа */
+.panel{min-height:96px;padding-top:20px}
+.vars{display:flex;flex-direction:column;gap:6px;font:700 clamp(17px,2.3vmin,22px)/1.3 var(--mono)}
+.vars div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--grid);padding:2px 4px;border-radius:6px}
+.vars span{color:var(--ink-soft)}
+.vars div.ch{background:var(--hl)}
+.empty{color:var(--ink-soft);font:italic 400 15px/1.4 var(--body)}
+pre.out{margin:0;font:700 clamp(17px,2.3vmin,22px)/1.35 var(--mono);white-space:pre-wrap;word-break:break-word}
+.inp{font:700 clamp(17px,2.3vmin,22px)/1.3 var(--mono)}
+
+/* утверждение */
+.claimbox{display:flex;flex-direction:column;gap:12px;padding-top:24px}
+.claim{font-size:clamp(18px,2.6vmin,24px);line-height:1.4}
+.claim p{margin:0}
+pre.cout{display:inline-block;margin:.3em 0 0;padding:.2em .7em;border:2px dashed var(--ink);border-radius:12px;font:700 clamp(22px,3.4vmin,32px)/1.35 var(--mono);white-space:pre-wrap;background:color-mix(in srgb,var(--margin) 8%,var(--card))}
+.claim code{font:700 .95em var(--mono);background:color-mix(in srgb,var(--margin) 10%,var(--card));border-radius:6px;padding:0 .3em}
+.answers{display:flex;gap:14px;flex-wrap:wrap}
+.answers[hidden]{display:none}
+.ans{flex:1 1 220px;min-height:66px;border:3px solid currentColor;border-radius:16px;background:var(--card);box-shadow:4px 4px 0 var(--ink);font:700 clamp(20px,3vmin,28px)/1 var(--body);letter-spacing:.04em}
+.ans.yes{color:var(--good)} .ans.no{color:var(--bad)}
+.ans:hover{background:color-mix(in srgb,currentColor 8%,var(--card))}
+.ans:active,.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+kbd{display:inline-block;font:700 .6em/1 var(--mono);border:2px solid currentColor;border-radius:6px;padding:3px 6px;margin-left:.4em;vertical-align:middle}
+.stamp{position:absolute;right:22px;top:14px;font:700 clamp(30px,5vmin,48px)/1 var(--hand);padding:.05em .4em;border:4px solid currentColor;border-radius:10px;transform:rotate(-8deg);pointer-events:none;letter-spacing:.04em;background:var(--card)}
+.stamp.good{color:var(--good)} .stamp.bad{color:var(--bad)}
+.stamp.in{animation:stamp .35s ease-out}
+@keyframes stamp{from{transform:rotate(-8deg) scale(1.8);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+.stamp[hidden]{display:none}
+.feedback{font-size:clamp(15px,2.1vmin,19px);line-height:1.5;font-weight:600}
+.feedback:empty{display:none}
+.feedback.good b.h{color:var(--good)} .feedback.bad b.h{color:var(--bad)}
+.feedback .why{display:block;margin-top:.4em;font-weight:400;border-left:4px solid var(--margin);padding:.2em .8em;background:color-mix(in srgb,var(--margin) 7%,var(--card));border-radius:0 10px 10px 0}
+.feedback code{font:700 .95em var(--mono)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.actions:empty{display:none}
+.actions .sp{flex:1}
+.btn{border:2px solid var(--ink);border-radius:14px;padding:.6em 1.1em;background:var(--card);box-shadow:4px 4px 0 var(--ink);font-weight:700;font-size:clamp(15px,2vmin,18px)}
+.btn.main{background:var(--ink);color:var(--card)}
+.btn.soft{background:var(--card)}
+.keys{margin:0;text-align:center;color:var(--ink-soft);font-size:14px}
+.keys kbd{font-size:12px;margin:0 .2em}
+
+/* экраны */
+.screen{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;overflow-y:auto;background:rgba(30,26,20,.45);backdrop-filter:blur(2px)}
+.screen[hidden]{display:none}
+.screen .sheet{width:min(720px,100%)}
+.screen h2{font:700 clamp(34px,6vmin,52px)/1 var(--hand);margin:0 0 .3em}
+.screen h3{font-size:17px;margin:1.1em 0 .4em}
+.lead{font-size:clamp(16px,2.1vmin,19px);line-height:1.5;margin:0 0 1.2em;max-width:56ch}
+.group{margin:0 0 1em}
+.group > span{display:block;font-weight:700;margin-bottom:.45em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--ink);border-radius:999px;background:var(--card);padding:.4em .9em;font-weight:600;font-size:clamp(14px,1.9vmin,17px)}
+.chip small{color:var(--ink-soft);font-weight:400}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.75}
+.tabs{display:flex;gap:8px;margin:0 0 1.1em;flex-wrap:wrap}
+.tabs .chip{font-size:clamp(15px,2.1vmin,18px);padding:.55em 1.1em}
+.go{display:block;width:100%;margin-top:.7em;border:2px solid var(--ink);border-radius:16px;padding:.7em;background:var(--ink);color:var(--card);box-shadow:4px 4px 0 var(--margin);font:700 clamp(19px,2.8vmin,24px)/1 var(--body)}
+.go[hidden]{display:none}
+.go.ghost{background:var(--card);color:var(--ink);box-shadow:4px 4px 0 var(--ink);font-size:clamp(15px,2.1vmin,18px)}
+.best{font-size:15px;color:var(--ink-soft);margin-top:.9em;text-align:center}
+.name{display:block;font-weight:700;margin:0 0 1em}
+.name input{display:block;width:100%;margin-top:.4em;border:2px solid var(--ink);border-radius:12px;padding:.6em .8em;font:600 18px var(--body);background:var(--card);color:var(--ink)}
+.name input.need{border-color:var(--bad);box-shadow:0 0 0 3px var(--bad-bg)}
+.crit{width:100%;border-collapse:collapse;margin:.3em 0 1em;font-size:clamp(14px,1.9vmin,17px)}
+.crit th,.crit td{border:2px solid var(--ink);padding:.45em .7em;text-align:left;vertical-align:top}
+.crit th{background:color-mix(in srgb,var(--ink) 8%,var(--card))}
+.crit td.g{font:700 1.3em/1 var(--mono);text-align:center;width:3em}
+.rules{margin:.2em 0 .6em;padding-left:1.2em;line-height:1.5;font-size:clamp(14px,1.9vmin,17px)}
+.rules li{margin:.25em 0}
+.result{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:.6em}
+.result div{flex:1 1 120px;border:2px solid var(--ink);border-radius:14px;padding:10px 12px}
+.result b{display:block;font:700 clamp(24px,4.4vmin,38px)/1.1 var(--mono)}
+.result small{color:var(--ink-soft)}
+.record{color:var(--good);font-weight:700}
+.record[hidden]{display:none}
+.weak{margin:0;padding:0;list-style:none;line-height:1.5}
+.weak li{margin:.45em 0}
+.weak .x{color:var(--ink-soft)}
+.examhead{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:.8em}
+.bigmark{font:700 clamp(80px,16vmin,140px)/1 var(--hand);width:1.4em;height:1.4em;display:grid;place-items:center;border:4px solid var(--bad);color:var(--bad);border-radius:50%;transform:rotate(-8deg)}
+.examhead p{margin:.15em 0;font-size:clamp(15px,2vmin,18px)}
+.help{font-size:clamp(15px,2vmin,17px);line-height:1.5}
+.help p{margin:.4em 0}
+.help pre{margin:.4em 0;padding:.5em .8em;border:2px solid var(--ink);border-radius:12px;font:600 15px/1.5 var(--mono);background:color-mix(in srgb,var(--margin) 6%,var(--card));overflow-x:auto}
+.help code{font:700 .95em var(--mono)}
+/* лигатуры JetBrains Mono превращают >= в ≥ — ученик должен видеть, что набирать (правило стоит после шорткатов font, иначе они его сбрасывают) */
+ol.src,.note,pre,pre.out,pre.cout,.help pre,code,.claim code,.help code,.feedback code,kbd,.vars,.inp,.ptab,.feedback{font-variant-ligatures:none;font-feature-settings:"calt" 0,"liga" 0}
+@media (max-width:760px){.board{grid-template-columns:1fr}.progress{margin-left:0;width:100%}.stamp{top:-18px;right:10px;font-size:28px}}
+@media (prefers-reduced-motion: reduce){.mult.bump,.stamp.in{animation:none}.src li{transition:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><h1>Верю <span>—</span> не верю</h1><small>трассировка программ на Python · 8 класс</small></div>
+    <div class="stats">
+      <div class="pill" id="pTime" hidden>⏱ <b id="clock">10:00</b></div>
+      <div class="pill" id="pPts" hidden>Баллы <b id="epts">0</b></div>
+      <div class="pill" id="pGrade" hidden>Сейчас это <b id="egrade">2</b></div>
+      <div class="pill" id="pScore">Очки <b id="score">0</b></div>
+      <div class="pill" id="pStreak">Серия <b id="streak">0</b><span class="mult" id="mult" hidden>×2</span></div>
+      <div class="pill" id="pSolved">Верно <b id="solved">0</b></div>
+      <button class="ibtn" id="helpBtn" aria-label="Справка">📖</button>
+      <button class="ibtn" id="pauseBtn" aria-label="Пауза">⏸</button>
+      <button class="ibtn" id="muteBtn" aria-label="Выключить звук">🔊</button>
+    </div>
+  </header>
+  <div class="timebar" id="timebar" hidden><i id="timefill"></i></div>
+
+  <section class="board">
+    <div class="sheet">
+      <span class="ptab">program.py</span>
+      <div class="meta"><span class="tag mode" id="tagMode">Ветвление</span><span class="tag" id="tagLevel">Разминка</span><span class="progress" id="progress"></span></div>
+      <ol class="src" id="src"></ol>
+      <div class="note" id="note" aria-live="polite"></div>
+    </div>
+    <div class="side">
+      <div class="sheet panel" id="inpBox" hidden><span class="ptab">ввод</span><div class="inp" id="inp"></div></div>
+      <div class="sheet panel"><span class="ptab">переменные</span><div class="vars" id="vars"></div></div>
+      <div class="sheet panel"><span class="ptab">вывод</span><pre class="out" id="out"></pre></div>
+    </div>
+  </section>
+
+  <section class="sheet claimbox">
+    <span class="ptab">утверждение</span>
+    <div class="claim" id="claim"></div>
+    <div class="answers" id="answers">
+      <button class="ans yes" id="yesBtn">✓ ВЕРЮ <kbd>1</kbd></button>
+      <button class="ans no" id="noBtn">✕ НЕ ВЕРЮ <kbd>2</kbd></button>
+    </div>
+    <div class="stamp" id="stamp" hidden></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="actions" id="actions"></div>
+  </section>
+  <p class="keys">клавиши: <kbd>1</kbd> верю · <kbd>2</kbd> не верю · <kbd>Enter</kbd> дальше · <kbd>Esc</kbd> пауза</p>
+</div>
+
+<section class="screen" id="startScreen">
+  <div class="sheet">
+    <h2>Верю — не верю</h2>
+    <div class="tabs" id="kindTabs"></div>
+
+    <div id="examPanel">
+      <p class="lead">Работа длится <b id="examMin">10</b> минут. Ты читаешь программу на Python и решаешь, верно ли утверждение о том, что она выведет. Темы идут по кругу — линейные программы, ветвление, while, for — и с каждым кругом программы сложнее.</p>
+      <label class="name">Фамилия и имя<input id="studentName" autocomplete="off" placeholder="Например: Иванов Пётр, 8Б"></label>
+      <h3>За что даются баллы</h3>
+      <table class="crit" id="critPts"></table>
+      <h3>Оценка</h3>
+      <table class="crit" id="critGrades"></table>
+      <h3>Правила</h3>
+      <ul class="rules" id="examRules"></ul>
+    </div>
+
+    <div id="trainPanel">
+      <p class="lead">Прочитай программу и выполни её в уме. Потом реши: верить утверждению или нет. После ответа программа выполнится по шагам — видно каждую строку, переменные и вывод.</p>
+      <div class="group"><span>Тема</span><div class="chips" id="cTopic"></div></div>
+      <div class="group"><span>Сложность</span><div class="chips" id="cLevel"></div></div>
+      <div class="group"><span>Время</span><div class="chips" id="cDur"></div></div>
+    </div>
+
+    <button class="go" id="startBtn">Начать</button>
+    <button class="go ghost" id="helpBtn2">Справка: Python для трассировки</button>
+    <div class="best" id="bestLine"></div>
+  </div>
+</section>
+
+<section class="screen" id="helpScreen" hidden>
+  <div class="sheet help">
+    <h2>Справка</h2>
+    <h3>Трассировка</h3>
+    <p>Выполняй программу строка за строкой и записывай значения переменных после каждой строки. Переменная хранит только последнее присвоенное значение.</p>
+    <h3>Арифметика</h3>
+    <pre>17 / 5   → 3.4   обычное деление, результат дробный
+17 // 5  → 3     целая часть от деления
+17 % 5   → 2     остаток от деления
+2 ** 3   → 8     возведение в степень</pre>
+    <p>Порядок действий: сначала <code>**</code>, потом <code>*</code> <code>/</code> <code>//</code> <code>%</code>, потом <code>+</code> и <code>-</code>. Скобки меняют порядок. Цифры числа: <code>n % 10</code> — последняя, <code>n // 10</code> — число без последней цифры.</p>
+    <h3>Ветвление</h3>
+    <pre>if a > 20:
+    print("A")
+elif a > 5:
+    print("B")
+else:
+    print("C")</pre>
+    <p>Выполняется только <b>первая</b> ветка, где условие истинно; остальные уже не проверяются. Несколько отдельных <code>if</code> подряд проверяются все.</p>
+    <p><code>&gt;</code> и <code>&lt;</code> — строгое сравнение (5 &gt; 5 — False), <code>&gt;=</code> и <code>&lt;=</code> — нестрогое (5 &gt;= 5 — True), <code>==</code> — равно, <code>!=</code> — не равно.<br>
+       <code>and</code> истинно, только если истинны обе части; <code>or</code> — если истинна хотя бы одна; <code>not</code> меняет значение на противоположное.</p>
+    <h3>Циклы</h3>
+    <pre>i = 1                    for i in range(1, 5):
+while i &lt;= 3:                print(i)   # 1 2 3 4
+    print(i)   # 1 2 3
+    i = i + 1</pre>
+    <p><code>while</code> проверяет условие перед каждым повтором и заканчивается, когда условие ложно.<br>
+       <code>range(a, b)</code> — числа от a до b − 1 (правая граница не входит), <code>range(n)</code> — от 0 до n − 1, <code>range(a, b, k)</code> — с шагом k.<br>
+       Что внутри цикла, решают отступы: строка с отступом выполняется на каждом повторе, без отступа — один раз после цикла.</p>
+    <h3>Обмен значений</h3>
+    <p>После <code>a = b</code> старое значение a потеряно. Обменять можно через третью переменную (<code>c = a</code>, <code>a = b</code>, <code>b = c</code>) или записью <code>a, b = b, a</code>: в ней правая часть вычисляется целиком до присваивания.</p>
+    <button class="go" id="helpClose">Понятно</button>
+  </div>
+</section>
+
+<section class="screen" id="pauseScreen" hidden>
+  <div class="sheet" style="width:min(440px,100%);text-align:center">
+    <h2>Пауза</h2>
+    <button class="go" id="resumeBtn">Продолжить</button>
+    <button class="go ghost" id="finishBtn">Завершить раунд</button>
+    <button class="go ghost" id="quitBtn">Выйти в меню</button>
+  </div>
+</section>
+
+<section class="screen" id="endScreen" hidden>
+  <div class="sheet">
+    <div id="rExam" hidden>
+      <h2>Работа завершена</h2>
+      <div class="examhead">
+        <div class="bigmark" id="xGrade">5</div>
+        <div><p><b id="xName"></b></p><p id="xDate"></p><p>Набрано баллов: <b id="xPts"></b></p><p id="xAway"></p></div>
+      </div>
+      <table class="crit" id="xTable"></table>
+    </div>
+    <div id="rTrain">
+      <h2>Раунд окончен</h2>
+      <div class="result">
+        <div><b id="rScore">0</b><small>очков</small></div>
+        <div><b id="rSolved">0</b><small>верных ответов</small></div>
+        <div><b id="rAcc">0%</b><small>точность</small></div>
+        <div><b id="rStreak">0</b><small>лучшая серия</small></div>
+      </div>
+      <p class="record" id="rRecord" hidden>Новый рекорд!</p>
+    </div>
+    <div id="rWeak"></div>
+    <button class="go" id="againBtn">Сыграть ещё раз</button>
+    <button class="go ghost" id="menuBtn">В меню</button>
+  </div>
+</section>
+
+<script>
+/* ===== КОНТРОЛЬНАЯ: всё, что может захотеть поменять учитель ===== */
+const EXAM = {
+  minutes: 10,
+  seq: ['lin', 'if', 'while', 'for'],                              // темы идут по кругу
+  levelAt: n => n < 4 ? 'warm' : n < 10 ? 'mid' : 'hard',         // n — номер задания с нуля
+  points:  { warm:1, mid:2, hard:3 },                               // за верный ответ
+  penalty: { warm:1, mid:2, hard:3 },                               // минус за неверный: угадывать невыгодно
+  grades: [[22, 5], [14, 4], [7, 3], [0, 2]]                        // [от скольких баллов, оценка]
+};
+
+/* ================= НАСТРОЙКИ ================= */
+const TOPICS = { lin:'Линейные', if:'Ветвление', while:'Цикл while', for:'Цикл for', mix:'Вперемешку' };
+const TYPE_NAMES = { lin:'Линейная программа', if:'Ветвление', while:'Цикл while', for:'Цикл for' };
+const LEVELS = { warm:{ name:'Разминка', note:'3–5 строк' }, mid:{ name:'Средний', note:'цифры числа, elif, ввод' }, hard:{ name:'Сложный', note:'вложенные условия, and/or' } };
+const TRAIN_PTS = { warm:10, mid:15, hard:20 };
+const SPEEDS = [650, 330, 140];                                     // мс на шаг трассировки: ×1, ×2, ×4
+const MAX_STEPS = 400;
+const ERR_NAMES = {
+  lin:    ['Линейные программы', 'Выполняй строки по порядку и записывай значение каждой переменной после каждой строки.'],
+  if:     ['Ветвление', 'Сначала вычисли условие (подставь значения), потом выбирай ветку.'],
+  while:  ['Цикл while', 'Условие проверяется перед каждым повтором; цикл заканчивается, когда условие ложно.'],
+  for:    ['Цикл for', 'Выпиши, какие числа даёт range, и пройди тело цикла для каждого.'],
+  assign: ['Присваивание', 'Переменная хранит только последнее значение. В a, b = b, a + b правая часть считается по старым значениям.'],
+  div:    ['Деление / и //', '/ всегда даёт дробное число, // — целую часть от деления.'],
+  mod:    ['Остаток % и целая часть //', 'n % 10 — последняя цифра, n // 10 — число без последней цифры.'],
+  prec:   ['Порядок действий', 'Сначала **, потом *, /, //, %, потом + и −. Скобки меняют порядок.'],
+  cmp:    ['Строгое и нестрогое сравнение', '5 > 5 — False, а 5 >= 5 — True. Проверяй границу отдельно.'],
+  logic:  ['and, or, not', 'and — истинны обе части, or — хотя бы одна, not меняет значение.'],
+  elif:   ['if — elif — else', 'В цепочке elif выполняется только первая истинная ветка, отдельные if проверяются все.'],
+  branch: ['Выбор ветки', 'Подставь значения в условие и вычисли его, прежде чем выбирать ветку.'],
+  range:  ['range', 'range(a, b) — от a до b − 1, range(n) — от 0 до n − 1.'],
+  indent: ['Отступы', 'Строка с отступом — внутри цикла и выполняется на каждом повторе, без отступа — один раз после цикла.'],
+  order:  ['Порядок строк', 'Строки выполняются сверху вниз, и перестановка двух строк меняет результат.'],
+  loop:   ['Число повторений', 'Считай повторы по трассировке: каждый проход тела цикла — один повтор.']
+};
+
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random() * a.length)];
+const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const rintEx = (a, b, ...not) => { let x; do x = rint(a, b); while (not.includes(x)); return x; };
+const near = (k, d) => Math.random() < .4 ? k : k + rintEx(-d, d, 0);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const plural = (n, a, b, c) => { const m = n % 100, k = n % 10; return m >= 11 && m <= 14 ? c : k === 1 ? a : k >= 2 && k <= 4 ? b : c; };
+
+/* ================= МИНИ-PYTHON: разбор и выполнение с трассировкой ================= */
+const KW = new Set(['if','elif','else','while','for','in','and','or','not','True','False']);
+const PR = { or:1, and:2, not:3, '==':4, '!=':4, '<':4, '>':4, '<=':4, '>=':4, '+':5, '-':5, '*':6, '/':6, '//':6, '%':6, neg:7, '**':8 };
+
+function tokenize(s){
+  const out = [], re = /\s*(?:(\d+\.\d+|\d+)|("[^"]*"|'[^']*')|([A-Za-z_]\w*)|(\*\*|\/\/|==|!=|<=|>=|[-+*\/%<>(),]))/y;
+  while (re.lastIndex < s.length){
+    if (!s.slice(re.lastIndex).trim()) break;
+    const at = re.lastIndex, m = re.exec(s);
+    if (!m) throw new Error('Не разобрал: ' + s.slice(at));
+    if (m[1]) out.push({ k:'num', v:m[1] });
+    else if (m[2]) out.push({ k:'str', v:m[2].slice(1, -1) });
+    else if (m[3]) out.push({ k: KW.has(m[3]) ? 'kw' : 'name', v:m[3] });
+    else out.push({ k:'op', v:m[4] });
+  }
+  return out;
+}
+
+function parseExpr(src){
+  const T = tokenize(src); let p = 0;
+  const is = v => T[p] && (T[p].k === 'op' || T[p].k === 'kw') && T[p].v === v;
+  const isAny = list => T[p] && T[p].k === 'op' && list.includes(T[p].v);
+  const expect = v => { if (!is(v)) throw new Error('Ожидалось ' + v); p++; };
+  function or(){ let a = and(); while (is('or')){ p++; a = { t:'bin', op:'or', a, b:and() }; } return a; }
+  function and(){ let a = not(); while (is('and')){ p++; a = { t:'bin', op:'and', a, b:not() }; } return a; }
+  function not(){ if (is('not')){ p++; return { t:'un', op:'not', a:not() }; } return cmp(); }
+  function cmp(){ let a = add(); if (isAny(['==','!=','<','>','<=','>='])){ const op = T[p++].v; a = { t:'bin', op, a, b:add() }; } return a; }
+  function add(){ let a = mul(); while (isAny(['+','-'])){ const op = T[p++].v; a = { t:'bin', op, a, b:mul() }; } return a; }
+  function mul(){ let a = unary(); while (isAny(['*','/','//','%'])){ const op = T[p++].v; a = { t:'bin', op, a, b:unary() }; } return a; }
+  function unary(){ if (is('-')){ p++; return { t:'un', op:'-', a:unary() }; } return power(); }
+  function power(){ const a = atom(); if (is('**')){ p++; return { t:'bin', op:'**', a, b:unary() }; } return a; }
+  function atom(){
+    const t = T[p++];
+    if (!t) throw new Error('Выражение оборвалось');
+    if (t.k === 'num') return { t:'val', v: t.v.includes('.') ? { t:'float', v:+t.v } : { t:'int', v:+t.v } };
+    if (t.k === 'str') return { t:'val', v:{ t:'str', v:t.v } };
+    if (t.k === 'kw' && (t.v === 'True' || t.v === 'False')) return { t:'val', v:{ t:'bool', v:t.v === 'True' } };
+    if (t.k === 'name'){
+      if (!is('(')) return { t:'name', n:t.v };
+      p++; const args = [];
+      if (!is(')')){ args.push(or()); while (is(',')){ p++; args.push(or()); } }
+      expect(')'); return { t:'call', f:t.v, args };
+    }
+    if (t.k === 'op' && t.v === '('){ const e = or(); expect(')'); return e; }
+    throw new Error('Неожиданное ' + t.v);
+  }
+  const e = or();
+  if (p < T.length) throw new Error('Лишнее: ' + T[p].v);
+  return e;
+}
+
+const I = v => ({ t:'int', v }), FL = v => ({ t:'float', v }), BO = v => ({ t:'bool', v });
+function num(x){
+  if (x.t === 'bool') return x.v ? 1 : 0;
+  if (x.t === 'int' || x.t === 'float') return x.v;
+  throw new Error('Нужно число, а не строка');
+}
+const truthy = x => x.t === 'str' ? x.v.length > 0 : num(x) !== 0;
+function repr(x){
+  if (x.t === 'str') return x.v;
+  if (x.t === 'bool') return x.v ? 'True' : 'False';
+  if (x.t === 'float') return Number.isInteger(x.v) ? x.v.toFixed(1) : String(x.v);
+  return String(x.v);
+}
+const vrepr = x => x.t === 'str' ? `"${x.v}"` : repr(x);
+
+function binop(op, a, b){
+  if (['==','!=','<','>','<=','>='].includes(op)){
+    let x, y;
+    if (a.t === 'str' || b.t === 'str'){
+      if (a.t !== b.t){ if (op === '==') return BO(false); if (op === '!=') return BO(true); throw new Error('Строку нельзя сравнить с числом'); }
+      x = a.v; y = b.v;
+    } else { x = num(a); y = num(b); }
+    return BO(op === '==' ? x === y : op === '!=' ? x !== y : op === '<' ? x < y : op === '>' ? x > y : op === '<=' ? x <= y : x >= y);
+  }
+  if (op === '+' && a.t === 'str' && b.t === 'str') return { t:'str', v:a.v + b.v };
+  const x = num(a), y = num(b), f = a.t === 'float' || b.t === 'float';
+  let r;
+  if (op === '+') r = x + y;
+  else if (op === '-') r = x - y;
+  else if (op === '*') r = x * y;
+  else if (op === '/'){ if (y === 0) throw new Error('Деление на ноль'); return FL(x / y); }
+  else if (op === '//'){ if (y === 0) throw new Error('Деление на ноль'); r = Math.floor(x / y); }
+  else if (op === '%'){ if (y === 0) throw new Error('Деление на ноль'); r = x - y * Math.floor(x / y); }
+  else if (op === '**'){ r = x ** y; if (y < 0) return FL(r); }
+  else throw new Error('Не знаю операцию ' + op);
+  if (Math.abs(r) > 1e12) throw new Error('Слишком большое число');
+  return f ? FL(r) : I(r);
+}
+
+function evalE(e, env, ctx){
+  switch (e.t){
+    case 'val': return e.v;
+    case 'name':
+      if (!env.has(e.n)) throw new Error(`Переменная ${e.n} не задана`);
+      return env.get(e.n);
+    case 'un': {
+      const a = evalE(e.a, env, ctx);
+      if (e.op === 'not') return BO(!truthy(a));
+      return a.t === 'float' ? FL(-a.v) : I(-num(a));
+    }
+    case 'bin':
+      if (e.op === 'and'){ const a = evalE(e.a, env, ctx); return truthy(a) ? evalE(e.b, env, ctx) : a; }
+      if (e.op === 'or'){ const a = evalE(e.a, env, ctx); return truthy(a) ? a : evalE(e.b, env, ctx); }
+      return binop(e.op, evalE(e.a, env, ctx), evalE(e.b, env, ctx));
+    case 'call': {
+      const a = e.args.map(x => evalE(x, env, ctx));
+      if (e.f === 'input'){
+        if (!ctx.input.length) throw new Error('Ввод закончился');
+        return { t:'str', v:String(ctx.input.shift()) };
+      }
+      if (e.f === 'int'){
+        const x = a[0];
+        if (x.t === 'str'){ if (!/^\s*-?\d+\s*$/.test(x.v)) throw new Error('int() не может прочитать «' + x.v + '»'); return I(parseInt(x.v, 10)); }
+        return I(Math.trunc(num(x)));
+      }
+      if (e.f === 'abs') return a[0].t === 'float' ? FL(Math.abs(a[0].v)) : I(Math.abs(num(a[0])));
+      if (e.f === 'min' || e.f === 'max') return a.reduce((m, x) => (e.f === 'min' ? num(x) < num(m) : num(x) > num(m)) ? x : m);
+      throw new Error('Не знаю функцию ' + e.f);
+    }
+  }
+  throw new Error('Не понял выражение');
+}
+const hasInput = e => e.t === 'call' ? e.f === 'input' || e.args.some(hasInput) : e.t === 'bin' ? hasInput(e.a) || hasInput(e.b) : e.t === 'un' ? hasInput(e.a) : false;
+
+// выражение текстом; с env — подставлены значения переменных
+function show(e, env, ctx = 0){
+  let s, p = 9;
+  if (e.t === 'val') s = e.v.t === 'str' ? `"${e.v.v}"` : repr(e.v);
+  else if (e.t === 'name') s = env && env.has(e.n) ? vrepr(env.get(e.n)) : e.n;
+  else if (e.t === 'call') s = `${e.f}(${e.args.map(a => show(a, env)).join(', ')})`;
+  else if (e.t === 'un'){
+    if (e.op === 'not'){ p = 3; s = 'not ' + (e.a.t === 'bin' ? `(${show(e.a, env)})` : show(e.a, env, 3)); }
+    else { p = 7; s = '-' + show(e.a, env, 7); }
+  } else {
+    p = PR[e.op];
+    s = e.op === '**' ? `${show(e.a, env, p + 1)} ** ${show(e.b, env, p)}` : `${show(e.a, env, p)} ${e.op} ${show(e.b, env, p + 1)}`;
+  }
+  return p < ctx ? `(${s})` : s;
+}
+
+function splitTop(s){
+  const out = []; let d = 0, q = null, cur = '';
+  for (const ch of s){
+    if (q){ if (ch === q) q = null; }
+    else if (ch === '"' || ch === "'") q = ch;
+    else if (ch === '(') d++;
+    else if (ch === ')') d--;
+    else if (ch === ',' && d === 0){ out.push(cur.trim()); cur = ''; continue; }
+    cur += ch;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+
+function parseProgram(lines){
+  const L = lines.map((raw, i) => {
+    const sp = raw.match(/^ */)[0].length;
+    if (sp % 4) throw new Error('Отступ не кратен 4');
+    return { i, d: sp / 4, s: raw.trim() };
+  });
+  let p = 0;
+  function block(d){
+    const out = [];
+    while (p < L.length && L[p].d >= d){
+      if (L[p].d > d) throw new Error('Лишний отступ в строке ' + (L[p].i + 1));
+      out.push(stmt(d));
+    }
+    return out;
+  }
+  function body(d){
+    if (!(p < L.length && L[p].d === d + 1)) throw new Error('Нет тела после двоеточия');
+    return block(d + 1);
+  }
+  function stmt(d){
+    const l = L[p++], s = l.s; let m;
+    if ((m = s.match(/^if (.+):$/))){
+      const br = [{ cond: parseExpr(m[1]), ln: l.i, body: body(d) }];
+      let els = null;
+      while (p < L.length && L[p].d === d && (m = L[p].s.match(/^elif (.+):$/))){ const ln = L[p++].i; br.push({ cond: parseExpr(m[1]), ln, body: body(d) }); }
+      if (p < L.length && L[p].d === d && L[p].s === 'else:'){ const ln = L[p++].i; els = { ln, body: body(d) }; }
+      return { k:'if', ln: l.i, br, els };
+    }
+    if (/^elif .+:$|^else:$/.test(s)) throw new Error('elif или else без if');
+    if ((m = s.match(/^while (.+):$/))) return { k:'while', ln: l.i, text: s, cond: parseExpr(m[1]), body: body(d) };
+    if ((m = s.match(/^for ([A-Za-z_]\w*) in range\((.*)\):$/))){
+      const args = splitTop(m[2]).map(parseExpr);
+      if (args.length < 1 || args.length > 3) throw new Error('range принимает от 1 до 3 чисел');
+      return { k:'for', ln: l.i, text: s, v: m[1], args, body: body(d) };
+    }
+    if ((m = s.match(/^print\((.*)\)$/))){
+      const args = [], kw = {};
+      for (const a of splitTop(m[1])){ const k = a.match(/^(end|sep)\s*=\s*(.+)$/); if (k) kw[k[1]] = parseExpr(k[2]); else args.push(parseExpr(a)); }
+      return { k:'print', ln: l.i, args, kw };
+    }
+    if ((m = s.match(/^([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*(=|\+=|-=|\*=|\/\/=|%=)\s*(.+)$/))){
+      const tg = m[1].split(',').map(x => x.trim());
+      let ex = splitTop(m[3]).map(parseExpr);
+      if (m[2] !== '='){
+        if (tg.length !== 1 || ex.length !== 1) throw new Error('Составное присваивание — только для одной переменной');
+        ex = [{ t:'bin', op: m[2].slice(0, -1), a:{ t:'name', n: tg[0] }, b: ex[0] }];
+      }
+      if (ex.length !== tg.length) throw new Error('Слева и справа разное число значений');
+      return { k:'set', ln: l.i, text: s, tg, ex };
+    }
+    throw new Error('Не понял строку: ' + s);
+  }
+  const prog = block(0);
+  if (p < L.length) throw new Error('Лишний отступ');
+  return prog;
+}
+
+function firstLoop(list){
+  for (const st of list){
+    if (st.k === 'while' || st.k === 'for') return st;
+    const inner = st.k === 'if' ? [...st.br.map(b => b.body), st.els ? st.els.body : []] : [];
+    for (const b of inner){ const f = firstLoop(b); if (f) return f; }
+  }
+  return null;
+}
+function rangeText(seq){
+  if (!seq.length) return 'range пуст';
+  return 'range даёт ' + (seq.length <= 6 ? seq.join(', ') : `${seq.slice(0, 3).join(', ')}, …, ${seq[seq.length - 1]}`);
+}
+
+// выполнить программу; каждая выполненная строка — шаг трассировки
+function run(lines, input = []){
+  const prog = parseProgram(lines), env = new Map(), steps = [], iters = {}, ctx = { input: [...input] };
+  let out = '';
+  const step = (ln, note, kind, changed = []) => {
+    if (steps.length >= MAX_STEPS) throw new Error('Программа работает слишком долго');
+    steps.push({ ln, note, kind, changed, out, vars: [...env].map(([k, v]) => [k, vrepr(v)]) });
+  };
+  const condNote = (e, v) => { const a = show(e), b = show(e, env); return a === b ? `${a} → ${repr(v)}` : `${a} → ${b} → ${repr(v)}`; };
+  function exec(list){
+    for (const st of list){
+      if (st.k === 'set'){
+        const before = new Map(env), vals = st.ex.map(e => evalE(e, env, ctx));
+        st.tg.forEach((n, i) => env.set(n, vals[i]));
+        let note;
+        if (st.ex.some(hasInput)) note = `${st.tg.join(', ')} = ${vals.map(vrepr).join(', ')} — прочитано из ввода`;
+        else if (st.ex.every(e => e.t === 'val')) note = st.text;
+        else {
+          const sub = st.ex.map(e => show(e, before)).join(', ');
+          const res = st.tg.length > 1 ? st.tg.map((n, i) => `${n} = ${vrepr(vals[i])}`).join(', ') : vrepr(vals[0]);
+          note = sub === res ? `${st.text} → ${res}` : `${st.text} → ${sub} → ${res}`;
+        }
+        step(st.ln, note, 'set', st.tg);
+      } else if (st.k === 'print'){
+        const sep = st.kw.sep ? repr(evalE(st.kw.sep, env, ctx)) : ' ';
+        const end = st.kw.end ? repr(evalE(st.kw.end, env, ctx)) : '\n';
+        const s = st.args.map(a => repr(evalE(a, env, ctx))).join(sep);
+        out += s + end;
+        step(st.ln, `вывод: ${s}`, 'print');
+      } else if (st.k === 'if'){
+        let done = false;
+        for (const b of st.br){
+          const v = evalE(b.cond, env, ctx), t = truthy(v);
+          step(b.ln, condNote(b.cond, v) + (t ? ' → выполняем эту ветку' : ''), 'if');
+          if (t){ exec(b.body); done = true; break; }
+        }
+        if (!done && st.els){ step(st.els.ln, 'все условия ложны → ветка else', 'else'); exec(st.els.body); }
+      } else if (st.k === 'while'){
+        iters[st.ln] = 0;
+        for (;;){
+          const v = evalE(st.cond, env, ctx), t = truthy(v);
+          step(st.ln, condNote(st.cond, v) + (t ? ` → повтор ${iters[st.ln] + 1}` : ' → цикл закончен'), 'while');
+          if (!t) break;
+          iters[st.ln]++; exec(st.body);
+        }
+      } else if (st.k === 'for'){
+        const a = st.args.map(e => evalE(e, env, ctx));
+        if (a.some(x => x.t !== 'int')) throw new Error('range принимает только целые числа');
+        const [from, to, by] = a.length === 1 ? [0, a[0].v, 1] : [a[0].v, a[1].v, a[2] ? a[2].v : 1];
+        if (by === 0) throw new Error('Шаг range не может быть 0');
+        const seq = [];
+        for (let x = from; by > 0 ? x < to : x > to; x += by){ seq.push(x); if (seq.length > 200) throw new Error('Слишком длинный range'); }
+        iters[st.ln] = 0;
+        if (!seq.length) step(st.ln, 'range пуст — тело цикла не выполняется', 'for');
+        seq.forEach((x, k) => {
+          env.set(st.v, I(x));
+          step(st.ln, `${st.v} = ${x}` + (k === 0 ? ` (${rangeText(seq)})` : '') + ` → повтор ${k + 1}`, 'for', [st.v]);
+          iters[st.ln]++; exec(st.body);
+        });
+        if (seq.length) step(st.ln, `${rangeText(seq)} — числа кончились → цикл закончен`, 'for');
+      }
+    }
+  }
+  exec(prog);
+  const loop = firstLoop(prog);
+  return { out, steps, iters, loop: loop ? { ln: loop.ln, text: loop.text, n: iters[loop.ln] } : null };
+}
+
+/* ================= ГЕНЕРАТОРЫ ПРОГРАММ ================= */
+const P = lines => ({ lines });
+const digitsNum = (len, noZero) => { let n; do n = rint(10 ** (len - 1), 10 ** len - 1); while (noZero && String(n).includes('0') || new Set(String(n)).size < len); return n; };
+const GEN = {
+  lin: {
+    warm: [
+      () => { const a = rint(2, 9), b = rintEx(2, 9, a), op = rand(['+', '*', '-']); return P([`a = ${a}`, `b = ${b}`, `a = a ${op} b`, `b = a - b`, `print(a, b)`]); },
+      () => { const a = rint(2, 20), b = rintEx(2, 20, a); return P([`a = ${a}`, `b = ${b}`, `a = b`, `b = a`, `print(a, b)`]); },
+      () => { let x, k, m; do { x = rint(10, 40); k = rint(2, 5); m = rint(3, 7); } while ((x * k) % m === 0); return P([`x = ${x}`, `y = x * ${k}`, `x = y // ${m}`, `print(x, y)`]); },
+      () => { let n, d; do { n = rint(20, 99); d = rint(3, 9); } while (n % d === 0); return P([`n = ${n}`, `q = n // ${d}`, `r = n % ${d}`, `print(q, r)`]); }
+    ],
+    mid: [
+      () => { const n = digitsNum(3, true); return P([`n = ${n}`, `a = n // 100`, `b = n // 10 % 10`, `c = n % 10`, rand([`print(a + b + c)`, `print(c * 100 + b * 10 + a)`, `print(a * b - c)`])]); },
+      () => { const a = rint(2, 9), b = rintEx(2, 9, a), k = rint(2, 5); return P([`a = ${a}`, `b = ${b}`, `c = a + b * ${k}`, `a = c - a`, `print(a, c)`]); },
+      () => { const x = rint(3, 15); return P([`x = ${x}`, `x = x * 3 + 1`, `y = x // 4`, `x = x % 4 + y`, `print(x, y)`]); },
+      () => { const a = rint(2, 30), b = rintEx(2, 30, a); return P([`a = ${a}`, `b = ${b}`, `c = a`, `a = b`, `b = c`, `print(a, b, c)`]); }
+    ],
+    hard: [
+      () => { const a = rint(1, 5), b = rint(1, 6); return P([`a = ${a}`, `b = ${b}`, `a, b = b, a + b`, `a, b = b, a + b`, `print(a, b)`]); },
+      () => { const x = rint(5, 30), y = rintEx(5, 30, x); return P([`x = ${x}`, `y = ${y}`, `x = x + y`, `y = x - y`, `x = x - y`, `print(x, y)`]); },
+      () => { let n; do n = rint(1000, 9999); while (n % 100 < 10); return P([`n = ${n}`, `x = n % 100 * 100 + n // 100`, `print(x)`]); },
+      () => { const b = rand([2, 4, 5, 8]); let a; do a = rint(5, 30); while (a % b === 0); return P([`a = ${a}`, `b = ${b}`, `c = a / b`, `d = a // b`, `e = a % b`, `print(c, d, e)`]); },
+      () => { const a = rint(2, 5); return P([`a = ${a}`, `b = a ** 2 - a * 3`, `c = b // 2 + a % 3`, `print(b, c)`]); }
+    ]
+  },
+  if: {
+    warm: [
+      () => P([`n = ${rint(11, 99)}`, `if n % 2 == 0:`, `    print("чётное")`, `else:`, `    print("нечётное")`]),
+      () => { const a = rint(2, 30), b = rintEx(2, 30, a); return P([`a = ${a}`, `b = ${b}`, `if a > b:`, `    print(a)`, `else:`, `    print(b)`]); },
+      () => { const K = rint(10, 30), x = near(K, 8), d = rint(2, 9); return P([`x = ${x}`, `if x >= ${K}:`, `    x = x - ${K}`, `else:`, `    x = x + ${d}`, `print(x)`]); },
+      () => { const K = rint(5, 20), t = near(K, 6); return P([`t = ${t}`, `if t < ${K}:`, `    print("холодно")`, `else:`, `    print("тепло")`]); }
+    ],
+    mid: [
+      () => { const K2 = rint(3, 10), K1 = K2 + rint(5, 15), a = rand([K1, K2, rint(0, K1 + 8), rint(K1 + 1, K1 + 9)]);
+        return P([`a = ${a}`, `if a > ${K1}:`, `    print("A")`, `elif a > ${K2}:`, `    print("B")`, `else:`, `    print("C")`]); },
+      () => { const A = rint(3, 10), B = rint(3, 10), op = rand(['and', 'or']), c1 = rand(['>', '<', '>=', '<=']), c2 = rand(['>', '<', '>=', '<=']);
+        return { lines:[`s = int(input())`, `t = int(input())`, `if s ${c1} ${A} ${op} t ${c2} ${B}:`, `    print("YES")`, `else:`, `    print("NO")`], input:[near(A, 4), near(B, 4)] }; },
+      () => { const K = rint(5, 15), M = rint(15, 30);
+        return { lines:[`a = int(input())`, `b = int(input())`, `k = 0`, `if a > ${K}:`, `    k = k + 1`, `if b > ${K}:`, `    k = k + 1`, `if a + b > ${M}:`, `    k = k + 1`, `print(k)`], input:[near(K, 8), near(K, 8)] }; }
+    ],
+    hard: [
+      () => { const A = rint(3, 10), B = rint(3, 10), op = rand(['and', 'or']);
+        return { lines:[`s = int(input())`, `t = int(input())`, `if not (s < ${A}) ${op} t == ${B}:`, `    print("YES")`, `else:`, `    print("NO")`], input:[near(A, 3), near(B, 2)] }; },
+      () => { const A = rint(3, 10), B = rint(3, 10);
+        return { lines:[`s = int(input())`, `t = int(input())`, `if (s > ${A} or t > ${B}) and s != t:`, `    print("YES")`, `else:`, `    print("NO")`], input:[near(A, 3), near(B, 3)] }; },
+      () => { const a = rint(2, 25), b = rintEx(2, 25, a), K = rint(8, 18);
+        return P([`a = ${a}`, `b = ${b}`, `if a > b:`, `    if a > ${K}:`, `        print(a - b)`, `    else:`, `        print(a + b)`, `else:`, `    print(b - a)`]); },
+      () => { const T1 = rint(40, 55), T2 = T1 + rint(15, 20), T3 = T2 + rint(10, 15), p = rand([T1, T2, T3, rint(30, 99)]);
+        return P([`p = ${p}`, `if p >= ${T3}:`, `    m = 5`, `elif p >= ${T2}:`, `    m = 4`, `elif p >= ${T1}:`, `    m = 3`, `else:`, `    m = 2`, `print(m)`]); },
+      () => { const y = rint(3, 9), x = y + rint(1, 2 * y); return P([`x = ${x}`, `y = ${y}`, `if x > y:`, `    x = x - y`, `if x > y:`, `    x = x - y`, `else:`, `    y = y - x`, `print(x, y)`]); }
+    ]
+  },
+  while: {
+    warm: [
+      () => P([`s = 0`, `i = 1`, `while i ${rand(['<=', '<'])} ${rint(3, 6)}:`, `    s = s + i`, `    i = i + 1`, `print(s)`]),
+      () => { const x = rint(1, 5), L = Math.random() < .35 ? x * 2 ** rint(3, 4) : rint(20, 90); return P([`x = ${x}`, `while x < ${L}:`, `    x = x * 2`, `print(x)`]); },
+      () => { const d = rint(2, 5), n = rint(3, 6) * d + rand([0, 0, rint(1, d - 1)]); return P([`n = ${n}`, `k = 0`, `while n > 0:`, `    n = n - ${d}`, `    k = k + 1`, `print(n, k)`]); }
+    ],
+    mid: [
+      () => P([`n = ${rint(100, 99999)}`, `k = 0`, `while n > 0:`, `    n = n // 10`, `    k = k + 1`, `print(k)`]),
+      () => P([`n = ${digitsNum(rint(3, 4), false)}`, `s = 0`, `while n > 0:`, `    s = s + n % 10`, `    n = n // 10`, `print(s)`]),
+      () => { const L = Math.random() < .4 ? 2 ** rint(3, 6) : rint(10, 100); return P([`k = 0`, `p = 1`, `while p < ${L}:`, `    p = p * 2`, `    k = k + 1`, `print(k, p)`]); },
+      () => { const L = rand([6, 10, 15, 21, rint(8, 25)]); return P([`s = 0`, `k = 0`, `while s < ${L}:`, `    k = k + 1`, `    s = s + k`, `print(k, s)`]); }
+    ],
+    hard: [
+      () => { let a, b, n; do { a = rint(6, 60); b = rintEx(6, 60, a); n = 0; for (let x = a, y = b; x !== y; n++) if (x > y) x -= y; else y -= x; } while (n > 9 || n < 3);
+        return P([`a = ${a}`, `b = ${b}`, `while a != b:`, `    if a > b:`, `        a = a - b`, `    else:`, `        b = b - a`, `print(a)`]); },
+      () => { let n; do n = rint(100, 9999); while (n % 10 === 0); return P([`n = ${n}`, `r = 0`, `while n > 0:`, `    r = r * 10 + n % 10`, `    n = n // 10`, `print(r)`]); },
+      () => P([`n = ${rand([3, 5, 6, 7, 9, 10, 12, 16, 20])}`, `k = 0`, `while n != 1:`, `    if n % 2 == 0:`, `        n = n // 2`, `    else:`, `        n = n * 3 + 1`, `    k = k + 1`, `print(k)`])
+    ]
+  },
+  for: {
+    warm: [
+      () => { const A = rint(1, 4), B = A + rint(3, 5); return P([`s = 0`, `for i in range(${A}, ${B}):`, `    s = s + i`, `print(s)`]); },
+      () => P([`for i in range(${rint(3, 5)}):`, `    print(i * ${rint(2, 5)})`]),
+      () => P([`k = ${rint(0, 5)}`, `for i in range(${rint(3, 7)}):`, `    k = k + ${rint(2, 5)}`, `print(k)`])
+    ],
+    mid: [
+      () => { const A = rint(1, 5), S = rint(2, 4), B = A + S * rint(2, 4) + rand([0, 0, rint(1, S - 1)]); return P([`for i in range(${A}, ${B}, ${S}):`, `    print(i)`]); },
+      () => P([`s = 0`, `for i in range(1, ${rint(8, 15)}):`, `    if i % ${rint(2, 4)} == 0:`, `        s = s + i`, `print(s)`]),
+      () => P([`p = 1`, `for i in range(${rint(3, 5)}):`, `    p = p * ${rint(2, 3)}`, `print(p)`]),
+      () => { const A = rint(1, 3), B = A + rint(3, 4);
+        return P(Math.random() < .5 ? [`s = 0`, `for i in range(${A}, ${B}):`, `    s = s + i`, `    print(s)`] : [`s = 0`, `for i in range(${A}, ${B}):`, `    s = s + i`, `print(s)`]); }
+    ],
+    hard: [
+      () => P([`a = 1`, `b = 1`, `for i in range(${rint(3, 6)}):`, `    a, b = b, a + b`, `print(a)`]),
+      () => { const A = rint(1, 5), B = A + rint(5, 8); return P([`a = 0`, `b = 0`, `for i in range(${A}, ${B}):`, `    if i % 2 == 0:`, `        a = a + i`, `    else:`, `        b = b + 1`, `print(a, b)`]); },
+      () => { const p = rint(2, 5), q = rintEx(2, 5, p), A = rint(1, 10); return P([`k = 0`, `for i in range(${A}, ${A + rint(8, 14)}):`, `    if i % ${p} == 0 ${rand(['or', 'and'])} i % ${q} == 0:`, `        k = k + 1`, `print(k)`]); },
+      () => P([`p = 1`, `for i in range(2, ${rint(4, 7)}):`, `    p = p * i`, `print(p)`]),
+      () => P([`s = 0`, `for i in range(1, ${rint(4, 6)}):`, `    s = s + i * i`, `print(s, i)`])
+    ]
+  }
+};
+
+/* ================= ЛОВУШКИ: программы с типичными ошибками ученика ================= */
+const ind = l => l.match(/^ */)[0].length / 4;
+const pad = d => '    '.repeat(d);
+const tx = l => l.trim();
+const isCond = l => /^(if|elif|while) /.test(tx(l));
+const isAssign = l => /^[A-Za-z_]\w*\s*(=|\+=|-=|\*=)\s/.test(tx(l)) && !/^[A-Za-z_]\w*\s*==/.test(tx(l));
+// места совпадений вне строковых литералов
+function sites(line, re){
+  const strs = [];
+  line.replace(/"[^"]*"|'[^']*'/g, (m, i) => { strs.push([i, i + m.length]); return m; });
+  const out = [], g = new RegExp(re.source, 'g'); let m;
+  while ((m = g.exec(line))){ if (!strs.some(([a, b]) => m.index >= a && m.index < b)) out.push(m); if (!m[0]) g.lastIndex++; }
+  return out;
+}
+const at = (line, m, rep) => line.slice(0, m.index) + rep + line.slice(m.index + m[0].length);
+const condOf = l => tx(l).replace(/^(if|elif|while) /, '').replace(/:$/, '');
+const headerOf = (L, i) => { const d = ind(L[i]); for (let j = i - 1; j >= 0; j--) if (ind(L[j]) < d) return j; return -1; };
+const isLoopHead = l => /^(for|while) /.test(tx(l));
+const noteAt = (tr, i) => { const s = tr.steps.find(x => x.ln === i); return s ? s.note : null; };
+function siteMut(L, test, re, rep, key, why){
+  const out = [];
+  L.forEach((l, i) => { if (!test(l)) return; sites(l, re).forEach(m => { const c = L.slice(); c[i] = at(l, m, rep(m[0], m)); out.push({ lines:c, key, why: why(i, m[0]) }); }); });
+  return out;
+}
+function plusOne(e){ return /^\d+$/.test(e) ? String(+e + 1) : `${e} + 1`; }
+
+const MUTATORS = [
+  // // → /
+  (L) => siteMut(L, isAssign, /\/\//, () => '/', 'div', i => `В строке <code>${esc(tx(L[i]))}</code> стоит <code>//</code> — целочисленное деление: дробная часть отбрасывается. Знак <code>/</code> дал бы дробное число.`),
+  // % ↔ //
+  (L) => siteMut(L, l => isAssign(l) || /^print/.test(tx(l)), /%/, () => '//', 'mod', i => `В строке <code>${esc(tx(L[i]))}</code> стоит <code>%</code> — остаток от деления, а не целая часть. Например, 47 % 10 = 7, а 47 // 10 = 4.`),
+  (L) => siteMut(L, l => isAssign(l) || /^print/.test(tx(l)), /\/\//, () => '%', 'mod', i => `В строке <code>${esc(tx(L[i]))}</code> стоит <code>//</code> — целая часть от деления, а не остаток. Например, 47 // 10 = 4, а 47 % 10 = 7.`),
+  // строгое ↔ нестрогое сравнение
+  (L, tr) => siteMut(L, isCond, /<=|>=|<(?!=)|>(?!=)/, op => ({ '<=':'<', '>=':'>', '<':'<=', '>':'>=' })[op], 'cmp', (i, op) =>
+    `В условии <code>${esc(condOf(L[i]))}</code> знак <code>${esc(op)}</code> ${op.length === 1 ? 'строгий: равенство не подходит (5 ' + esc(op) + ' 5 — False)' : 'нестрогий: равенство подходит (5 ' + esc(op) + ' 5 — True)'}.` + lastNote(tr, i)),
+  // and ↔ or
+  (L, tr) => siteMut(L, isCond, /\b(and|or)\b/, op => op === 'and' ? 'or' : 'and', 'logic', (i, op) =>
+    `В условии стоит <code>${op}</code>: ${op === 'and' ? 'оно истинно, только если истинны обе части' : 'ему достаточно одной истинной части'}.` + lastNote(tr, i)),
+  // забыл not
+  (L, tr) => siteMut(L, isCond, /\bnot /, () => '', 'logic', i => `<code>not</code> меняет значение на противоположное — его нельзя пропускать.` + lastNote(tr, i)),
+  // elif → if: ученик думает, что после сработавшей ветки проверяются и остальные
+  (L) => L.flatMap((l, i) => /^elif /.test(tx(l)) ? [{ lines: L.map((x, j) => j === i ? pad(ind(l)) + tx(l).slice(2) : x), key:'elif',
+    why: 'В цепочке <code>if — elif — else</code> выполняется только первая ветка с истинным условием; остальные после неё уже не проверяются.' }] : []),
+  // if → elif: ученик думает, что второй if не проверяется, раз первый сработал
+  (L) => L.flatMap((l, i) => i > 0 && /^if /.test(tx(l)) ? [{ lines: L.map((x, j) => j === i ? pad(ind(l)) + 'el' + tx(l) : x), key:'elif',
+    why: 'Здесь отдельные <code>if</code>, а не цепочка <code>elif</code>: каждое условие проверяется само по себе, даже если предыдущее уже сработало.' }] : []),
+  // перепутал ветки if / else
+  (L, tr) => L.flatMap((l, i) => {
+    if (!/^if /.test(tx(l)) || ind(L[i + 1] || '') !== ind(l) + 1 || tx(L[i + 2] || '') !== 'else:' || ind(L[i + 2]) !== ind(l)) return [];
+    if (ind(L[i + 3] || '') !== ind(l) + 1 || (L[i + 4] !== undefined && ind(L[i + 4]) > ind(l))) return [];
+    const note = noteAt(tr, i); if (!note) return [];
+    const c = L.slice(); [c[i + 1], c[i + 3]] = [pad(ind(l) + 1) + tx(L[i + 3]), pad(ind(l) + 1) + tx(L[i + 1])];
+    return [{ lines:c, key:'branch', why: `Условие: <code>${esc(note.replace(' → выполняем эту ветку', ''))}</code>. ${note.includes('выполняем эту ветку') ?'Оно истинно — выполняется ветка под <code>if</code>.' : 'Оно ложно — выполняется ветка <code>else</code>.'}` }];
+  }),
+  // правая граница range
+  (L) => L.flatMap((l, i) => {
+    const m = tx(l).match(/^for (\w+) in range\((.*)\):$/); if (!m) return [];
+    const a = splitTop(m[2]), num = a.every(x => /^\d+$/.test(x)) ? a.map(Number) : null;
+    let args, why;
+    if (a.length === 1){
+      args = `1, ${plusOne(a[0])}`;
+      why = num ? `<code>range(${a[0]})</code> — это числа 0, 1, …, ${num[0] - 1}: счёт начинается с нуля, а ${a[0]} не входит.` : `<code>range(${a[0]})</code> начинается с нуля и не включает ${a[0]}.`;
+    } else {
+      args = [a[0], plusOne(a[1]), ...a.slice(2)].join(', ');
+      const seq = []; if (num) for (let x = num[0]; x < num[1]; x += num[2] || 1) seq.push(x);
+      why = num ? `<code>range(${a.join(', ')})</code> даёт ${seq.join(', ') || 'пустой список'}: правая граница ${a[1]} не входит.` : `Правая граница <code>range</code> не входит.`;
+    }
+    return [{ lines: L.map((x, j) => j === i ? pad(ind(l)) + `for ${m[1]} in range(${args}):` : x), key:'range', why }];
+  }),
+  // print внутри / после цикла
+  (L) => L.flatMap((l, i) => {
+    if (!/^print/.test(tx(l))) return [];
+    const d = ind(l), out = [];
+    const h = headerOf(L, i), last = i === L.length - 1 || ind(L[i + 1]) < d;
+    if (d > 0 && h >= 0 && isLoopHead(L[h]) && last && h < i - 1)
+      out.push({ lines: L.map((x, j) => j === i ? pad(d - 1) + tx(l) : x), key:'indent',
+        why: `<code>${esc(tx(l))}</code> записан с отступом — он внутри цикла и выполняется на каждом повторе, а не один раз в конце.` });
+    if (i > 0 && ind(L[i - 1]) > d){
+      let j = i - 1; while (j >= 0 && ind(L[j]) > d) j--;
+      if (j >= 0 && isLoopHead(L[j]) && ind(L[j]) === d)
+        out.push({ lines: L.map((x, k) => k === i ? pad(d + 1) + tx(l) : x), key:'indent',
+          why: `<code>${esc(tx(l))}</code> записан без отступа — он после цикла и выполняется один раз, когда цикл закончится.` });
+    }
+    return out;
+  }),
+  // переставил две строки
+  (L) => L.flatMap((l, i) => {
+    const n = L[i + 1];
+    if (!n || !isAssign(l) || !isAssign(n) || ind(l) !== ind(n) || tx(l).includes(',') || tx(n).includes(',')) return [];
+    const c = L.slice(); [c[i], c[i + 1]] = [n, l];
+    const inLoop = ind(l) > 0 && headerOf(L, i) >= 0 && isLoopHead(L[headerOf(L, i)]);
+    return [{ lines:c, key:'order', why: `Строки выполняются сверху вниз: сначала <code>${esc(tx(l))}</code>, потом <code>${esc(tx(n))}</code>${inLoop ? ' — и так на каждом повторе' : ''}. Их порядок меняет результат.` }];
+  }),
+  // a = b; b = a — «обмен», который не меняет
+  (L) => L.flatMap((l, i) => {
+    const m1 = tx(l).match(/^(\w+) = (\w+)$/), m2 = tx(L[i + 1] || '').match(/^(\w+) = (\w+)$/);
+    if (!m1 || !m2 || m1[1] !== m2[2] || m1[2] !== m2[1]) return [];
+    const c = L.slice(); c.splice(i, 2, pad(ind(l)) + `${m1[1]}, ${m1[2]} = ${m1[2]}, ${m1[1]}`);
+    return [{ lines:c, key:'assign', why: `После <code>${m1[1]} = ${m1[2]}</code> старое значение ${m1[1]} потеряно: в обеих переменных одно и то же число, и <code>${m2[1]} = ${m2[2]}</code> ничего не меняет. Для обмена нужна третья переменная или <code>${m1[1]}, ${m1[2]} = ${m1[2]}, ${m1[1]}</code>.` }];
+  }),
+  // a, b = b, a + b по очереди
+  (L) => L.flatMap((l, i) => {
+    const m = tx(l).match(/^(\w+), (\w+) = (.+)$/); if (!m) return [];
+    const r = splitTop(m[3]); if (r.length !== 2) return [];
+    const c = L.slice(); c.splice(i, 1, pad(ind(l)) + `${m[1]} = ${r[0]}`, pad(ind(l)) + `${m[2]} = ${r[1]}`);
+    return [{ lines:c, key:'assign', why: `В записи <code>${esc(tx(l))}</code> сначала вычисляется вся правая часть по старым значениям, и только потом обе переменные получают новые.` }];
+  }),
+  // порядок действий: сложение раньше умножения
+  (L) => siteMut(L, l => isAssign(l) || /^print/.test(tx(l)), /(= |\()(\w+) ([+-]) (\w+) (\*|\/\/|%) (\w+)/, (s, m) => `${m[1]}(${m[2]} ${m[3]} ${m[4]}) ${m[5]} ${m[6]}`, 'prec',
+    (i, s) => { const m = s.match(/(\w+) ([+-]) (\w+) (\*|\/\/|%) (\w+)/); return `Сначала выполняется <code>${esc(m[4])}</code>, потом <code>${m[2]}</code>: в <code>${esc(m[0])}</code> первым считается <code>${esc(`${m[3]} ${m[4]} ${m[5]}`)}</code>.`; })
+];
+function lastNote(tr, i){
+  const s = tr.steps.filter(x => x.ln === i);
+  if (!s.length) return '';
+  const n = s[s.length - 1].note.replace(/ → (выполняем эту ветку|повтор \d+|цикл закончен)$/, '');
+  return ` Здесь: <code>${esc(n)}</code>${s.length > 1 ? ' (последняя проверка)' : ''}.`;
+}
+
+/* ================= ЗАДАНИЕ ================= */
+const claimVal = (r, kind) => kind === 'count' ? (r.loop ? r.loop.n : null) : r.out.replace(/\n$/, '');
+function claimHTML(kind, v, r){
+  if (kind === 'count') return `<p>Тело цикла <code>${esc(r.loop.text)}</code> выполнится <b>${v} ${plural(v, 'раз', 'раза', 'раз')}</b>.</p>`;
+  return `<p>Программа выведет:</p><pre class="cout">${esc(v)}</pre>`;
+}
+const realText = (kind, v) => kind === 'count' ? `тело цикла выполнится ${v} ${plural(v, 'раз', 'раза', 'раз')}` : (String(v).includes('\n') ? `программа выведет строки ${String(v).split('\n').map(s => `«${esc(s)}»`).join(', ')}` : `программа выведет «${esc(v)}»`);
+
+function mutants(lines, input, tr, kind){
+  const val = claimVal(tr, kind), seen = new Set([String(val)]), out = [];
+  for (const mf of MUTATORS){
+    for (const m of mf(lines, tr)){
+      try {
+        const r = run(m.lines, input), v = claimVal(r, kind);
+        if (v === null || seen.has(String(v)) || String(v).length > 120 || String(v).split('\n').length > 7) continue;
+        seen.add(String(v)); out.push({ val:v, key:m.key, why:m.why });
+      } catch (e) { /* ловушка оказалась некорректной программой — пропускаем */ }
+    }
+  }
+  return out;
+}
+// запасная ловушка: ошибка в вычислении
+function calcTrap(kind, val, topic){
+  if (kind === 'count'){ const v = val + rand([-1, 1]); return { val: Math.max(0, v) === val ? val + 1 : Math.max(0, v), key:'loop', why:'Считай повторы по трассировке: каждый проход тела цикла — один повтор.' }; }
+  const parts = String(val).split(/(-?\d+(?:\.\d+)?)/);
+  const idx = parts.map((p, i) => /^-?\d+$/.test(p) ? i : -1).filter(i => i >= 0);
+  if (!idx.length) return null;
+  const i = rand(idx); parts[i] = String(+parts[i] + rand([-2, -1, 1, 2]));
+  return { val: parts.join(''), key: topic, why: 'Пересчитай по шагам — трассировка показывает каждое вычисление.' };
+}
+
+function genTask(topic, level, wantTrue){
+  for (let tries = 0; tries < 60; tries++){
+    const g = rand(GEN[topic][level])(), input = g.input || [];
+    let tr;
+    try { tr = run(g.lines, input); } catch (e) { continue; }
+    if (!tr.out || tr.out.length > 120 || tr.out.split('\n').length > 7) continue;
+    const kind = tr.loop && Math.random() < .3 ? 'count' : 'out';
+    const val = claimVal(tr, kind), traps = mutants(g.lines, input, tr, kind);
+    if (!traps.length && tries < 40) continue;                 // программа без подвоха — неинтересно
+    let trap = null;
+    if (!wantTrue){
+      // сначала тип ошибки, потом конкретная ловушка: иначе частые типы (отступы, range) вытесняют редкие
+      const keys = [...new Set(traps.map(t => t.key))];
+      let key = traps.length ? rand(keys) : null;
+      if (key === 'indent' && keys.length > 1 && Math.random() < .5) key = rand(keys.filter(k => k !== 'indent'));   // отступы — реже
+      trap = key && Math.random() < .9 ? rand(traps.filter(t => t.key === key)) : calcTrap(kind, val, topic);
+      if (!trap) continue;
+    }
+    return { topic, level, lines: g.lines, input, tr, kind, val, truth: wantTrue, trap, claim: wantTrue ? val : trap.val, answered:false, choice:null };
+  }
+  throw new Error('Не удалось придумать программу');
+}
+
+/* ================= СОСТОЯНИЕ ================= */
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+};
+let cfg = { kind:'exam', topic:'mix', level:'warm', dur:300 };
+let S = null, RP = null, speed = 0;
+let muted = store.get('vnv:muted') === '1';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const bestKey = () => `vnv:best:${cfg.topic}:${cfg.level}:${cfg.dur}`;
+
+/* ---------- звук ---------- */
+let ac = null;
+function tone(f1, f2, dur, type, vol, delay = 0){
+  if (muted || !ac) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur);
+}
+const sfx = {
+  tick: () => tone(1400, 1100, .03, 'triangle', .04),
+  good: () => [523, 659, 784].forEach((f, i) => tone(f, f, .14, 'sine', .14, i * .08)),
+  bad:  () => tone(220, 120, .3, 'sawtooth', .07),
+  end:  () => [784, 659, 523].forEach((f, i) => tone(f, f, .2, 'sine', .14, i * .14))
+};
+function setMute(m){
+  muted = m; store.set('vnv:muted', m ? '1' : '0');
+  $('muteBtn').textContent = m ? '🔇' : '🔊';
+  $('muteBtn').setAttribute('aria-label', m ? 'Включить звук' : 'Выключить звук');
+}
+
+/* ---------- меню ---------- */
+function chip(html, pressed, fn){
+  const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = html;
+  b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b;
+}
+function chips(id, list){ const c = $(id); c.innerHTML = ''; list.forEach(x => c.appendChild(x)); }
+const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+function renderMenu(){
+  chips('kindTabs', [
+    chip('📝 Контрольная на оценку', cfg.kind === 'exam', () => { cfg.kind = 'exam'; renderMenu(); }),
+    chip('🎯 Тренировка', cfg.kind === 'train', () => { cfg.kind = 'train'; renderMenu(); })
+  ]);
+  const exam = cfg.kind === 'exam';
+  $('examPanel').hidden = !exam; $('trainPanel').hidden = exam;
+  $('startBtn').textContent = exam ? `Начать работу (${EXAM.minutes} минут)` : 'Начать тренировку';
+  if (exam){
+    $('examMin').textContent = EXAM.minutes;
+    const p = EXAM.points, n = EXAM.penalty;
+    $('critPts').innerHTML = `<tr><th>Задания</th><th>Верный ответ</th><th>Неверный ответ</th></tr>
+      <tr><td>1–4 — разминка</td><td>+${p.warm}</td><td>−${n.warm}</td></tr>
+      <tr><td>5–10 — средние</td><td>+${p.mid}</td><td>−${n.mid}</td></tr>
+      <tr><td>с 11-го — сложные</td><td>+${p.hard}</td><td>−${n.hard}</td></tr>`;
+    $('critGrades').innerHTML = EXAM.grades.map(([min, g], i) =>
+      `<tr><td class="g">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${min} баллов` : `меньше ${EXAM.grades[i - 1][0]} баллов`}</td></tr>`).join('');
+    $('examRules').innerHTML = [
+      `Работа идёт ровно ${EXAM.minutes} минут, закончить раньше нельзя. Когда время выйдет, оценка появится сама.`,
+      'За неверный ответ баллы снимаются, поэтому угадывать невыгодно. Не уверен — пропусти задание: 0 баллов.',
+      'Справка и пошаговая трассировка во время работы отключены.',
+      'Если уйти со страницы или переключить вкладку, это будет видно в результате.'
+    ].map(x => `<li>${x}</li>`).join('');
+  } else {
+    chips('cTopic', Object.keys(TOPICS).map(k => chip(TOPICS[k], cfg.topic === k, () => { cfg.topic = k; renderMenu(); })));
+    chips('cLevel', Object.keys(LEVELS).map(k => chip(`${LEVELS[k].name} <small>${LEVELS[k].note}</small>`, cfg.level === k, () => { cfg.level = k; renderMenu(); })));
+    chips('cDur', [[180, '3 минуты'], [300, '5 минут'], [0, 'Без ограничения']].map(([d, l]) => chip(l, cfg.dur === d, () => { cfg.dur = d; renderMenu(); })));
+  }
+  const best = !exam && store.get(bestKey());
+  $('bestLine').textContent = best ? 'Рекорд с этими настройками: ' + best : '';
+}
+
+/* ================= РАУНД ================= */
+function start(){
+  const exam = cfg.kind === 'exam', name = $('studentName').value.trim();
+  if (exam && !name){ const i = $('studentName'); i.classList.add('need'); i.focus(); i.placeholder = 'Сначала впиши фамилию и имя'; return; }
+  if (!ac){ try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  stopReplay();
+  S = { running:true, paused:false, t:0, dur: exam ? EXAM.minutes * 60 : cfg.dur, score:0, streak:0, best:0, mult:1, solved:0,
+        answers:0, errs:{}, task:null, hist:[], exam, name, t0: Date.now(), startedAt: new Date(), pts:0, taskNo:0, away:0,
+        byType:{ lin:{ n:0, ok:0, pts:0 }, if:{ n:0, ok:0, pts:0 }, while:{ n:0, ok:0, pts:0 }, for:{ n:0, ok:0, pts:0 } } };
+  ['startScreen', 'endScreen', 'pauseScreen'].forEach(id => $(id).hidden = true);
+  $('timebar').hidden = !S.dur;
+  ['pTime', 'pPts', 'pGrade'].forEach(id => $(id).hidden = !exam);
+  ['pScore', 'pStreak', 'pSolved', 'helpBtn', 'pauseBtn'].forEach(id => $(id).hidden = exam);
+  updateHud(); newTask();
+}
+
+function streakUp(){
+  S.streak++; S.best = Math.max(S.best, S.streak);
+  const m = Math.min(5, 1 + Math.floor(S.streak / 3));
+  if (m > S.mult && !reduced){ const el = $('mult'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+  S.mult = m;
+}
+function streakBreak(){ S.streak = 0; S.mult = 1; }
+function updateHud(){
+  $('score').textContent = S.score; $('streak').textContent = S.streak; $('solved').textContent = S.solved;
+  const m = $('mult'); m.hidden = S.mult < 2; m.textContent = '×' + S.mult;
+  if (S.exam){ $('epts').textContent = S.pts; $('egrade').textContent = gradeFor(S.pts); }
+}
+
+function newTask(){
+  stopReplay();
+  let topic, level;
+  if (S.exam){ topic = EXAM.seq[S.taskNo % EXAM.seq.length]; level = EXAM.levelAt(S.taskNo); S.taskNo++; }
+  else { topic = cfg.topic === 'mix' ? rand(['lin', 'if', 'while', 'for']) : cfg.topic; level = cfg.level; }
+  // верное и неверное утверждение примерно поровну, но не больше трёх одинаковых подряд
+  const h = S.hist.slice(-3);
+  const wantTrue = h.length === 3 && h.every(x => x === h[0]) ? !h[0] : Math.random() < .5;
+  S.hist.push(wantTrue);
+  S.task = genTask(topic, level, wantTrue);
+  if (S.exam) S.byType[topic].n++;
+  render();
+}
+
+function answer(believe){
+  const T = S && S.task;
+  if (!S.running || S.paused || !T || T.answered) return;
+  T.answered = true; T.choice = believe; S.answers++;
+  const ok = believe === T.truth;
+  if (ok){
+    S.solved++; streakUp(); sfx.good();
+    if (S.exam){ const p = EXAM.points[T.level]; S.pts += p; S.byType[T.topic].ok++; S.byType[T.topic].pts += p; T.delta = p; }
+    else { const p = TRAIN_PTS[T.level] * S.mult; S.score += p; T.delta = p; }
+  } else {
+    streakBreak(); sfx.bad();
+    const key = !T.truth && believe ? T.trap.key : T.topic;      // поверил ловушке — значит, ошибся в её месте
+    S.errs[key] = (S.errs[key] || 0) + 1;
+    if (S.exam){ const p = Math.min(EXAM.penalty[T.level], S.pts); S.pts -= p; S.byType[T.topic].pts -= p; T.delta = -p; }
+  }
+  updateHud(); render();
+  if (!S.exam) startReplay();
+  setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
+}
+
+function skip(){
+  if (!S.running || S.paused) return;
+  if (!S.task.answered) streakBreak();
+  updateHud(); newTask();
+}
+
+/* ---------- трассировка ---------- */
+function startReplay(){
+  stopReplay();
+  const steps = S.task.tr.steps;
+  if (reduced){ showStep(steps.length - 1, true); return; }
+  RP = { k:0, timer:null }; tickReplay();
+}
+function tickReplay(){
+  if (!RP) return;
+  if (S.paused){ RP.timer = setTimeout(tickReplay, 200); return; }
+  const steps = S.task.tr.steps;
+  showStep(RP.k); sfx.tick();
+  RP.k++;
+  if (RP.k >= steps.length){ RP = null; setTimeout(() => S.task && S.task.answered && showStep(steps.length - 1, true), SPEEDS[speed]); renderActions(); return; }
+  RP.timer = setTimeout(tickReplay, SPEEDS[speed]);
+}
+function stopReplay(){ if (RP && RP.timer) clearTimeout(RP.timer); RP = null; }
+function skipReplay(){ if (!RP) return; stopReplay(); showStep(S.task.tr.steps.length - 1, true); renderActions(); }
+function showStep(k, final){
+  const T = S.task, st = T.tr.steps[k];
+  document.querySelectorAll('#src li').forEach((li, i) => li.classList.toggle('cur', !final && i === st.ln));
+  renderVars(final ? lastVars(T.tr) : st.vars, final ? [] : st.changed);
+  renderOut(final ? T.tr.out : st.out);
+  $('note').innerHTML = final ? `<b>Программа завершена.</b> Шагов: ${T.tr.steps.length}.` : `шаг ${k + 1}/${T.tr.steps.length} · строка ${st.ln + 1}: <b>${esc(st.note)}</b>`;
+}
+// переменные после последнего шага (снимок шага делается до вывода, но после присваивания)
+const lastVars = tr => tr.steps[tr.steps.length - 1].vars;
+function renderVars(vars, changed = []){
+  $('vars').innerHTML = vars && vars.length
+    ? vars.map(([k, v]) => `<div class="${changed.includes(k) ? 'ch' : ''}"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')
+    : '<p class="empty">появятся во время трассировки…</p>';
+}
+function renderOut(s){ $('out').innerHTML = s ? esc(s.replace(/\n$/, '')) : '<span class="empty">пока пусто…</span>'; }
+
+/* ---------- отрисовка ---------- */
+function hl(s){
+  return s.replace(/("[^"]*"|'[^']*')|\b(\d+(?:\.\d+)?)\b|\b(if|elif|else|while|for|in|and|or|not|True|False)\b|\b(print|range|int|input|abs|min|max)\b|([<>&])/g,
+    (m, str, n, kw, fn, ch) => str ? `<span class="s">${esc(str)}</span>` : n ? `<span class="n">${n}</span>` : kw ? `<span class="k">${kw}</span>` : fn ? `<span class="f">${fn}</span>` : esc(ch));
+}
+function btn(text, cls, fn){ const b = document.createElement('button'); b.className = 'btn ' + cls; b.innerHTML = text; b.onclick = fn; return b; }
+
+function render(){
+  const T = S.task;
+  $('tagMode').textContent = (S.exam ? `Задание ${S.taskNo} · ` : '') + TYPE_NAMES[T.topic];
+  $('tagLevel').textContent = LEVELS[T.level].name;
+  $('progress').textContent = S.exam || !S.running ? '' : `Ответов: ${S.answers}`;
+  $('src').innerHTML = T.lines.map(l => `<li><span class="ln">${hl(l) || ' '}</span></li>`).join('');
+  $('inpBox').hidden = !T.input.length;
+  $('inp').textContent = T.input.join('\n');
+  $('claim').innerHTML = claimHTML(T.kind, T.claim, T.tr);
+  $('answers').hidden = T.answered;
+  const stamp = $('stamp');
+  if (T.answered){
+    const ok = T.choice === T.truth;
+    stamp.hidden = false; stamp.textContent = ok ? 'ВЕРНО!' : 'ПРОМАХ!'; stamp.className = 'stamp ' + (ok ? 'good' : 'bad') + (reduced ? '' : ' in');
+    $('feedback').className = 'feedback ' + (ok ? 'good' : 'bad');
+    $('feedback').innerHTML = feedbackHTML(T, ok);
+  } else {
+    stamp.hidden = true; $('feedback').innerHTML = '';
+    renderVars([]); renderOut('');
+    $('note').textContent = T.input.length ? 'Программа прочитает числа из окна «ввод» по порядку.' : '';
+  }
+  if (T.answered && S.exam){ renderVars([]); renderOut(''); $('note').textContent = 'Трассировка в контрольной не показывается.'; }
+  renderActions();
+}
+
+function keyLine(T){
+  const st = T.tr.steps, conds = st.filter(s => s.kind === 'if' || s.kind === 'else');
+  let notes;
+  if (T.tr.loop){
+    const ls = st.filter(s => s.ln === T.tr.loop.ln);
+    notes = [ls[0].note, ls[ls.length - 1].note];
+    if (ls.length > 2) notes.splice(1, 0, '…');
+    notes.push(`повторов: ${T.tr.loop.n}`);
+  } else if (conds.length) notes = conds.slice(0, 3).map(s => s.note);
+  else notes = st.filter(s => s.kind === 'set').slice(-3).map(s => s.note);
+  return notes.map(n => `<code>${esc(n)}</code>`).join('<br>');
+}
+function feedbackHTML(T, ok){
+  const real = realText(T.kind, T.val);
+  const pts = T.delta > 0 ? ` +${T.delta}` : T.delta < 0 ? ` −${-T.delta}` : '';
+  if (S.exam) return ok ? `<b class="h">Верно!${pts}</b>` : `<b class="h">Неверно${pts}.</b> На самом деле ${real}.`;
+  if (T.truth && ok) return `<b class="h">Верно!${pts}</b> Так и есть: ${real}.<span class="why">${keyLine(T)}</span>`;
+  if (T.truth) return `<b class="h">Зря не поверил:</b> утверждение верное — ${real}. Смотри трассировку.<span class="why">${keyLine(T)}</span>`;
+  if (ok) return `<b class="h">Верно, это ловушка!${pts}</b> На самом деле ${real}.<span class="why">${T.trap.why}</span>`;
+  return `<b class="h">Мимо!</b> На самом деле ${real}.<span class="why">${T.trap.why}</span>`;
+}
+
+function renderActions(){
+  const T = S.task, act = $('actions'); act.innerHTML = '';
+  if (!S.running) return;
+  if (!T.answered){ act.appendChild(btn(S.exam ? '↷ Пропустить (0 баллов)' : '↻ Другая программа', 'soft', skip)); return; }
+  if (RP){
+    act.appendChild(btn(`скорость ×${[1, 2, 4][speed]}`, 'soft', () => { speed = (speed + 1) % SPEEDS.length; renderActions(); }));
+    act.appendChild(btn('⏭ пропустить трассировку', 'soft', skipReplay));
+  } else if (!S.exam) act.appendChild(btn('▶ показать ещё раз', 'soft', startReplay));
+  const sp = document.createElement('span'); sp.className = 'sp'; act.appendChild(sp);
+  act.appendChild(btn('Дальше →', 'main', newTask));
+}
+
+/* ---------- конец раунда ---------- */
+function end(){
+  if (!S || !S.running) return;
+  stopReplay();
+  S.running = false; S.paused = false; sfx.end();
+  $('pauseScreen').hidden = true; $('helpScreen').hidden = true;
+  $('rExam').hidden = !S.exam; $('rTrain').hidden = S.exam;
+  $('againBtn').hidden = S.exam;
+  if (S.exam){
+    $('clock').textContent = '0:00';
+    $('xGrade').textContent = gradeFor(S.pts);
+    $('xName').textContent = S.name;
+    $('xDate').textContent = S.startedAt.toLocaleString('ru-RU', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) + ` · ${EXAM.minutes} минут`;
+    $('xPts').textContent = S.pts;
+    $('xAway').textContent = S.away ? `Уходил со страницы: ${S.away} раз(а)` : 'Со страницы не уходил';
+    $('xAway').style.color = S.away ? 'var(--bad)' : 'var(--good)';
+    $('xTable').innerHTML = '<tr><th>Тема</th><th>Верно</th><th>Баллы</th></tr>' +
+      Object.keys(S.byType).map(k => `<tr><td>${TYPE_NAMES[k]}</td><td>${S.byType[k].ok} из ${S.byType[k].n}</td><td>${S.byType[k].pts}</td></tr>`).join('') +
+      `<tr><th>Итого</th><th>${Object.values(S.byType).reduce((s, x) => s + x.ok, 0)}</th><th>${S.pts}</th></tr>`;
+  }
+  $('rScore').textContent = S.score; $('rSolved').textContent = S.solved; $('rStreak').textContent = S.best;
+  $('rAcc').textContent = (S.answers ? Math.round(S.solved / S.answers * 100) : 0) + '%';
+  if (!S.exam){
+    const prev = +store.get(bestKey()) || 0;
+    $('rRecord').hidden = !(S.score > prev && S.score > 0);
+    if (S.score > prev) store.set(bestKey(), S.score);
+  }
+  const weak = Object.entries(S.errs).sort((a, b) => b[1] - a[1]);
+  $('rWeak').innerHTML = weak.length
+    ? `<h3>Над чем поработать</h3><ul class="weak">${weak.map(([k, n]) => `<li><b>${ERR_NAMES[k][0]}</b> — ошибок: ${n}<br><span class="x">${ERR_NAMES[k][1]}</span></li>`).join('')}</ul>`
+    : (S.answers ? '<p class="record">Ни одной ошибки!</p>' : '');
+  $('endScreen').hidden = false; (S.exam ? $('menuBtn') : $('againBtn')).focus();
+}
+
+/* ---------- пауза, справка, таймер ---------- */
+function setPause(p){
+  if (!S || !S.running || S.exam) return;
+  S.paused = p; $('pauseScreen').hidden = !p; if (p) $('resumeBtn').focus();
+}
+let helpResume = false;
+function openHelp(){
+  if (S && S.running && S.exam) return;
+  if (S && S.running && !S.paused){ S.paused = true; helpResume = true; }
+  $('helpScreen').hidden = false; $('helpClose').focus();
+}
+function closeHelp(){
+  $('helpScreen').hidden = true;
+  if (helpResume && S && S.running) S.paused = false;
+  helpResume = false;
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden || !S || !S.running) return;
+  if (S.exam) S.away++;
+  else if ($('helpScreen').hidden) setPause(true);
+});
+
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (S && S.running && S.exam){
+    S.t = (Date.now() - S.t0) / 1000;                      // по настоящим часам: пауз нет
+    const left = Math.max(0, Math.ceil(S.dur - S.t));
+    $('clock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    $('pTime').classList.toggle('warn', left <= 60);
+  }
+  if (S && S.running && S.dur && (S.exam || !S.paused)){
+    if (!S.exam) S.t += dt;
+    $('timefill').style.transform = `scaleX(${Math.max(0, 1 - S.t / S.dur)})`;
+    $('timebar').classList.toggle('low', S.dur - S.t < 20);
+    if (S.t >= S.dur) end();
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- управление ---------- */
+$('yesBtn').onclick = () => answer(true);
+$('noBtn').onclick = () => answer(false);
+addEventListener('keydown', e => {
+  if (!$('helpScreen').hidden){ if (e.key === 'Escape') closeHelp(); return; }
+  if (!S || !S.running) return;
+  if (e.key === 'Escape'){ if (!S.exam) setPause(!S.paused); return; }
+  if (S.paused || document.activeElement === $('studentName')) return;
+  const T = S.task;
+  if (!T.answered){
+    if (e.key === '1') answer(true);
+    else if (e.key === '2') answer(false);
+  } else if (e.key === 'Enter'){
+    if (document.activeElement && document.activeElement.classList.contains('btn')) return;   // кнопка сработает сама
+    e.preventDefault(); newTask();
+  }
+});
+$('startBtn').onclick = start;
+$('againBtn').onclick = start;
+$('menuBtn').onclick = () => {
+  $('endScreen').hidden = true; $('startScreen').hidden = false;
+  ['pTime', 'pPts', 'pGrade'].forEach(id => $(id).hidden = true);
+  ['pScore', 'pStreak', 'pSolved', 'helpBtn', 'pauseBtn'].forEach(id => $(id).hidden = false);
+  renderMenu();
+};
+$('studentName').addEventListener('input', e => e.target.classList.remove('need'));
+$('studentName').addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+$('helpBtn').onclick = openHelp;
+$('helpBtn2').onclick = openHelp;
+$('helpClose').onclick = closeHelp;
+$('pauseBtn').onclick = () => setPause(true);
+$('resumeBtn').onclick = () => setPause(false);
+$('finishBtn').onclick = end;
+$('quitBtn').onclick = () => { stopReplay(); S.running = false; S.paused = false; $('pauseScreen').hidden = true; $('startScreen').hidden = false; renderMenu(); };
+$('muteBtn').onclick = () => setMute(!muted);
+
+// пример на фоне меню
+S = { running:false, paused:false, score:0, streak:0, mult:1, solved:0, answers:0, hist:[], task:null };
+S.task = genTask('if', 'mid', true);
+render();
+setMute(muted); renderMenu(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

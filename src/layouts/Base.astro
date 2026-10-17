@@ -27,7 +27,7 @@ const path = Astro.url.pathname;
     <div class="wrap bar">
       <a class="logo" href={base}><Logo size={38} /><span>{SITE.short}</span></a>
       <nav aria-label="Разделы">
-        {[7, 8, 9].map(g => (
+        {[6, 7, 8, 9].map(g => (
           <a href={`${base}klass/${g}/`} aria-current={path.includes(`/klass/${g}/`) ? 'page' : undefined}>{g === 9 ? '9 · ОГЭ' : `${g} класс`}</a>
         ))}
         <a href={`${base}catalog/?type=course`}>Курсы</a>

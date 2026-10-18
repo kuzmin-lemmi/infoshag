@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Контрольная за 1 четверть · 6 класс</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F6FA; --card:#FFFFFF; --ink:#1B2433; --soft:#5A6880; --line:#D3DCE8; --accent:#1F8A70; --accent-ink:#FFFFFF;
+  --good:#17894D; --good-bg:#E3F5EA; --bad:#C9303D; --bad-bg:#FCE6E8; --warn:#B86E00; --sel:#2F6FDB; --sel-bg:#E3ECFC;
+  --wall:#E9EEF5; --floor:#D8CCBC; --wood:#B98A5E; --wood-d:#8F6542; --metal:#5D6B7E; --metal-l:#A9B4C2; --screen:#9FD3F5;
+  --skin:#F1C6A0; --shirt:#3F7FD6; --pants:#3B4458; --hair:#5A3B25; --plant:#3FA45B;
+  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1724; --card:#172235; --ink:#E8EEF7; --soft:#9DACC3; --line:#2C3C58; --accent:#3CC29A; --accent-ink:#06261D;
+    --good:#4CD38A; --good-bg:#12382A; --bad:#FF6B76; --bad-bg:#3D1A22; --warn:#FFB547; --sel:#79A8FF; --sel-bg:#1C2D4D;
+    --wall:#1E2A3D; --floor:#2B2A2E; --wood:#8A6544; --wood-d:#6A4C33; --metal:#8794A8; --metal-l:#4A5668; --screen:#3D7FB0;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1724; --card:#172235; --ink:#E8EEF7; --soft:#9DACC3; --line:#2C3C58; --accent:#3CC29A; --accent-ink:#06261D;
+  --good:#4CD38A; --good-bg:#12382A; --bad:#FF6B76; --bad-bg:#3D1A22; --warn:#FFB547; --sel:#79A8FF; --sel-bg:#1C2D4D;
+  --wall:#1E2A3D; --floor:#2B2A2E; --wood:#8A6544; --wood-d:#6A4C33; --metal:#8794A8; --metal-l:#4A5668; --screen:#3D7FB0;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 18px/1.45 var(--body)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+[hidden]{display:none!important}
+#app{max-width:1100px;margin:0 auto;padding:12px clamp(12px,3vw,28px) 32px;display:flex;flex-direction:column;gap:12px}
+
+header.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand b{display:block;font-size:clamp(20px,3vmin,26px);line-height:1.15}
+.brand small{color:var(--soft);font-size:15px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:5px 14px;font-weight:600;font-size:16px}
+.pill b{font-variant-numeric:tabular-nums;color:var(--accent)}
+.pill.warn b{color:var(--bad)}
+.ibtn{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:6px 12px;font-weight:600;font-size:16px}
+.ibtn.main{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+nav#nav{display:flex;gap:6px;flex-wrap:wrap}
+nav#nav button{min-width:46px;height:46px;border-radius:12px;border:2px solid var(--line);background:var(--card);font-weight:700;font-size:18px;position:relative}
+nav#nav button.part{border-color:var(--sel);border-style:dashed}
+nav#nav button.full{border-color:var(--sel);background:var(--sel-bg)}
+nav#nav button.cur{outline:3px solid var(--accent);outline-offset:1px}
+nav#nav button.ok{border-color:var(--good);background:var(--good-bg)}
+nav#nav button.bad{border-color:var(--bad);background:var(--bad-bg)}
+
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:clamp(14px,2.4vmin,26px)}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{border:1.5px solid var(--line);border-radius:999px;padding:2px 12px;font-weight:600;font-size:15px;color:var(--soft)}
+.tag.main{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.card h2{font-size:clamp(22px,3.2vmin,30px);line-height:1.2;margin:.4em 0 .2em}
+.instr{color:var(--soft);margin:0 0 1em}
+.bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}
+.bar .mid{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:.55em 1.1em;font-weight:700}
+.btn.main{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.4}
+.btn:active:not(:disabled){transform:translateY(1px)}
+
+/* строки с вариантами */
+.rows{display:flex;flex-direction:column;gap:10px}
+.row{border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.row.ok{border-color:var(--good);background:var(--good-bg)}
+.row.bad{border-color:var(--bad);background:var(--bad-bg)}
+.rq{font-weight:600;margin-bottom:8px}
+.ropts{display:flex;gap:6px;flex-wrap:wrap}
+.ropts.col{flex-direction:column}
+.ropts.col .chip{text-align:left;border-radius:12px}
+.chip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:.35em .9em;font-weight:600;font-size:17px}
+.chip[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:#fff}
+.chip.right{box-shadow:0 0 0 3px var(--good)}
+.chip:disabled{opacity:1}
+.why{margin-top:8px;font-size:16px}
+.why::before{content:'💡 '}
+.legend{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:var(--bg);list-style:none}
+.legend li{margin:3px 0}
+.legend b{display:inline-block;min-width:1.6em;color:var(--accent)}
+
+/* раскладка по группам */
+.pool{min-height:64px;display:flex;flex-wrap:wrap;gap:8px;padding:10px;border:2px dashed var(--line);border-radius:14px;margin-bottom:12px}
+.pool .hint{color:var(--soft);align-self:center}
+.buckets{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+.bucket{border:2px solid var(--line);border-radius:14px;padding:8px;min-height:130px;background:var(--bg);cursor:pointer}
+.bucket.drop{border-color:var(--sel);background:var(--sel-bg)}
+.bucket.armed{border-style:dashed;border-color:var(--sel)}
+.bh{font-weight:700;text-align:center;margin-bottom:8px}
+.bi{display:flex;flex-wrap:wrap;gap:6px}
+.cc{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:.35em .7em;font-weight:600;font-size:16px;text-align:left}
+.cc.sel{background:var(--sel);border-color:var(--sel);color:#fff}
+.cc.ok{border-color:var(--good);background:var(--good-bg)}
+.cc.bad{border-color:var(--bad);background:var(--bad-bg)}
+.whylist{margin:12px 0 0;padding-left:1.2em}
+.whylist li{margin:4px 0}
+
+/* картинки */
+.pic{width:100%;height:auto;display:block;border-radius:14px;border:1.5px solid var(--line);touch-action:manipulation}
+.hs{cursor:pointer}
+.hs .hit{fill:transparent;stroke:transparent;stroke-width:4;rx:12}
+.hs:hover .hit{stroke:var(--sel);stroke-dasharray:6 5}
+.hs.marked .hit{stroke:var(--bad);stroke-dasharray:none;fill:rgba(201,48,61,.08)}
+.hs.found .hit{stroke:var(--good);stroke-dasharray:none;fill:rgba(23,137,77,.1)}
+.hs.missed .hit{stroke:var(--warn);stroke-dasharray:8 5}
+.hs.wrong .hit{stroke:var(--bad);stroke-dasharray:none}
+.badge circle{fill:var(--bad)} .badge text{fill:#fff;font:700 20px var(--body);text-anchor:middle}
+.counter{margin:8px 0 0;font-weight:600}
+.slot{cursor:pointer}
+.slot rect{fill:var(--card);stroke:var(--line);stroke-width:2;stroke-dasharray:6 4}
+.slot.filled rect{stroke:var(--sel);stroke-dasharray:none;fill:var(--sel-bg)}
+.slot.armed rect{stroke:var(--sel)}
+.slot.ok rect{stroke:var(--good);fill:var(--good-bg);stroke-dasharray:none}
+.slot.bad rect{stroke:var(--bad);fill:var(--bad-bg);stroke-dasharray:none}
+.slot text{font:600 17px var(--body);fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.slot .num,.pnum text{font-weight:700}
+.pnum circle{fill:var(--accent)} .pnum text{fill:var(--accent-ink);font:700 18px var(--body);text-anchor:middle;dominant-baseline:central}
+.explorer{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.exbar{background:var(--bg);padding:6px 12px;font-weight:700;border-bottom:1.5px solid var(--line)}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;padding:12px}
+.exitem{border:1.5px dashed var(--line);border-radius:10px;padding:10px;text-align:center;font-weight:600;word-break:break-word}
+.numrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.numrow .rq{margin:0;flex:1 1 200px}
+.numrow .why{flex-basis:100%}
+.num{width:7.5em;font:700 22px var(--body);text-align:right;padding:.25em .5em;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.num:focus{outline:none;border-color:var(--sel)}
+.unit{font-weight:600;color:var(--soft)}
+.marks{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
+.mk{border:2px solid var(--line);background:var(--card);border-radius:12px;padding:.6em .8em;font-weight:600;font-size:17px;text-align:left}
+.mk.on{border-color:var(--sel);background:var(--sel-bg)}
+.marks.strike .mk.on{text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:var(--bad)}
+.marks:not(.strike) .mk.on::before{content:'✔ ';color:var(--sel)}
+.mk.ok{border-color:var(--good);background:var(--good-bg)}
+.mk.bad{border-color:var(--bad);background:var(--bad-bg)}
+.mk.miss{border-color:var(--warn);border-style:dashed}
+.tree{font:600 18px/1.5 Consolas,'Courier New',monospace;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px 16px;overflow-x:auto;margin:0 0 12px}
+.eu{width:56px;height:35px;vertical-align:middle;margin-right:6px;fill:none;stroke:currentColor;stroke-width:2.5}
+.eurow{display:flex;gap:16px;flex-wrap:wrap}
+.eurow>div{flex:1 1 150px;text-align:center}
+.eurow .eu{width:96px;height:60px;display:block;margin:0 auto 4px}
+.lead-line{stroke:var(--soft);stroke-width:2}
+.photo .hs .hit{stroke-width:9;rx:24}
+.photo .hs:hover .hit{stroke-dasharray:18 12}
+.photo .hs.missed .hit{stroke-dasharray:22 14}
+.photo .badge text{font-size:42px}
+.pc .slot rect{stroke-width:4;stroke-dasharray:14 10}
+.pc .slot text{font:700 38px var(--body)}
+.pc .slot.filled rect,.pc .slot.ok rect,.pc .slot.bad rect{stroke-dasharray:none}
+.help .pic{margin:.5em 0}
+
+/* клавиатура */
+.subs{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.sub{display:flex;gap:10px;align-items:center;flex-wrap:wrap;text-align:left;border:2px solid var(--line);background:var(--card);border-radius:12px;padding:8px 12px}
+.sub.cur{border-color:var(--sel);background:var(--sel-bg)}
+.sub.ok{border-color:var(--good);background:var(--good-bg)}
+.sub.bad{border-color:var(--bad);background:var(--bad-bg)}
+.sub .q{flex:1 1 300px;font-weight:600}
+.sub .a{min-width:8em;text-align:center;border:1.5px dashed var(--line);border-radius:8px;padding:2px 8px;font-weight:700}
+.kb{display:flex;flex-direction:column;gap:5px;padding:10px;border-radius:14px;background:var(--metal-l);overflow-x:auto}
+.kr{display:flex;gap:5px}
+.k{flex:0 0 auto;width:calc(var(--w,1) * 48px + (var(--w,1) - 1) * 5px);height:48px;border-radius:8px;border:none;background:var(--card);box-shadow:0 3px 0 var(--line);font-size:15px;font-weight:600;line-height:1.05;padding:2px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.k small{font-size:11px;color:var(--soft);font-weight:400}
+.k.chosen{background:var(--sel);color:#fff}
+.k.chosen small{color:#fff}
+.k.right{box-shadow:0 0 0 3px var(--good)}
+.k.gap{visibility:hidden}
+@media (max-width:700px){.k{width:calc(var(--w,1) * 30px + (var(--w,1) - 1) * 4px);height:38px;font-size:12px}.k small{display:none}.kr,.kb{gap:4px}}
+
+textarea{width:100%;min-height:70px;border:1.5px solid var(--line);border-radius:12px;padding:.5em .7em;font:inherit;background:var(--bg);color:var(--ink);resize:vertical}
+.open label{display:block;font-weight:700;margin:10px 0 4px}
+
+/* экраны */
+.screen{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:16px;overflow-y:auto;background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(3px)}
+.screen>.card{width:min(760px,100%);box-shadow:0 20px 60px rgba(0,0,0,.18)}
+.screen h1{font-size:clamp(26px,4.4vmin,38px);line-height:1.1;margin:0 0 .3em}
+.screen h3{margin:1.1em 0 .4em;color:var(--accent)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:.4em 0 1em}
+.tabs .chip{font-size:18px;padding:.5em 1em}
+.name{display:block;font-weight:700;margin:0 0 1em}
+.name input{display:block;width:100%;margin-top:.4em;border:1.5px solid var(--line);border-radius:12px;padding:.6em .8em;font:600 19px var(--body);background:var(--bg);color:var(--ink)}
+.name input.need{border-color:var(--bad);box-shadow:0 0 0 3px var(--bad-bg)}
+.go{display:block;width:100%;margin-top:.8em;border:none;border-radius:14px;padding:.75em;background:var(--accent);color:var(--accent-ink);font:700 21px/1 var(--body)}
+.go.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-size:18px}
+.rules{margin:.2em 0 .6em;padding-left:1.2em}
+.rules li{margin:.25em 0}
+table.crit{width:100%;border-collapse:collapse;margin:.3em 0 .8em;font-size:17px}
+.crit th,.crit td{border:1.5px solid var(--line);padding:.4em .7em;text-align:left;vertical-align:top}
+.crit th{background:var(--bg)}
+.crit td.n{text-align:center;font-weight:700;width:4.5em}
+.resume{border:2px solid var(--warn);border-radius:14px;padding:10px 14px;margin-bottom:1em}
+.examhead{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:.6em}
+.bigmark{font:700 clamp(64px,13vmin,110px)/1 var(--body);width:1.5em;height:1.5em;display:grid;place-items:center;border:4px solid var(--accent);color:var(--accent);border-radius:50%;transform:rotate(-8deg)}
+.examhead p{margin:.1em 0}
+.away-bad{color:var(--bad);font-weight:700} .away-ok{color:var(--good)}
+details{border:1.5px solid var(--line);border-radius:12px;padding:6px 12px;margin:6px 0}
+details summary{cursor:pointer;font-weight:700}
+details ul{margin:.4em 0;padding-left:1.2em}
+details li{margin:.35em 0}
+.mist .your{color:var(--bad)} .mist .right{color:var(--good);font-weight:600}
+.weak li{margin:.4em 0}
+.teacher{border:2px dashed var(--line);border-radius:12px;padding:8px 14px;margin-top:10px}
+.teacher p{margin:.3em 0}
+.who{margin:.2em 0 .4em;color:var(--accent)}
+body.handover #app{visibility:hidden}   /* при передаче хода ответы соседа не видны */
+.pbreak{border:none;border-top:3px dashed var(--line);margin:28px 0}
+.help h3{color:var(--accent);margin:1em 0 .3em}
+.help p,.help ul{margin:.3em 0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  body{background:#fff;color:#000}
+  #app,.screen:not(#resultScreen),.noprint{display:none!important}
+  #resultScreen{position:static;background:none;backdrop-filter:none;padding:0}
+  #resultScreen>.card{box-shadow:none;border:none;width:100%}
+  details{break-inside:avoid}
+  details:not([open]) > *:not(summary){display:block}
+  .pbreak{break-after:page;border:none;margin:0}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand"><b>Контрольная за 1 четверть</b><small>Информатика · 6 класс</small></div>
+    <div class="stats">
+      <span class="pill" id="pName" hidden></span>
+      <span class="pill" id="pVar" hidden></span>
+      <span class="pill" id="pTime" hidden>⏱ <b id="clock">40:00</b></span>
+      <span class="pill" id="pOther" hidden></span>
+      <button class="ibtn" id="helpBtn" aria-label="Справка">📖 Справка</button>
+      <button class="ibtn main" id="finishBtn">Сдать работу</button>
+    </div>
+  </header>
+  <nav id="nav" aria-label="Задания"></nav>
+  <section class="card">
+    <div class="meta"><span class="tag main" id="tNum"></span><span class="tag" id="tTopic"></span><span class="tag" id="tMax"></span></div>
+    <h2 id="tTitle"></h2>
+    <p class="instr" id="tInstr"></p>
+    <div id="tBody"></div>
+    <div id="tResult" class="counter" aria-live="polite"></div>
+  </section>
+  <div class="bar">
+    <button class="btn" id="prevBtn">← Назад</button>
+    <div class="mid">
+      <button class="btn main" id="checkBtn">Проверить</button>
+      <button class="btn" id="newBtn">↻ Новое задание</button>
+    </div>
+    <div class="mid">
+      <button class="btn main" id="passBtn" hidden>Передать ход →</button>
+      <button class="btn main" id="nextBtn">Дальше →</button>
+    </div>
+  </div>
+</div>
+
+<section class="screen" id="startScreen">
+  <div class="card">
+    <h1>Контрольная за 1 четверть</h1>
+    <p style="margin:0;color:var(--soft)">Информатика · 6 класс · файлы и папки, расширения, единицы измерения, отношения, круги Эйлера</p>
+    <div class="tabs" id="kindTabs"></div>
+    <div id="resumeBox" class="resume" hidden></div>
+    <div id="examPanel">
+      <label class="name">Фамилия и имя<input id="studentName" autocomplete="off" placeholder="Например: Иванова Маша, 6А"></label>
+      <p>В работе <b id="eCount">10</b> заданий, на всё — <b id="eMin">40</b> минут. У каждого ученика свой вариант. Отвечать можно в любом порядке и исправлять ответы до сдачи.</p>
+    </div>
+    <div id="pairPanel" hidden>
+      <p>Если компьютеров не хватает: двое работают за одним компьютером по очереди. У каждого свой вариант из <b id="pCount">8</b> заданий, своё время — <b id="pMin">20</b> минут — и своя оценка.</p>
+      <label class="name">Ученик 1 — фамилия и имя<input id="name1" autocomplete="off" placeholder="Например: Иванова Маша, 6А"></label>
+      <label class="name">Ученик 2 — фамилия и имя<input id="name2" autocomplete="off" placeholder="Например: Петров Петя, 6А"></label>
+    </div>
+    <div id="gradeBox">
+      <h3>Оценка</h3>
+      <table class="crit" id="critGrades"></table>
+      <h3>Правила</h3>
+      <ul class="rules" id="examRules"></ul>
+    </div>
+    <div id="trainPanel">
+      <p>Те же задания, что в контрольной, но без времени и оценки в журнал. После каждого задания нажми «Проверить» — увидишь, где ошибка и почему. Кнопка «Новое задание» даст другие примеры. Справка с теорией открыта.</p>
+    </div>
+    <button class="go" id="startBtn">Начать</button>
+    <button class="go ghost" id="helpBtn2">Справка: что нужно знать</button>
+  </div>
+</section>
+
+<section class="screen" id="confirmScreen" hidden>
+  <div class="card" style="width:min(480px,100%)">
+    <h1>Сдать работу?</h1>
+    <p id="confirmText"></p>
+    <button class="go" id="confirmYes">Да, сдать</button>
+    <button class="go ghost" id="confirmNo">Вернуться к заданиям</button>
+  </div>
+</section>
+
+<section class="screen" id="turnScreen" hidden>
+  <div class="card" style="width:min(520px,100%);text-align:center">
+    <p style="font-size:48px;margin:0">🔁</p>
+    <h1 id="turnTitle">Ход</h1>
+    <p id="turnText"></p>
+    <button class="go" id="turnGo">Начать ход</button>
+  </div>
+</section>
+
+<section class="screen" id="helpScreen" hidden>
+  <div class="card help">
+    <h1>Справка</h1>
+    <h3>Файлы и папки</h3>
+    <p><b>Файл</b> — информация (текст, рисунок, музыка, программа), которая хранится на диске компьютера под своим именем. Имя файла состоит из названия и <b>расширения</b> после точки: в «доклад.docx» расширение — docx.</p>
+    <p><b>Папка</b> — место, где хранятся файлы и другие папки. У папки расширения нет. Папки вкладываются друг в друга, получается дерево папок.</p>
+    <h3>Расширения: тип файла</h3>
+    <table class="crit">
+      <tr><th>Тип</th><th>Расширения</th></tr>
+      <tr><td>📝 Текстовый документ</td><td>.txt .docx .doc .rtf .pdf</td></tr>
+      <tr><td>🖼 Рисунок или фото</td><td>.jpg .png .gif .bmp</td></tr>
+      <tr><td>🎵 Звук</td><td>.mp3 .wav .ogg</td></tr>
+      <tr><td>🎬 Видео</td><td>.mp4 .avi .mov .mkv</td></tr>
+      <tr><td>⚙️ Программа</td><td>.exe</td></tr>
+      <tr><td>🗜 Архив</td><td>.zip .rar .7z</td></tr>
+    </table>
+    <p>Тип определяет расширение, а не название: «Песня.docx» — это текст. Если переименовать файл и поменять расширение, содержимое не изменится.</p>
+    <h3>Операции с файлами</h3>
+    <p>Файлы можно создавать, открывать, сохранять, выделять, переименовывать, копировать, перемещать, удалять и восстанавливать из Корзины. При <b>копировании</b> файл остаётся на месте и появляется копия, при <b>перемещении</b> он исчезает из старого места.</p>
+    <h3>Полное имя файла</h3>
+    <p>Полное имя — путь к файлу: диск, все папки сверху вниз через «\» и имя файла. Например: <b>C:\Учёба\Информатика\задание.docx</b>.</p>
+    <h3>Единицы измерения информации</h3>
+    <p>1 байт = 8 бит · 1 Кбайт = 1024 байта · 1 Мбайт = 1024 Кбайт · 1 Гбайт = 1024 Мбайт. Из крупных единиц в мелкие — умножай, из мелких в крупные — дели.</p>
+    <h3>Отношения между объектами</h3>
+    <ul>
+      <li><b>Целое — часть:</b> велосипед — колесо, дерево — лист.</li>
+      <li><b>Последовательность:</b> понедельник — вторник, утро — день.</li>
+      <li><b>Причина — следствие:</b> дождь — лужа, мороз — лёд на реке.</li>
+    </ul>
+    <h3>Круги Эйлера</h3>
+    <div class="eurow"><div><svg class="eu" viewBox="0 0 80 50" aria-hidden="true"><circle cx="40" cy="25" r="22"/><circle cx="40" cy="31" r="11"/></svg><b>Одно внутри другого</b><br>птицы и воробьи</div>
+      <div><svg class="eu" viewBox="0 0 80 50" aria-hidden="true"><circle cx="30" cy="25" r="18"/><circle cx="50" cy="25" r="18"/></svg><b>Пересекаются</b><br>девочки и шестиклассники</div>
+      <div><svg class="eu" viewBox="0 0 80 50" aria-hidden="true"><circle cx="20" cy="25" r="15"/><circle cx="60" cy="25" r="15"/></svg><b>Не пересекаются</b><br>кошки и собаки</div></div>
+    <h3>Техника безопасности</h3>
+    <p>Сиди прямо, до экрана — 50–70 см. Работай чистыми сухими руками. Не ешь и не пей за компьютером. Не трогай провода и розетки, не открывай системный блок и не клади на него вещи. Делай перерывы. Если что-то сломалось или пахнет гарью — сразу скажи учителю.</p>
+    <button class="go" id="helpClose">Понятно</button>
+  </div>
+</section>
+
+<section class="screen" id="resultScreen" hidden>
+  <div class="card" id="resultCard"></div>
+</section>
+
+<script>
+/* ===== КОНТРОЛЬНАЯ: всё, что может захотеть поменять учитель ===== */
+const EXAM = {
+  minutes: 40,                                   // время на работу, по настоящим часам
+  order: ['defs', 'count', 'sort', 'ext', 'facts', 'ops', 'path', 'units', 'rel', 'euler', 'safety', 'skills'],
+  grades: [[85, 5], [65, 4], [45, 3], [0, 2]],   // [от скольких процентов баллов, оценка]
+  wrongPenalty: 1,                               // «зачеркни» и «отметь правила»: минус за каждую лишнюю отметку
+  weakBelow: 70,                                 // тема попадает в «Над чем поработать», если набрано меньше этого процента
+  pair: {                                        // работа вдвоём за одним компьютером
+    minutes: 20,                                 // у каждого своё время: идёт только во время его хода
+    order: ['defs', 'count', 'sort', 'ext', 'path', 'units', 'rel', 'euler']
+  }
+};
+
+/* ================= ОБЩЕЕ ================= */
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k, v){ try{ localStorage.setItem(k, v) }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k) }catch(e){} }
+};
+const RUN_KEY = 'kr6-1:run';
+function mulberry(seed){
+  let a = seed >>> 0;
+  return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+const shuf = (r, a) => { a = [...a]; for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const sample = (r, a, n) => shuf(r, a).slice(0, n);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+function plural(n, one, few, many){ const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; }
+const balls = n => `${n} ${plural(n, 'балл', 'балла', 'баллов')}`;
+const gradeFor = pct => EXAM.grades.find(([p]) => pct >= p)[1];
+
+/* ================= БАНКИ ЗАДАНИЙ ================= */
+// типы файлов: расширения и что это за файлы
+const FTYPES = {
+  text:  { label:'📝 Текстовый документ', folder:'📁 Документы', exts:{ txt:'простой текстовый файл', docx:'текстовый документ (Word)', doc:'текстовый документ (Word)', rtf:'текстовый документ', pdf:'документ для чтения и печати' },
+           names:['Доклад', 'Сочинение', 'Расписание уроков', 'Список класса', 'Рассказ про лето', 'Конспект'] },
+  pic:   { label:'🖼 Рисунок или фото', folder:'📁 Картинки', exts:{ jpg:'фотография или рисунок', png:'рисунок', gif:'картинка, может быть анимированной', bmp:'рисунок' },
+           names:['Кот на окне', 'Фото класса', 'Мой рисунок', 'Закат на море', 'Открытка маме', 'Портрет'] },
+  sound: { label:'🎵 Звук', folder:'📁 Музыка', exts:{ mp3:'звуковой файл (музыка)', wav:'звуковой файл', ogg:'звуковой файл' },
+           names:['Любимая песня', 'Школьный звонок', 'Мелодия будильника', 'Аудиосказка', 'Песня про лето'] },
+  video: { label:'🎬 Видео', folder:'📁 Видео', exts:{ mp4:'видеофайл', avi:'видеофайл', mov:'видеофайл', mkv:'видеофайл' },
+           names:['Прыжки на сцене', 'Мультфильм', 'Видео с праздника', 'Урок рисования', 'Футбол во дворе'] },
+  prog:  { label:'⚙️ Программа', exts:{ exe:'программа: её можно запустить' }, names:['Игра', 'Калькулятор', 'Установка', 'Paint'] },
+  arch:  { label:'🗜 Архив', exts:{ zip:'архив: в нём хранятся сжатые файлы', rar:'архив: в нём хранятся сжатые файлы', '7z':'архив: в нём хранятся сжатые файлы' }, names:['Фото с каникул', 'Проект', 'Все уроки', 'Документы'] }
+};
+const MEDIA = ['text', 'pic', 'sound', 'video'];
+const FOLDER_NAMES = ['Картинки', 'Документы', 'Музыка', 'Учёба', 'Фото с моря', 'Игры', 'Новая папка', 'Проекты', 'Мультфильмы', 'Домашние задания'];
+function makeFile(r, type, used, trapFrom){
+  const t = FTYPES[type], ext = pick(r, Object.keys(t.exts));
+  const names = (trapFrom ? FTYPES[trapFrom] : t).names.filter(n => !used.has(n));
+  const name = pick(r, names.length ? names : t.names);
+  used.add(name);
+  return { name: `${name}.${ext}`, type, ext, desc: t.exts[ext], trap: !!trapFrom };
+}
+const pick = (r, a) => a[Math.floor(r() * a.length)];
+
+const DEFS = {
+  file:   ['Что такое файл?', [['ok','Информация, которая хранится на диске компьютера под своим именем'], ['dev','Устройство для хранения информации, например флешка'], ['paper','Документ, напечатанный на бумаге'], ['folder','Любая папка на рабочем столе']],
+           'Файл — это информация (текст, рисунок, музыка, программа), которая хранится на диске под своим именем. Флешка — устройство, на котором файлы хранятся.'],
+  folder: ['Что такое папка?', [['ok','Место, где хранятся файлы и другие папки'], ['ext','Файл с расширением .folder'], ['prog','Программа, которая открывает файлы'], ['desk','Картинка на рабочем столе']],
+           'Папка объединяет файлы и другие папки, чтобы в них было легко найти нужное. Расширения у папки нет.'],
+  ext:    ['Что такое расширение файла?', [['ok','Часть имени файла после точки — по ней узнают тип файла'], ['size','Размер файла'], ['dir','Имя папки, в которой лежит файл'], ['date','Дата, когда файл создали']],
+           'Расширение пишут в конце имени после точки: в «доклад.docx» расширение — docx. По нему узнают тип файла.'],
+  path:   ['Что такое полное имя файла?', [['ok','Диск, все папки по порядку и имя файла — путь к файлу'], ['ext','Имя файла вместе с расширением'], ['long','Самое длинное имя в папке'], ['big','Имя файла, написанное заглавными буквами']],
+           'Полное имя показывает путь к файлу: диск, затем все папки сверху вниз и в конце имя файла, например C:\\Учёба\\доклад.docx.']
+};
+
+const FACTS = [
+  ['Тип файла можно определить по его расширению.', true, 'Расширение после точки показывает тип: .txt — текст, .jpg — рисунок, .mp3 — звук.'],
+  ['Если переименовать «отчёт.docx» в «отчёт.jpg», файл станет картинкой.', false, 'Внутри файла всё равно останется текст. Сменится только имя, и программа для картинок его не откроет.'],
+  ['Все файлы делятся только на тексты, фото и видео.', false, 'Типов файлов гораздо больше: звук, программы, архивы, таблицы, презентации и другие.'],
+  ['В папке могут лежать и файлы, и другие папки.', true, 'Папки можно вкладывать друг в друга, поэтому получается дерево папок.'],
+  ['В одной папке могут лежать два файла с одинаковым именем и расширением.', false, 'В одной папке имена файлов не повторяются, иначе компьютер их не различит.'],
+  ['Удалённый файл сначала попадает в Корзину, и его можно восстановить.', true, 'Пока Корзину не очистили, файл можно вернуть на место.'],
+  ['Расширение файла пишут перед его именем.', false, 'Расширение пишут в конце, после точки: «доклад.docx».'],
+  ['Полное имя файла показывает, на каком диске и в каких папках он лежит.', true, 'Например, C:\\Учёба\\Информатика\\задание.docx.'],
+  ['Копирование убирает файл из старого места.', false, 'При копировании файл остаётся на месте и появляется его копия. Убирает файл из старого места перемещение.'],
+  ['При перемещении файл исчезает из старого места и появляется в новом.', true, 'Так перемещение и отличается от копирования.'],
+  ['Файлы с расширением .mp3 — это картинки.', false, '.mp3 — это звук, обычно музыка. Картинки — .jpg, .png, .gif, .bmp.'],
+  ['Файл с расширением .exe — это программа.', true, 'Файл .exe можно запустить — это программа.']
+];
+
+const OPS_REAL = ['создавать', 'переименовывать', 'копировать', 'перемещать', 'удалять', 'восстанавливать из Корзины', 'открывать', 'сохранять', 'выделять'];
+const OPS_FAKE = ['украшать', 'подчёркивать', 'раскрашивать', 'гладить', 'складывать пополам', 'разрезать ножницами', 'поливать'];
+
+const RELS = [['part','🧩 Целое — часть'], ['seq','➡️ Последовательность'], ['cause','⚡ Причина — следствие']];
+const REL_BANK = {
+  part:  [['Велосипед — колесо', 'колесо — часть велосипеда'], ['Дерево — лист', 'лист — часть дерева'], ['Компьютер — процессор', 'процессор — часть компьютера'], ['Книга — страница', 'страница — часть книги'], ['Дом — крыша', 'крыша — часть дома']],
+  seq:   [['Понедельник — вторник', 'вторник идёт сразу после понедельника'], ['Утро — день', 'день наступает после утра'], ['Весна — лето', 'лето идёт после весны'], ['5 класс — 6 класс', 'в 6 класс переходят после 5-го'], ['Первый урок — второй урок', 'уроки идут один за другим']],
+  cause: [['Дождь — лужа', 'лужа появилась из-за дождя'], ['Мороз — лёд на реке', 'река замёрзла из-за мороза'], ['Удар мячом — разбитое окно', 'окно разбилось из-за удара'], ['Простуда — кашель', 'кашель — следствие простуды'], ['Не выучил урок — плохая оценка', 'плохая оценка — следствие того, что урок не выучен']]
+};
+const REL_WHY = { part:'это целое и его часть', seq:'одно идёт за другим по порядку', cause:'одно происходит из-за другого' };
+
+const EULER_SVG = {
+  sub: '<svg class="eu" viewBox="0 0 80 50" aria-hidden="true"><circle cx="40" cy="25" r="22"/><circle cx="40" cy="31" r="11"/></svg>',
+  int: '<svg class="eu" viewBox="0 0 80 50" aria-hidden="true"><circle cx="30" cy="25" r="18"/><circle cx="50" cy="25" r="18"/></svg>',
+  dis: '<svg class="eu" viewBox="0 0 80 50" aria-hidden="true"><circle cx="20" cy="25" r="15"/><circle cx="60" cy="25" r="15"/></svg>'
+};
+const EULER_OPTS = [['sub', EULER_SVG.sub + 'Одно внутри другого'], ['int', EULER_SVG.int + 'Пересекаются'], ['dis', EULER_SVG.dis + 'Не пересекаются']];
+const EULER_TEXT = [['sub','Одно внутри другого'], ['int','Пересекаются'], ['dis','Не пересекаются']];
+const EULER = [
+  ['Птицы и воробьи', 'sub', 'Каждый воробей — птица, но не каждая птица — воробей. Круг «воробьи» целиком внутри круга «птицы».'],
+  ['Школьники и шестиклассники', 'sub', 'Каждый шестиклассник — школьник, но не каждый школьник учится в 6 классе.'],
+  ['Фрукты и яблоки', 'sub', 'Каждое яблоко — фрукт, но фрукты бывают и другие.'],
+  ['Файлы и текстовые файлы', 'sub', 'Каждый текстовый файл — файл, но файлы бывают и других типов.'],
+  ['Девочки и шестиклассники', 'int', 'Есть девочки-шестиклассницы, есть девочки из других классов и мальчики-шестиклассники — круги пересекаются.'],
+  ['Спортсмены и школьники', 'int', 'Есть школьники-спортсмены, есть взрослые спортсмены и школьники, которые не занимаются спортом.'],
+  ['Чётные числа и числа, которые делятся на 3', 'int', '6 — и чётное, и делится на 3; 4 — только чётное; 9 — только делится на 3.'],
+  ['Красные предметы и круглые предметы', 'int', 'Красный мяч — и красный, и круглый; красный кубик — только красный; синий мяч — только круглый.'],
+  ['Кошки и собаки', 'dis', 'Ни одна кошка не собака — общих элементов нет.'],
+  ['Чётные и нечётные числа', 'dis', 'Число не может быть одновременно чётным и нечётным.'],
+  ['Рыбы и птицы', 'dis', 'Ни одна рыба не птица — общих элементов нет.'],
+  ['Летние и зимние месяцы', 'dis', 'Месяц не может быть одновременно летним и зимним.']
+];
+
+const SAFETY = [
+  ['Сидеть прямо, на расстоянии 50–70 см от экрана', true, 'Так меньше устают глаза и спина.'],
+  ['Перед работой вымыть и вытереть руки', true, 'Чистые сухие руки — и клавиатура чистая, и с электричеством безопасно.'],
+  ['Делать перерывы и гимнастику для глаз', true, 'Без перерывов устают глаза и болит голова.'],
+  ['Не работать за компьютером при плохом самочувствии', true, 'Если плохо — нужно сказать учителю и не работать.'],
+  ['О поломке или запахе гари сразу сказать учителю', true, 'Чинить самому опасно, а учитель знает, что делать.'],
+  ['Работать 3 часа подряд без перерыва', false, 'Это вредно для глаз и спины: нужны перерывы.'],
+  ['Трогать провода и разъёмы мокрыми руками', false, 'Вода проводит ток — это опасно.'],
+  ['Есть и пить прямо над клавиатурой', false, 'Крошки и капли портят клавиатуру, пролитый напиток может вызвать замыкание.'],
+  ['Самостоятельно разбирать системный блок', false, 'Внутри опасное напряжение. О поломке говорят учителю.'],
+  ['Класть вещи на системный блок и монитор', false, 'Закрываются отверстия для воздуха, и компьютер перегревается.']
+];
+
+const SKILLS = ['Открывать папку на рабочем столе и находить нужные файлы', 'Переименовывать файлы так, чтобы имя подходило по смыслу',
+  'Создавать новые папки и давать им понятные имена', 'Распределять файлы по папкам в зависимости от их типа',
+  'Копировать папки из одного места в другое', 'Переименовывать копии папок'];
+
+/* ================= ТИПЫ ЗАДАНИЙ ================= */
+const lab = l => /^</.test(l) ? l : esc(l);   // подпись варианта: текст или готовая картинка
+// общий вид строк с вариантами ответа
+function rowsUI(el, rows, opts, ans, ctx, col){
+  el.innerHTML = `<div class="rows">${rows.map((r, i) => {
+    const o = r.opts || opts, st = ctx.checked ? (ans[i] === r.ans ? 'ok' : 'bad') : '';
+    return `<div class="row ${st}"><div class="rq">${rows.length > 1 ? (i + 1) + '. ' : ''}${esc(r.text)}</div>
+      <div class="ropts${col ? ' col' : ''}">${o.map(([k, l]) => `<button class="chip opt${ctx.checked && k === r.ans ? ' right' : ''}" data-r="${i}" data-k="${k}" aria-pressed="${ans[i] === k}"${ctx.checked ? ' disabled' : ''}>${lab(l)}</button>`).join('')}</div>
+      ${ctx.checked && ans[i] !== r.ans ? `<div class="why">${r.explain}</div>` : ''}</div>`;
+  }).join('')}</div>`;
+  el.querySelectorAll('.opt').forEach(b => b.onclick = () => { ans[+b.dataset.r] = b.dataset.k; ctx.change(); });
+}
+function rowsGrade(rows, opts, ans){
+  const lbl = (r, k) => ((r.opts || opts).find(o => o[0] === k) || [, 'нет ответа'])[1];
+  const items = rows.map((r, i) => ({ ok: ans[i] === r.ans, q: r.text, your: ans[i] ? lbl(r, ans[i]) : 'нет ответа', right: lbl(r, r.ans), explain: r.explain }));
+  return { pts: items.filter(x => x.ok).length, max: rows.length, items };
+}
+// общий вид «разложи карточки по группам»
+function bucketsUI(el, data, ans, ctx){
+  const ui = ctx.ui, ch = ctx.checked;
+  const chip = it => `<button class="cc${ui.sel === it.id ? ' sel' : ''}${ch ? (ans[it.id] === it.ans ? ' ok' : ' bad') : ''}" data-id="${it.id}" draggable="${!ch}"${ch ? ' disabled' : ''}>${esc(it.text)}</button>`;
+  const pool = data.items.filter(it => !ans[it.id]);
+  el.innerHTML = `<div class="pool" data-b="">${pool.length ? pool.map(chip).join('') : `<span class="hint">${ch ? 'Не разложенных карточек нет' : 'Все карточки разложены. Чтобы переложить, нажми на карточку и на другую группу.'}</span>`}</div>
+    <div class="buckets">${data.buckets.map(([k, l]) => `<div class="bucket${ui.sel && !ch ? ' armed' : ''}" data-b="${k}" tabindex="0" role="button" aria-label="Положить в группу «${l}»"><div class="bh">${l}</div><div class="bi">${data.items.filter(it => ans[it.id] === k).map(chip).join('')}</div></div>`).join('')}</div>
+    ${ch ? whyList(data.items.filter(it => ans[it.id] !== it.ans).map(it => `<b>${esc(it.text)}</b> — ${it.explain}`)) : ''}`;
+  if (ch) return;
+  const place = (id, b) => { if (!id) return; if (b) ans[id] = b; else delete ans[id]; ui.sel = null; ctx.change(); };
+  el.querySelectorAll('.cc').forEach(c => {
+    c.onclick = e => { e.stopPropagation(); ui.sel = ui.sel === c.dataset.id ? null : c.dataset.id; ctx.rerender(); };
+    c.ondragstart = e => { ui.sel = c.dataset.id; try { e.dataTransfer.setData('text/plain', c.dataset.id); } catch(_){} };
+  });
+  el.querySelectorAll('[data-b]').forEach(z => {
+    z.onclick = () => ui.sel && place(ui.sel, z.dataset.b);
+    z.onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === z && ui.sel){ e.preventDefault(); place(ui.sel, z.dataset.b); } };
+    z.ondragover = e => { e.preventDefault(); z.classList.add('drop'); };
+    z.ondragleave = () => z.classList.remove('drop');
+    z.ondrop = e => { e.preventDefault(); let id = ui.sel; try { id = e.dataTransfer.getData('text/plain') || id; } catch(_){} place(id, z.dataset.b); };
+  });
+}
+function bucketsGrade(data, ans){
+  const lbl = k => (data.buckets.find(b => b[0] === k) || [, 'не разложено'])[1];
+  const items = data.items.map(it => ({ ok: ans[it.id] === it.ans, q: it.text, your: ans[it.id] ? lbl(ans[it.id]) : 'не разложено', right: lbl(it.ans), explain: it.explain }));
+  return { pts: items.filter(x => x.ok).length, max: items.length, items };
+}
+// числа в окошках
+const numOk = (v, r) => v != null && v !== '' && +v === r.ans;
+function numUI(el, rows, ans, ctx){
+  el.innerHTML = `<div class="rows">${rows.map((r, i) => {
+    const st = ctx.checked ? (numOk(ans[i], r) ? 'ok' : 'bad') : '';
+    return `<div class="row numrow ${st}"><label class="rq" for="num${i}">${rows.length > 1 ? (i + 1) + '. ' : ''}${r.text}</label>
+      <span class="numwrap"><input id="num${i}" class="num" data-i="${i}" inputmode="numeric" autocomplete="off" maxlength="7" value="${esc(ans[i] ?? '')}"${ctx.checked ? ' readonly' : ''}> <span class="unit">${r.unit}</span></span>
+      ${ctx.checked && st === 'bad' ? `<div class="why">${r.explain}</div>` : ''}</div>`;
+  }).join('')}</div>`;
+  el.querySelectorAll('input.num').forEach(inp => inp.oninput = () => {
+    inp.value = inp.value.replace(/\D/g, '').slice(0, 7); ans[+inp.dataset.i] = inp.value; ctx.save();
+  });
+}
+function numGrade(rows, ans){
+  const items = rows.map((r, i) => ({ ok: numOk(ans[i], r), q: r.text.replace(/<[^>]+>/g, ''), your: ans[i] ? `${ans[i]} ${r.unit}` : 'нет ответа', right: `${r.ans} ${r.unit}`, explain: r.explain }));
+  return { pts: items.filter(x => x.ok).length, max: rows.length, items };
+}
+// отметь нужное: strike — зачеркнуть лишнее, иначе — отметить галочкой
+function markUI(el, items, ans, ctx, strike){
+  const ch = ctx.checked;
+  el.innerHTML = `<div class="marks${strike ? ' strike' : ''}">${items.map(it => {
+    const m = ans.includes(it.id), st = !ch ? '' : m === it.mark ? (m ? 'ok' : '') : m ? 'bad' : 'miss';
+    return `<button class="mk${m ? ' on' : ''} ${st}" data-id="${it.id}" aria-pressed="${m}"${ch ? ' disabled' : ''}>${esc(it.text)}</button>`;
+  }).join('')}</div>
+  <p class="counter">${strike ? 'Зачёркнуто' : 'Отмечено'}: ${ans.length}</p>
+  ${ch ? whyList(items.filter(it => ans.includes(it.id) !== it.mark).map(it => `${ans.includes(it.id) ? '❌ Лишнее' : '⚠️ Пропущено'}: <b>${esc(it.text)}</b> — ${it.why}`)) : ''}`;
+  if (ch) return;
+  el.querySelectorAll('.mk').forEach(b => b.onclick = () => { const i = ans.indexOf(b.dataset.id); if (i >= 0) ans.splice(i, 1); else ans.push(b.dataset.id); ctx.change(); });
+}
+function markGrade(items, ans, on, off){
+  const found = items.filter(it => it.mark && ans.includes(it.id)).length, wrong = items.filter(it => !it.mark && ans.includes(it.id)).length;
+  const list = items.filter(it => it.mark || ans.includes(it.id)).map(it => {
+    const m = ans.includes(it.id);
+    return { ok: m === it.mark, q: it.text, your: m ? on : off, right: it.mark ? on : off, explain: it.why };
+  });
+  return { pts: Math.max(0, found - EXAM.wrongPenalty * wrong), max: items.filter(it => it.mark).length, items: list };
+}
+const whyList = arr => arr.length ? `<ul class="whylist">${arr.map(x => `<li>${x}</li>`).join('')}</ul>` : '';
+const rowsFilled = ans => ans.filter(Boolean).length / ans.length;
+
+const T = {};
+
+T.defs = {
+  title: 'Основные понятия', topic: 'Файлы и папки: понятия', instr: 'Выбери один верный ответ на каждый вопрос.',
+  gen(r){
+    const keys = ['file', 'folder', pick(r, ['ext', 'path'])];
+    return { rows: keys.map(k => { const [text, opts, why] = DEFS[k]; return { text, ans: 'ok', explain: why, opts: shuf(r, opts) }; }) };
+  },
+  empty: d => d.rows.map(() => null),
+  render: (el, d, a, c) => rowsUI(el, d.rows, null, a, c, true),
+  grade: (d, a) => rowsGrade(d.rows, null, a),
+  filled: (d, a) => rowsFilled(a)
+};
+
+T.count = {
+  title: 'Сколько здесь файлов и папок?', topic: 'Файлы и папки', instr: 'Значки спрятаны. Определи по именам, где файл, а где папка, и посчитай.',
+  gen(r){
+    const used = new Set(), nf = 5 + Math.floor(r() * 4), nd = 2 + Math.floor(r() * 3);
+    const files = Array.from({ length: nf }, () => makeFile(r, pick(r, MEDIA), used)).map(f => ({ name: f.name, folder: false }));
+    const folders = sample(r, FOLDER_NAMES, nd).map(n => ({ name: n, folder: true }));
+    return { items: shuf(r, files.concat(folders)) };
+  },
+  rows(d){
+    const files = d.items.filter(x => !x.folder), folders = d.items.filter(x => x.folder);
+    return [
+      { text: 'Файлов', unit: '', ans: files.length, explain: `Файлы — это имена с расширением после точки: ${files.map(x => '«' + x.name + '»').join(', ')}. Всего ${files.length}.` },
+      { text: 'Папок', unit: '', ans: folders.length, explain: `У папок расширения нет: ${folders.map(x => '«' + x.name + '»').join(', ')}. Всего ${folders.length}.` }
+    ];
+  },
+  empty: () => ['', ''],
+  render(el, d, a, ctx){
+    el.innerHTML = `<div class="explorer"><div class="exbar">📂 Рабочий стол</div><div class="exgrid">${d.items.map(x => `<div class="exitem">${esc(x.name)}</div>`).join('')}</div></div><div></div>`;
+    numUI(el.lastElementChild, this.rows(d), a, ctx);
+  },
+  grade(d, a){ return numGrade(this.rows(d), a); },
+  filled: (d, a) => a.filter(v => v !== '' && v != null).length / 2
+};
+
+T.sort = {
+  title: 'Наведи порядок в файлах', topic: 'Организация файлов', instr: 'Разложи файлы по папкам по типу: нажми на файл, потом на папку — или перетащи мышью.',
+  gen(r){
+    const used = new Set();
+    let types; do types = Array.from({ length: 7 }, () => pick(r, MEDIA)); while (new Set(types).size < 4);
+    return { buckets: MEDIA.map(k => [k, FTYPES[k].folder]),
+             items: types.map((t, i) => { const f = makeFile(r, t, used); return { id: 's' + i, text: f.name, ans: t, explain: `.${f.ext} — ${f.desc}, место ему в папке «${FTYPES[t].folder.slice(3)}».` }; }) };
+  },
+  empty: () => ({}),
+  render: bucketsUI,
+  grade: bucketsGrade,
+  filled: (d, a) => Object.keys(a).length / d.items.length
+};
+
+const EXT_OPTS = Object.entries(FTYPES).map(([k, t]) => [k, t.label]);
+T.ext = {
+  title: 'Какой это тип файла?', topic: 'Расширения файлов', instr: 'Определи тип каждого файла. Смотри на расширение, а не на название!',
+  gen(r){
+    let rows;
+    do {
+      const used = new Set();
+      const types = Array.from({ length: 5 }, () => pick(r, Object.keys(FTYPES)));
+      rows = types.map((t, i) => makeFile(r, t, used, i < 2 && r() < .6 ? pick(r, MEDIA.filter(m => m !== t)) : null));
+    } while (!(rows.some(f => f.trap) && rows.some(f => f.type === 'prog' || f.type === 'arch') && new Set(rows.map(f => f.type)).size >= 3));
+    return { rows: shuf(r, rows).map(f => ({ text: f.name, ans: f.type,
+      explain: `«${f.name}»: расширение .${f.ext} — ${f.desc}.${f.trap ? ' Название файла тут ни при чём: тип определяет расширение.' : ''}` })) };
+  },
+  empty: d => d.rows.map(() => null),
+  render: (el, d, a, c) => rowsUI(el, d.rows, EXT_OPTS, a, c),
+  grade: (d, a) => rowsGrade(d.rows, EXT_OPTS, a),
+  filled: (d, a) => rowsFilled(a)
+};
+
+T.facts = {
+  title: 'Верно или неверно?', topic: 'Свойства файлов', instr: 'Прочитай каждое утверждение и реши, верное оно или нет.',
+  gen(r){
+    let rows;
+    do rows = sample(r, FACTS, 6); while (!(rows.filter(x => !x[1]).length >= 2 && rows.filter(x => x[1]).length >= 2));
+    return { rows: rows.map(([t, v, why]) => ({ text: t, ans: v ? 't' : 'f', explain: (v ? 'Это верно. ' : 'Это неверно. ') + why })) };
+  },
+  empty: d => d.rows.map(() => null),
+  render: (el, d, a, c) => rowsUI(el, d.rows, [['t','✔ Верно'], ['f','✘ Неверно']], a, c),
+  grade: (d, a) => rowsGrade(d.rows, [['t','Верно'], ['f','Неверно']], a),
+  filled: (d, a) => rowsFilled(a)
+};
+
+T.ops = {
+  title: 'Что можно делать с файлами?', topic: 'Операции с файлами', instr: 'Зачеркни действия, которые с файлами выполнить нельзя: нажми на них. Повторное нажатие снимает зачёркивание.',
+  gen(r){
+    const items = sample(r, OPS_REAL, 6).map(t => ({ text: t, mark: false, why: 'это настоящая операция с файлом, её зачёркивать не нужно.' }))
+      .concat(sample(r, OPS_FAKE, 3).map(t => ({ text: t, mark: true, why: 'так можно сделать с листом бумаги, но не с файлом в компьютере.' })));
+    return { items: shuf(r, items).map((it, i) => ({ ...it, id: 'o' + i })) };
+  },
+  empty: () => [],
+  render: (el, d, a, c) => markUI(el, d.items, a, c, true),
+  grade: (d, a) => markGrade(d.items, a, 'зачёркнуто', 'не зачёркнуто'),
+  filled: (d, a) => a.length ? 1 : 0
+};
+
+/* ---------- полное имя файла ---------- */
+const TREE_TOP = ['Учёба', 'Школа', 'Мои документы'];
+const TREE_SUB = ['Информатика', 'Русский язык', 'Математика', 'История', 'Литература'];
+const TREE_DEEP = ['Контрольные', 'Проекты', 'Домашние'];
+T.path = {
+  title: 'Полное имя файла', topic: 'Полное имя файла', instr: 'Рассмотри дерево папок и ответь на вопросы.',
+  gen(r){
+    const used = new Set(), disk = pick(r, ['C:', 'D:']), top = pick(r, TREE_TOP), [b1, b2] = sample(r, TREE_SUB, 2), deep = pick(r, TREE_DEEP);
+    const f1 = makeFile(r, 'text', used).name, f2 = makeFile(r, pick(r, ['pic', 'text']), used).name, f3 = makeFile(r, pick(r, ['pic', 'sound']), used).name;
+    const tree = { name: disk, disk: true, kids: [{ name: top, kids: [
+      { name: b1, kids: [{ name: deep, kids: [{ name: f1 }] }, { name: f2 }] },
+      { name: b2, kids: [{ name: f3 }] } ] }] };
+    const deepTarget = r() < .5;
+    const target = deepTarget ? { file: f1, path: [disk, top, b1, deep] } : { file: f2, path: [disk, top, b1] };
+    const full = p => p.join('\\') + '\\' + target.file;
+    const right = full(target.path);
+    const wrongs = [
+      full(target.path.filter((x, i) => i !== target.path.length - 1)),                      // пропущена папка
+      full([target.path[0], ...target.path.slice(1).reverse()]),                             // папки в обратном порядке
+      full(target.path.map(x => x === b1 ? b2 : x)),                                         // соседняя папка
+      target.path.slice(1).join('\\') + '\\' + target.file                                   // без диска
+    ].filter((x, i, arr) => x !== right && arr.indexOf(x) === i);
+    const q1opts = shuf(r, [['ok', right], ...sample(r, wrongs, 3).map((w, i) => ['w' + i, w])]);
+    const q2opts = shuf(r, [['ok', b2], ['top', top], ['b1', b1], ['disk', disk]]);
+    return { tree, rows: [
+      { text: `Какое полное имя у файла «${target.file}»?`, ans: 'ok', opts: q1opts,
+        explain: `Полное имя — это диск, потом все папки сверху вниз через «\\» и в конце имя файла: ${right}.` },
+      { text: `В какой папке лежит файл «${f3}»?`, ans: 'ok', opts: q2opts,
+        explain: `Файл «${f3}» лежит прямо в папке «${b2}» — она ближайшая над ним в дереве.` }
+    ] };
+  },
+  treeText(t){
+    const lines = [`💽 ${t.name}`];
+    const walk = (node, prefix) => node.kids.forEach((k, i) => {
+      const last = i === node.kids.length - 1;
+      lines.push(`${prefix}${last ? '└─ ' : '├─ '}${k.kids ? '📁' : '📄'} ${k.name}`);
+      if (k.kids) walk(k, prefix + (last ? '   ' : '│  '));
+    });
+    walk(t, '');
+    return lines.join('\n');
+  },
+  empty: d => d.rows.map(() => null),
+  render(el, d, a, ctx){
+    el.innerHTML = `<pre class="tree">${esc(this.treeText(d.tree))}</pre><div></div>`;
+    rowsUI(el.lastElementChild, d.rows, null, a, ctx, true);
+  },
+  grade: (d, a) => rowsGrade(d.rows, null, a),
+  filled: (d, a) => rowsFilled(a)
+};
+
+/* ---------- единицы измерения ---------- */
+const UW = { 'бит':['бит','бита','бит'], 'байт':['байт','байта','байт'], 'Кбайт':['Кбайт','Кбайта','Кбайт'], 'Мбайт':['Мбайт','Мбайта','Мбайт'], 'Гбайт':['Гбайт','Гбайта','Гбайт'] };
+const uw = (n, u) => `${n.toLocaleString('ru-RU')} ${plural(n, ...UW[u])}`;
+const UNIT_KINDS = [
+  r => { const n = 2 + Math.floor(r() * 7); return { from:[n, 'байт'], to:'бит', ans: n * 8, how:`1 байт = 8 бит, поэтому ${uw(n, 'байт')} = ${n} · 8 = ${uw(n * 8, 'бит')}.` }; },
+  r => { const n = 2 + Math.floor(r() * 15); return { from:[n * 8, 'бит'], to:'байт', ans: n, how:`В 1 байте 8 бит, поэтому делим: ${n * 8} : 8 = ${n}.` }; },
+  r => { const n = 1 + Math.floor(r() * 4); return { from:[n, 'Кбайт'], to:'байт', ans: n * 1024, how:`1 Кбайт = 1024 байта, поэтому ${n} · 1024 = ${(n * 1024).toLocaleString('ru-RU')}.` }; },
+  r => { const n = 2 + Math.floor(r() * 7); return { from:[n * 1024, 'байт'], to:'Кбайт', ans: n, how:`В 1 Кбайте 1024 байта, поэтому делим: ${(n * 1024).toLocaleString('ru-RU')} : 1024 = ${n}.` }; },
+  r => { const n = 1 + Math.floor(r() * 3); return { from:[n, 'Мбайт'], to:'Кбайт', ans: n * 1024, how:`1 Мбайт = 1024 Кбайт, поэтому ${n} · 1024 = ${(n * 1024).toLocaleString('ru-RU')}.` }; },
+  r => { const n = 2 + Math.floor(r() * 3); return { from:[n * 1024, 'Кбайт'], to:'Мбайт', ans: n, how:`В 1 Мбайте 1024 Кбайт, поэтому делим: ${(n * 1024).toLocaleString('ru-RU')} : 1024 = ${n}.` }; },
+  r => { const n = 1 + Math.floor(r() * 3); return { from:[n, 'Гбайт'], to:'Мбайт', ans: n * 1024, how:`1 Гбайт = 1024 Мбайт, поэтому ${n} · 1024 = ${(n * 1024).toLocaleString('ru-RU')}.` }; }
+];
+T.units = {
+  title: 'Переведи единицы измерения', topic: 'Единицы измерения информации', instr: 'Впиши ответ числом. 1 байт = 8 бит, 1 Кбайт = 1024 байта, 1 Мбайт = 1024 Кбайт, 1 Гбайт = 1024 Мбайт.',
+  gen(r){
+    const kinds = sample(r, UNIT_KINDS.map((f, i) => i), 4).sort((a, b) => a - b);
+    return { rows: kinds.map(k => { const x = UNIT_KINDS[k](r); return { text: `${uw(x.from[0], x.from[1])} =`, unit: x.to, ans: x.ans, explain: x.how }; }) };
+  },
+  empty: d => d.rows.map(() => ''),
+  render: (el, d, a, c) => numUI(el, d.rows, a, c),
+  grade: (d, a) => numGrade(d.rows, a),
+  filled: (d, a) => a.filter(v => v !== '' && v != null).length / a.length
+};
+
+T.rel = {
+  title: 'Какое это отношение?', topic: 'Отношения между объектами', instr: 'Определи, какое отношение связывает объекты в каждой паре.',
+  gen(r){
+    const all = Object.entries(REL_BANK).flatMap(([k, list]) => list.map(([t, why]) => ({ text: t, ans: k, why })));
+    let rows; do rows = sample(r, all, 5); while (new Set(rows.map(x => x.ans)).size < 3);
+    return { rows: rows.map(x => ({ text: x.text, ans: x.ans, explain: `«${x.text}» — ${REL_WHY[x.ans]}: ${x.why}.` })) };
+  },
+  empty: d => d.rows.map(() => null),
+  render: (el, d, a, c) => rowsUI(el, d.rows, RELS, a, c),
+  grade: (d, a) => rowsGrade(d.rows, RELS, a),
+  filled: (d, a) => rowsFilled(a)
+};
+
+T.euler = {
+  title: 'Круги Эйлера', topic: 'Круги Эйлера', instr: 'Выбери рисунок, который правильно показывает, как связаны эти множества.',
+  gen(r){
+    let rows; do rows = sample(r, EULER, 4); while (new Set(rows.map(x => x[1])).size < 3);
+    return { rows: rows.map(([t, k, why]) => ({ text: t, ans: k, explain: why })) };
+  },
+  empty: d => d.rows.map(() => null),
+  render: (el, d, a, c) => rowsUI(el, d.rows, EULER_OPTS, a, c),
+  grade: (d, a) => rowsGrade(d.rows, EULER_TEXT, a),
+  filled: (d, a) => rowsFilled(a)
+};
+
+T.safety = {
+  title: 'Правила техники безопасности', topic: 'Техника безопасности', instr: 'Отметь все правильные правила работы за компьютером. Неправильные не отмечай — за них снимается балл.',
+  gen(r){
+    const items = sample(r, SAFETY.filter(x => x[1]), 4).concat(sample(r, SAFETY.filter(x => !x[1]), 4))
+      .map(([t, ok, why]) => ({ text: t, mark: ok, why: (ok ? 'Это правильное правило. ' : 'Так делать нельзя. ') + why }));
+    return { items: shuf(r, items).map((it, i) => ({ ...it, id: 'b' + i })) };
+  },
+  empty: () => [],
+  render: (el, d, a, c) => markUI(el, d.items, a, c, false),
+  grade: (d, a) => markGrade(d.items, a, 'отмечено', 'не отмечено'),
+  filled: (d, a) => a.length ? 1 : 0
+};
+
+T.skills = {
+  title: 'Умеешь ли ты это делать?', topic: 'Самооценка', instr: 'Ответь честно: умеешь ли ты сам делать это на компьютере. В оценку это задание не входит — ответы увидит учитель.',
+  openLabel: 'не входит в оценку',
+  gen: () => ({}),
+  empty: () => SKILLS.map(() => null),
+  render(el, d, a, ctx){
+    rowsUI(el, SKILLS.map(t => ({ text: t, ans: '-' , explain: '' })), [['yes','✅ Умею'], ['ask','❓ Спрошу учителя']], a, { ...ctx, checked: false });
+    if (ctx.checked) el.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  },
+  teacher: a => SKILLS.map((t, i) => `<p>${a[i] === 'yes' ? '✅ умею' : a[i] === 'ask' ? '❓ спросит учителя' : '— нет ответа'}: ${esc(t)}</p>`).join(''),
+  grade: () => ({ pts: 0, max: 0, items: [], open: true }),
+  filled: (d, a) => rowsFilled(a)
+};
+
+const WEAK_TIPS = {
+  defs: 'Повтори, что такое файл, папка, расширение и полное имя файла.',
+  count: 'У файла есть расширение после точки, у папки — нет.',
+  sort: 'Повтори, какие расширения у текстов, рисунков, звука и видео.',
+  ext: 'Тип файла определяют по расширению, а не по названию.',
+  facts: 'Перечитай справку о файлах: переименование, копирование и перемещение, Корзина.',
+  ops: 'С файлами можно создавать, копировать, перемещать, переименовывать, удалять и восстанавливать.',
+  path: 'Полное имя: диск, все папки сверху вниз через «\\» и имя файла.',
+  units: 'Повтори: 1 байт = 8 бит, 1 Кбайт = 1024 байта, 1 Мбайт = 1024 Кбайт, 1 Гбайт = 1024 Мбайт.',
+  rel: 'Повтори отношения: целое — часть, последовательность, причина — следствие.',
+  euler: 'Повтори три случая кругов Эйлера: одно внутри другого, пересекаются, не пересекаются.',
+  safety: 'Повтори правила техники безопасности в компьютерном классе.'
+};
+
+/* ================= СОСТОЯНИЕ ================= */
+let mode = 'exam';     // exam — один ученик, pair — двое за одним компьютером, train — тренировка
+let S = null;
+
+function makeTasks(seed, order = EXAM.order){ return order.map((type, i) => ({ type, data: T[type].gen(mulberry(seed * 7919 + i * 104729 + 1)) })); }
+const newSeed = () => Math.floor(Math.random() * 900000) + 100000;
+function makePlayer(o, order){
+  const seed = o.seed ?? newSeed(), tasks = makeTasks(seed, order);
+  return { name: o.name || '', seed, tasks, ans: o.ans || tasks.map(t => T[t.type].empty(t.data)), ui: tasks.map(() => ({})), checked: tasks.map(() => false),
+           cur: o.cur || 0, away: o.away || 0, used: o.used || 0, done: !!o.done };
+}
+// S.tasks, S.ans и остальное всегда смотрят в данные того, чей сейчас ход
+function usePlayer(k){
+  const p = S.players[k];
+  S.turn = k;
+  Object.assign(S, { name: p.name, seed: p.seed, tasks: p.tasks, ans: p.ans, ui: p.ui, checked: p.checked, cur: p.cur });
+  $('pName').textContent = '👤 ' + p.name + (S.pair ? ' — твой ход' : '');
+  $('pVar').textContent = 'Вариант ' + (p.seed % 10000);
+}
+function begin(opts){
+  const pair = mode === 'pair', exam = mode !== 'train';
+  S = { exam, pair, t0: opts.t0 ?? Date.now(), done: false, turn: 0, turnStart: null,
+        players: pair ? opts.players.map(o => makePlayer(o, EXAM.pair.order)) : [makePlayer(opts, EXAM.order)] };
+  ['startScreen', 'resultScreen', 'confirmScreen', 'turnScreen'].forEach(id => $(id).hidden = true);
+  ['pName', 'pVar', 'pTime'].forEach(id => $(id).hidden = !exam);
+  $('pOther').hidden = !pair;
+  $('helpBtn').hidden = exam;
+  $('finishBtn').textContent = pair ? 'Сдать мою работу' : exam ? 'Сдать работу' : 'Завершить тренировку';
+  $('checkBtn').hidden = exam; $('newBtn').hidden = exam;
+  if (!pair){ usePlayer(0); save(); show(S.cur); tick(); return; }
+  usePlayer(opts.turn || 0);
+  if (S.players[S.turn].done) usePlayer(1 - S.turn);
+  if (opts.turnStart){ S.turnStart = opts.turnStart; enterTurn(); }
+  else handover(S.turn, opts.players.some(p => p.used) ? '' : null);
+}
+function save(){
+  if (!S || !S.exam || S.done) return;
+  S.players[S.turn].cur = S.cur;
+  const pl = S.players.map(p => ({ name: p.name, seed: p.seed, ans: p.ans, cur: p.cur, away: p.away, used: p.used, done: p.done }));
+  store.set(RUN_KEY, JSON.stringify(S.pair ? { pair: true, t0: S.t0, turn: S.turn, turnStart: S.turnStart, players: pl } : { ...pl[0], t0: S.t0 }));
+}
+const ctxFor = i => ({
+  checked: S.checked[i], ui: S.ui[i],
+  change(){ save(); renderTask(); renderNav(); },
+  rerender(){ renderTask(); },
+  save(){ save(); renderNav(); }
+});
+function show(i){
+  S.cur = Math.max(0, Math.min(S.tasks.length - 1, i));
+  save(); renderTask(); renderNav();
+  window.scrollTo && window.scrollTo(0, 0);
+}
+function renderTask(){
+  const i = S.cur, t = S.tasks[i], def = T[t.type], last = i === S.tasks.length - 1;
+  $('tNum').textContent = `Задание ${i + 1} из ${S.tasks.length}`;
+  $('tTopic').textContent = def.topic;
+  const g = def.grade(t.data, S.ans[i]);
+  $('tMax').textContent = g.open ? (def.openLabel || 'проверит учитель') : `до ${balls(g.max)}`;
+  $('tTitle').textContent = def.title;
+  $('tInstr').textContent = def.instr;
+  def.render($('tBody'), t.data, S.ans[i], ctxFor(i));
+  $('tResult').innerHTML = S.checked[i] && !g.open ? (g.pts === g.max ? `✅ Всё верно: ${balls(g.pts)} из ${g.max}.` : `Набрано ${g.pts} из ${g.max}. Разбери ошибки выше и возьми новое задание.`) : '';
+  $('prevBtn').disabled = i === 0;
+  // в паре после задания ход переходит соседу; если сосед уже сдал — идём дальше сами
+  const other = S.pair ? S.players[1 - S.turn] : null, canPass = S.pair && !other.done;
+  $('passBtn').hidden = !canPass;
+  if (canPass) $('passBtn').textContent = `Передать ход: ${other.name} →`;
+  $('nextBtn').hidden = canPass;
+  $('nextBtn').textContent = last ? (S.pair ? 'Сдать мою работу' : S.exam ? 'Сдать работу' : 'Завершить') : 'Дальше →';
+  $('checkBtn').disabled = S.checked[i] || def.filled(t.data, S.ans[i]) === 0;
+  $('checkBtn').hidden = !!S.exam || !!g.open;
+}
+function renderNav(){
+  $('nav').innerHTML = S.tasks.map((t, i) => {
+    const f = T[t.type].filled(t.data, S.ans[i]);
+    let cls = f >= 1 ? 'full' : f > 0 ? 'part' : '';
+    if (S.checked[i]){ const g = T[t.type].grade(t.data, S.ans[i]); cls = g.pts === g.max ? 'ok' : 'bad'; }
+    return `<button class="${cls}${i === S.cur ? ' cur' : ''}" data-i="${i}" aria-label="Задание ${i + 1}${f >= 1 ? ', есть ответ' : f > 0 ? ', начато' : ''}">${i + 1}</button>`;
+  }).join('');
+  $('nav').querySelectorAll('button').forEach(b => b.onclick = () => show(+b.dataset.i));
+}
+
+/* ---------- работа вдвоём: ходы и шахматные часы ---------- */
+const fmtTime = s => { s = Math.max(0, Math.ceil(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+// сколько секунд осталось у ученика: время идёт только во время его хода
+const pairLeft = k => EXAM.pair.minutes * 60 - S.players[k].used - (S.turnStart && k === S.turn ? (Date.now() - S.turnStart) / 1000 : 0);
+function stopClock(){
+  if (!S.turnStart) return;
+  const p = S.players[S.turn];
+  p.used = Math.min(EXAM.pair.minutes * 60, p.used + (Date.now() - S.turnStart) / 1000);
+  S.turnStart = null;
+}
+// экран передачи хода: часы обоих стоят, пока ученик не нажмёт «Начать»
+function handover(k, note){
+  S.players[S.turn].cur = S.cur;
+  stopClock(); usePlayer(k); save();
+  const p = S.players[k], o = S.players[1 - k];
+  $('turnTitle').textContent = note === null ? `Первым отвечает: ${p.name}` : `Ход: ${p.name}`;
+  $('turnText').innerHTML = (note ? `<b>${esc(note)}</b><br>` : '') +
+    (o.done ? 'Дальше ты работаешь один. ' : note === null ? '' : `${esc(o.name)}, передай мышку и не подсказывай. `) +
+    `У тебя осталось <b>${fmtTime(pairLeft(k))}</b>. Время пойдёт, когда нажмёшь кнопку.`;
+  document.body.classList.add('handover');
+  $('turnScreen').hidden = false; $('turnGo').focus();
+}
+function enterTurn(){
+  $('turnScreen').hidden = true; document.body.classList.remove('handover');
+  if (!S.turnStart) S.turnStart = Date.now();
+  save(); show(S.cur); tick();
+}
+function passTurn(){
+  if (!S || !S.pair || S.done) return;
+  const p = S.players[S.turn];
+  // в свой следующий ход ученик начнёт с первого невыполненного задания после текущего
+  const undone = i => T[S.tasks[i].type].filled(S.tasks[i].data, S.ans[i]) < 1;
+  const idx = S.tasks.map((t, i) => i);
+  const next = idx.find(i => i > S.cur && undone(i)) ?? idx.find(undone);
+  S.cur = next ?? S.cur; p.cur = S.cur;
+  handover(1 - S.turn, '');
+}
+function finishPlayer(note){
+  const p = S.players[S.turn];
+  stopClock(); p.done = true;
+  if (!S.players[1 - S.turn].done) handover(1 - S.turn, note);
+  else finish();
+}
+
+/* ---------- сдача и результат ---------- */
+function askFinish(){
+  if (!S || S.done) return;
+  const left = S.tasks.filter((t, i) => T[t.type].filled(t.data, S.ans[i]) < 1).length;
+  const other = S.pair ? S.players[1 - S.turn] : null;
+  $('confirmText').textContent = !S.exam ? 'Тренировка закончится, и ты увидишь итоги.'
+    : (left ? `Не до конца выполнено ${plural(left, 'задание', 'задания', 'заданий')}: ${left}. ` : 'Все задания выполнены. ') +
+      'После сдачи исправить ответы будет нельзя.' + (other && !other.done ? ` Дальше работу продолжит ${other.name}.` : '');
+  $('confirmScreen').hidden = false; $('confirmYes').focus();
+}
+function resultBlock(p, k){
+  const res = p.tasks.map((t, i) => ({ type: t.type, ...T[t.type].grade(t.data, p.ans[i]) }));
+  const pts = res.reduce((s, r) => s + r.pts, 0), max = res.reduce((s, r) => s + r.max, 0);
+  const pct = max ? Math.round(pts / max * 100) : 0, grade = gradeFor(pct);
+  const minutes = S.pair ? EXAM.pair.minutes : EXAM.minutes;
+  const spent = Math.round(S.pair ? p.used : Math.min(minutes * 60, (Date.now() - S.t0) / 1000));
+  const date = new Date(S.t0).toLocaleString('ru-RU', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  const weak = res.filter(r => r.max && r.pts / r.max * 100 < EXAM.weakBelow);
+  const open = res.findIndex(r => r.open), openAns = open >= 0 ? p.ans[open] : null;
+  const id = x => k === 0 ? ` id="${x}"` : '';
+  return `<section class="res">
+    ${S.pair ? `<h2 class="who">Ученик ${k + 1}</h2>` : ''}
+    <div class="examhead">
+      <div class="bigmark"${id('xGrade')}>${grade}</div>
+      <div>
+        ${S.exam ? `<p><b${id('xName')}>${esc(p.name)}</b></p>` : '<p><b>Так ты написал бы контрольную</b></p>'}
+        <p>${S.exam ? `${date} · вариант ${p.seed % 10000}${S.pair ? ' · работа вдвоём' : ''}` : ''}</p>
+        <p>Баллы: <b${id('xPts')}>${pts}</b> из ${max} (${pct}%)</p>
+        ${S.exam ? `<p>Время: ${Math.floor(spent / 60)} мин ${spent % 60} с из ${minutes} мин</p>
+        <p class="${p.away ? 'away-bad' : 'away-ok'}">${p.away ? `Уходил со страницы: ${p.away} ${plural(p.away, 'раз', 'раза', 'раз')}` : 'Со страницы не уходил'}</p>` : ''}
+      </div>
+    </div>
+    <table class="crit"><tr><th>№</th><th>Задание</th><th>Баллы</th></tr>
+      ${res.map((r, i) => `<tr><td class="n">${i + 1}</td><td>${T[r.type].title}</td><td class="n">${r.open ? '—' : `${r.pts} / ${r.max}`}</td></tr>`).join('')}
+      <tr><th></th><th>Итого</th><th class="n">${pts} / ${max}</th></tr></table>
+    ${openAns ? `<div class="teacher"><b>Задание ${open + 1}. ${T[res[open].type].title}</b>${T[res[open].type].teacher(openAns)}</div>` : ''}
+    ${weak.length ? `<h3>Над чем поработать</h3><ul class="weak">${weak.map(r => `<li><b>${T[r.type].topic}</b> — ${WEAK_TIPS[r.type]}</li>`).join('')}</ul>` : ''}
+    <h3>Разбор ошибок</h3>
+    ${res.some(r => r.items.some(x => !x.ok)) ? res.map((r, i) => {
+      const bad = r.items.filter(x => !x.ok);
+      return bad.length ? `<details${S.exam ? '' : ' open'}><summary>Задание ${i + 1}. ${T[r.type].title} — ошибок: ${bad.length}</summary><ul class="mist">${bad.map(x =>
+        `<li>${esc(x.q)}<br>Ответ: <span class="your">${esc(x.your)}</span> · правильно: <span class="right">${esc(x.right)}</span><br>💡 ${x.explain}</li>`).join('')}</ul></details>` : '';
+    }).join('') : '<p>Ошибок нет — отличная работа!</p>'}
+  </section>`;
+}
+function finish(){
+  if (!S || S.done) return;
+  if (S.pair){ stopClock(); S.players.forEach(p => p.done = true); }
+  S.done = true;
+  if (S.exam) store.del(RUN_KEY);
+  $('confirmScreen').hidden = true; $('turnScreen').hidden = true; document.body.classList.remove('handover');
+  $('resultCard').innerHTML = `
+    <h1>${!S.exam ? 'Итоги тренировки' : S.pair ? 'Работа сдана: результаты двоих' : 'Работа сдана'}</h1>
+    ${S.players.map(resultBlock).join('<hr class="pbreak">')}
+    <button class="go noprint" id="printBtn">🖨 Распечатать результат${S.pair ? 'ы' : ''}</button>
+    <button class="go ghost noprint" id="menuBtn">В меню</button>`;
+  $('resultScreen').hidden = false;
+  $('printBtn').onclick = () => window.print();
+  $('menuBtn').onclick = toMenu;
+  // сначала ученик видит оценку, статистика — ниже
+  $('resultScreen').scrollTop = 0;
+  const h = $('resultCard').querySelector('h1'); h.tabIndex = -1; h.focus({ preventScroll: true });
+}
+function toMenu(){
+  ['resultScreen', 'confirmScreen', 'turnScreen'].forEach(id => $(id).hidden = true);
+  document.body.classList.remove('handover');
+  $('startScreen').hidden = false; renderMenu();
+}
+
+/* ---------- время ---------- */
+function tick(){
+  if (!S || !S.exam || S.done) return;
+  if (S.pair){
+    if (!S.turnStart) return;
+    const k = S.turn, o = S.players[1 - k], left = pairLeft(k);
+    $('clock').textContent = fmtTime(left);
+    $('pTime').classList.toggle('warn', left <= 180);
+    $('pOther').textContent = `${o.name}: ${o.done ? 'сдано' : fmtTime(pairLeft(1 - k))}`;
+    if (left <= 0) finishPlayer(`Время ученика «${S.players[k].name}» вышло — его работа сдана.`);
+    return;
+  }
+  const left = Math.max(0, Math.ceil(EXAM.minutes * 60 - (Date.now() - S.t0) / 1000));
+  $('clock').textContent = fmtTime(left);
+  $('pTime').classList.toggle('warn', left <= 300);
+  if (left <= 0) finish();
+}
+setInterval(tick, 500);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && S && S.exam && !S.done && (!S.pair || S.turnStart)){ S.players[S.turn].away++; save(); }
+});
+addEventListener('beforeunload', e => { if (S && S.exam && !S.done){ e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- меню ---------- */
+function chip(html, pressed, fn){ const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = html; b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b; }
+function renderMenu(){
+  const tabs = $('kindTabs'); tabs.innerHTML = '';
+  tabs.append(chip('📝 Контрольная на оценку', mode === 'exam', () => { mode = 'exam'; renderMenu(); }),
+              chip('👥 Контрольная вдвоём', mode === 'pair', () => { mode = 'pair'; renderMenu(); }),
+              chip('🎯 Тренировка перед контрольной', mode === 'train', () => { mode = 'train'; renderMenu(); }));
+  const exam = mode === 'exam', pair = mode === 'pair';
+  $('examPanel').hidden = !exam; $('pairPanel').hidden = !pair; $('gradeBox').hidden = !(exam || pair); $('trainPanel').hidden = exam || pair;
+  $('startBtn').textContent = exam ? `Начать работу (${EXAM.minutes} минут)` : pair ? `Начать работу вдвоём (по ${EXAM.pair.minutes} минут)` : 'Начать тренировку';
+  $('eCount').textContent = EXAM.order.length; $('eMin').textContent = EXAM.minutes;
+  $('pCount').textContent = EXAM.pair.order.length; $('pMin').textContent = EXAM.pair.minutes;
+  $('critGrades').innerHTML = '<tr><th>Оценка</th><th>Сколько нужно набрать</th></tr>' + EXAM.grades.map(([p, g], i) =>
+    `<tr><td class="n">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${p}% баллов` : `меньше ${EXAM.grades[i - 1][0]}% баллов`}</td></tr>`).join('');
+  $('examRules').innerHTML = (pair ? [
+    'Отвечаете по очереди: реши задание и нажми «Передать ход». У каждого свой вариант — отвечать за соседа и подсказывать нельзя.',
+    `У каждого ${EXAM.pair.minutes} минут. Время идёт только во время своего хода, как в шахматных часах. Когда время одного выйдет, его работа сдастся сама, а второй продолжит один.`,
+    'Во время своего хода можно вернуться к своим прошлым заданиям и исправить ответ.',
+    'Справка закрыта. Правильные ответы, разбор ошибок и две оценки появятся после сдачи.',
+    'Если уйти со страницы или переключить вкладку, это будет видно в результате того, чей был ход.',
+    'Если страница случайно закрылась, открой её снова на этом же компьютере — работа продолжится.'
+  ] : [
+    `Время — ${EXAM.minutes} минут по часам, паузы нет. Когда время выйдет, работа сдастся сама.`,
+    'Справка во время контрольной закрыта. Правильные ответы и разбор ошибок появятся после сдачи.',
+    'Последнее задание (самооценка) в оценку не входит — его ответы увидит учитель.',
+    'Если уйти со страницы или переключить вкладку, это будет видно в результате.',
+    'Если страница случайно закрылась, открой её снова на этом же компьютере — работа продолжится.'
+  ]).map(x => `<li>${x}</li>`).join('');
+  // незаконченная работа — показываем на вкладке своего режима
+  const box = $('resumeBox');
+  let run = null; try { run = JSON.parse(store.get(RUN_KEY) || 'null'); } catch(e){}
+  const mine = run && (pair ? run.pair : exam && !run.pair);
+  box.hidden = !mine;
+  if (!mine) return;
+  if (run.pair){
+    const left = k => { const p = run.players[k]; return p.done ? 0 : EXAM.pair.minutes * 60 - p.used - (run.turnStart && k === run.turn ? (Date.now() - run.turnStart) / 1000 : 0); };
+    const info = run.players.map((p, k) => `${esc(p.name)} — ${p.done || left(k) <= 0 ? 'работа сдана' : `осталось ${fmtTime(left(k))}`}`).join('; ');
+    box.innerHTML = `<b>Есть незаконченная работа вдвоём</b><br>${info}<button class="go" id="resumeBtn">Продолжить работу</button>`;
+    $('resumeBtn').onclick = () => { mode = 'pair'; begin(run); };
+  } else {
+    const left = Math.ceil(EXAM.minutes - (Date.now() - run.t0) / 60000);
+    box.innerHTML = `<b>Есть незаконченная работа: ${esc(run.name)}</b><br>${left > 0 ? `Осталось примерно ${left} мин.` : 'Время уже вышло — можно только сдать.'}
+      <button class="go" id="resumeBtn">${left > 0 ? 'Продолжить работу' : 'Сдать и посмотреть оценку'}</button>`;
+    $('resumeBtn').onclick = () => { mode = 'exam'; begin(run); if (left <= 0) finish(); };
+  }
+}
+const cleanName = inp => inp.value.trim().replace(/\s+/g, ' ');
+const nameOk = s => s.length >= 3 && /[A-Za-zА-Яа-яЁё]{2}/.test(s);
+function needName(inp, text){ inp.classList.add('need'); inp.focus(); inp.placeholder = text; }
+function start(){
+  if (mode === 'exam'){
+    const inp = $('studentName'), name = cleanName(inp);
+    if (!nameOk(name)) return needName(inp, 'Сначала впиши фамилию и имя');
+    store.del(RUN_KEY);
+    begin({ name });
+  } else if (mode === 'pair'){
+    const i1 = $('name1'), i2 = $('name2'), n1 = cleanName(i1), n2 = cleanName(i2);
+    if (!nameOk(n1)) return needName(i1, 'Впиши фамилию и имя первого ученика');
+    if (!nameOk(n2)) return needName(i2, 'Впиши фамилию и имя второго ученика');
+    if (n1.toLowerCase() === n2.toLowerCase()){ i2.value = ''; return needName(i2, 'Имена совпадают — впиши второго ученика'); }
+    store.del(RUN_KEY);
+    begin({ players: [{ name: n1 }, { name: n2 }] });
+  } else begin({});
+}
+
+/* ---------- справка ---------- */
+function openHelp(){ if (S && S.exam && !S.done && $('startScreen').hidden) return; $('helpScreen').hidden = false; $('helpClose').focus(); }
+function closeHelp(){ $('helpScreen').hidden = true; }
+
+/* ---------- управление ---------- */
+const anyScreen = () => ['startScreen', 'helpScreen', 'confirmScreen', 'resultScreen', 'turnScreen'].some(id => !$(id).hidden);
+addEventListener('keydown', e => {
+  if (!$('helpScreen').hidden){ if (e.key === 'Escape') closeHelp(); return; }
+  if (!$('confirmScreen').hidden){ if (e.key === 'Escape') $('confirmScreen').hidden = true; return; }
+  if (anyScreen() || !S || S.done) return;
+  const t = S.tasks[S.cur];
+  if (e.target && /TEXTAREA|INPUT/.test(e.target.tagName)) return;
+  if (e.key === 'ArrowRight' && e.altKey){ show(S.cur + 1); }
+  else if (e.key === 'ArrowLeft' && e.altKey){ show(S.cur - 1); }
+});
+$('prevBtn').onclick = () => show(S.cur - 1);
+$('nextBtn').onclick = () => S.cur === S.tasks.length - 1 ? askFinish() : show(S.cur + 1);
+$('passBtn').onclick = passTurn;
+$('turnGo').onclick = enterTurn;
+$('checkBtn').onclick = () => { S.checked[S.cur] = true; renderTask(); renderNav(); };
+$('newBtn').onclick = () => {
+  const i = S.cur, type = S.tasks[i].type;
+  S.tasks[i] = { type, data: T[type].gen(mulberry(Math.floor(Math.random() * 1e9))) };
+  S.ans[i] = T[type].empty(S.tasks[i].data); S.ui[i] = {}; S.checked[i] = false;
+  renderTask(); renderNav();
+};
+$('finishBtn').onclick = askFinish;
+$('confirmYes').onclick = () => S.pair ? finishPlayer(`Работа ученика «${S.name}» сдана.`) : finish();
+$('confirmNo').onclick = () => { $('confirmScreen').hidden = true; };
+$('startBtn').onclick = start;
+['studentName', 'name1', 'name2'].forEach(id => {
+  $(id).addEventListener('input', e => e.target.classList.remove('need'));
+  $(id).addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+});
+$('helpBtn').onclick = openHelp;
+$('helpBtn2').onclick = openHelp;
+$('helpClose').onclick = closeHelp;
+
+// на фоне меню — первое задание тренировки
+mode = 'train'; begin({}); mode = 'exam';
+$('startScreen').hidden = false; renderMenu();
+</script>
+</body>
+</html>

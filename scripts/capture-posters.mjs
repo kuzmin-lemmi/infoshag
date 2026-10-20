@@ -15,6 +15,11 @@ const PORT = 9333;
 const W = 1280, H = 800;
 // сколько дать игре поработать перед снимком: пузырям в «Охоте» нужно время, чтобы всплыть
 const WAIT = { 'ohota-za-rasshireniyami': 9000 };
+// что сделать в игре перед снимком, чтобы на картинке был виден ход игры, а не пустое поле
+const AFTER = {
+  // «Снайпер»: задание формата ОГЭ и точный выстрел — видны полосы частей условия
+  snaiper: `cfg.level = '3'; start(); document.getElementById('shot').value = String(S.task.answer); fire(); scrollTo(0, 0);`
+};
 
 const browsers = [
   process.env.CHROME,
@@ -85,6 +90,7 @@ try {
       await sleep(400);
       await run(`new Promise(r => document.readyState === 'complete' ? r() : addEventListener('load', r))`);
       await run(START(WAIT[slug] ?? 2200));
+      if (AFTER[slug]) { await run(AFTER[slug]); await sleep(900); }
       const { data } = await cdp('Page.captureScreenshot', { format: 'png' });
       const file = join(OUT, `${slug}${scheme === 'dark' ? '-dark' : ''}.jpg`);
       await sharp(Buffer.from(data, 'base64')).resize(960, 600).jpeg({ quality: 78, mozjpeg: true }).toFile(file);

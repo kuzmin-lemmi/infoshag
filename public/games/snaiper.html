@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Снайпер — задание 3 ОГЭ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Golos+Text:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3EFE2; --grid:rgba(90,100,50,.13); --card:#FFFDF6; --ink:#26301C; --ink-soft:#5F6650;
+  --margin:#B04E18; --good:#2E7D46; --bad:#C23B2B; --bad-bg:#F8DAD3; --good-bg:#DDF0DF;
+  --marker-ink:#1E2414; --m1:#FFB3C7; --m2:#A9D4FF;
+  --hand:'Caveat','Comic Sans MS',cursive;
+  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',Consolas,'Courier New',monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#171A12; --grid:rgba(220,230,180,.06); --card:#22261B; --ink:#E9EEDC; --ink-soft:#A9B096;
+    --margin:#F09A5B; --good:#63C487; --bad:#F07A66; --bad-bg:#55271F; --good-bg:#1E4630; }
+}
+:root[data-theme="dark"]{ --paper:#171A12; --grid:rgba(220,230,180,.06); --card:#22261B; --ink:#E9EEDC; --ink-soft:#A9B096;
+  --margin:#F09A5B; --good:#63C487; --bad:#F07A66; --bad-bg:#55271F; --good-bg:#1E4630; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%}
+body{min-height:100%;margin:0;color:var(--ink);font-family:var(--body);
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--margin);outline-offset:2px}
+#app{max-width:1180px;overflow-x:clip;margin:0 auto;padding:12px max(clamp(12px,3vw,32px),env(safe-area-inset-left,0px)) 24px;display:flex;flex-direction:column;gap:14px}
+
+/* шапка */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font:700 clamp(30px,5vmin,46px)/1 var(--hand);margin:0}
+.brand h1 span{color:var(--margin)}
+.brand small{display:block;color:var(--ink-soft);font-size:14px;margin-top:2px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{position:relative;background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;font-weight:700;font-size:clamp(14px,1.8vmin,17px);box-shadow:3px 3px 0 var(--ink)}
+.pill b{font-family:var(--mono);margin-left:4px;font-variant-numeric:tabular-nums}
+.pill[hidden],.ibtn[hidden]{display:none}
+.pill.warn b{color:var(--bad)}
+.mult{position:absolute;right:-10px;top:-12px;background:var(--margin);color:#fff;border-radius:999px;padding:1px 7px;font:700 13px/1.4 var(--mono)}
+.mult[hidden]{display:none}
+.mult.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.5)}}
+.ibtn{width:42px;height:38px;background:var(--card);border:2px solid var(--ink);border-radius:12px;box-shadow:3px 3px 0 var(--ink);font-size:18px}
+.timebar{height:6px;border-radius:3px;background:var(--grid);overflow:hidden}
+.timebar[hidden]{display:none}
+.timebar i{display:block;height:100%;background:var(--ink);transform-origin:left}
+.timebar.low i{background:var(--bad)}
+
+/* листы */
+.sheet{position:relative;background:var(--card);border:2px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:clamp(14px,2.6vmin,24px)}
+.ptab{position:absolute;top:-13px;left:16px;background:var(--card);border:2px solid var(--ink);border-radius:8px;padding:1px 10px;font:700 13px/1.4 var(--mono);color:var(--ink-soft)}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 12px}
+.tag{border:2px solid var(--ink);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700}
+.tag.mode{background:var(--ink);color:var(--card)}
+.progress{margin-left:auto;color:var(--ink-soft);font-weight:600;font-size:15px}
+.ask{margin:0 0 .5em;font-size:clamp(17px,2.5vmin,23px);line-height:1.45}
+.expr{font:700 clamp(22px,4.2vmin,40px)/1.6 var(--mono);display:flex;flex-wrap:wrap;align-items:center;gap:.2em .35em}
+.part{background:color-mix(in srgb,var(--m) 78%,transparent);border-bottom:4px solid var(--m);border-radius:9px;padding:0 .2em;color:var(--marker-ink);white-space:nowrap}
+.lop{color:var(--margin)}
+
+/* числовая прямая */
+.field{padding-top:24px}
+.range{overflow-x:auto;padding:30px 4px 6px;scrollbar-width:thin}
+.rgrid{display:grid;grid-template-columns:repeat(var(--n),minmax(34px,1fr));row-gap:3px;min-width:min-content}
+.cap{grid-column:1/-1;margin-top:4px;font:700 clamp(13px,1.8vmin,16px)/1.3 var(--mono)}
+.cap span{display:inline-block;background:color-mix(in srgb,var(--m) 78%,transparent);color:var(--marker-ink);border-radius:6px;padding:1px 8px}
+.cap.res span{background:var(--good);color:#fff}
+.band{height:14px;margin:0 -1px}
+.band.on{background:var(--m)}
+.res-b.on{background:var(--good)}
+.band.aimc{box-shadow:inset 3px 0 0 var(--margin),inset -3px 0 0 var(--margin)}
+.num{position:relative;height:54px;margin-top:10px;border:none;border-top:3px solid var(--ink);background:transparent;padding:0;font:700 clamp(14px,2.1vmin,20px)/1 var(--mono);font-variant-numeric:tabular-nums;border-radius:0 0 10px 10px;transition:background .15s}
+.num::before{content:'';position:absolute;top:-11px;left:50%;width:3px;height:17px;background:var(--ink);transform:translateX(-50%)}
+.num:hover{background:color-mix(in srgb,var(--margin) 10%,transparent)}
+.num.out{color:var(--ink-soft);opacity:.45}
+.num.mk{background:color-mix(in srgb,var(--margin) 26%,transparent)}
+.num.aim{background:color-mix(in srgb,var(--margin) 18%,transparent)}
+.num.aim::after{content:'';position:absolute;left:50%;top:-44px;width:30px;height:30px;transform:translateX(-50%);
+  background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none' stroke='%23B04E18' stroke-width='3'%3E%3Ccircle cx='16' cy='16' r='11'/%3E%3Cpath d='M16 1v9M16 22v9M1 16h9M22 16h9'/%3E%3C/svg%3E")}
+.num.hit{background:var(--good-bg);color:var(--good)}
+.num.miss{background:var(--bad-bg);color:var(--bad)}
+.num.ans{box-shadow:inset 0 0 0 3px var(--good)}
+.num.lack{box-shadow:inset 0 0 0 3px var(--bad)}
+.num.flash{animation:flash .5s}
+@keyframes flash{0%{background:var(--margin);color:#fff}}
+
+.ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.ctrl[hidden]{display:none}
+.shot{display:flex;align-items:center;gap:.4em;font:700 clamp(20px,3vmin,28px)/1 var(--mono)}
+.shot[hidden]{display:none}
+.shot input{width:5.2em;border:2px solid var(--ink);border-radius:12px;padding:.25em .4em;font:inherit;background:var(--card);color:var(--ink);text-align:center}
+.shot input.shake{animation:shake .35s;border-color:var(--bad)}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.sp{flex:1}
+.btn{border:2px solid var(--ink);border-radius:14px;padding:.6em 1.1em;background:var(--card);box-shadow:4px 4px 0 var(--ink);font-weight:700;font-size:clamp(15px,2vmin,18px)}
+.btn[hidden]{display:none}
+.btn.main{background:var(--ink);color:var(--card)}
+.btn.fire{background:var(--margin);border-color:var(--ink);color:#fff;font-size:clamp(17px,2.4vmin,21px)}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+kbd{display:inline-block;font:700 .6em/1 var(--mono);border:2px solid currentColor;border-radius:6px;padding:3px 6px;margin-left:.4em;vertical-align:middle}
+.stamp{position:absolute;right:22px;top:14px;font:700 clamp(30px,5vmin,48px)/1 var(--hand);padding:.05em .4em;border:4px solid currentColor;border-radius:10px;transform:rotate(-8deg);pointer-events:none;letter-spacing:.04em;background:var(--card)}
+.stamp.good{color:var(--good)} .stamp.bad{color:var(--bad)} .stamp.neutral{color:var(--ink-soft)}
+.stamp.in{animation:stamp .35s ease-out}
+@keyframes stamp{from{transform:rotate(-8deg) scale(1.8);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+.stamp[hidden]{display:none}
+.feedback{margin-top:14px;font-size:clamp(15px,2.1vmin,19px);line-height:1.5;font-weight:600}
+.feedback:empty{display:none}
+.feedback.good b.h{color:var(--good)} .feedback.bad b.h{color:var(--bad)}
+.feedback .why{display:block;margin-top:.4em;font-weight:400;border-left:4px solid var(--margin);padding:.2em .8em;background:color-mix(in srgb,var(--margin) 7%,var(--card));border-radius:0 10px 10px 0}
+.feedback code{font:700 .95em var(--mono)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.actions:empty{display:none}
+.keys{margin:0;text-align:center;color:var(--ink-soft);font-size:14px}
+.keys kbd{font-size:12px;margin:0 .2em}
+
+/* экраны */
+.screen{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;overflow-y:auto;background:rgba(25,30,15,.45);backdrop-filter:blur(2px)}
+.screen[hidden]{display:none}
+.screen .sheet{width:min(720px,100%)}
+.screen h2{font:700 clamp(34px,6vmin,52px)/1 var(--hand);margin:0 0 .3em}
+.screen h3{font-size:17px;margin:1.1em 0 .4em}
+.lead{font-size:clamp(16px,2.1vmin,19px);line-height:1.5;margin:0 0 1.2em;max-width:58ch}
+.group{margin:0 0 1em}
+.group > span{display:block;font-weight:700;margin-bottom:.45em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--ink);border-radius:999px;background:var(--card);padding:.4em .9em;font-weight:600;font-size:clamp(14px,1.9vmin,17px)}
+.chip small{color:var(--ink-soft);font-weight:400}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.75}
+.tabs{display:flex;gap:8px;margin:0 0 1.1em;flex-wrap:wrap}
+.tabs .chip{font-size:clamp(15px,2.1vmin,18px);padding:.55em 1.1em}
+.go{display:block;width:100%;margin-top:.7em;border:2px solid var(--ink);border-radius:16px;padding:.7em;background:var(--ink);color:var(--card);box-shadow:4px 4px 0 var(--margin);font:700 clamp(19px,2.8vmin,24px)/1 var(--body)}
+.go[hidden]{display:none}
+.go.ghost{background:var(--card);color:var(--ink);box-shadow:4px 4px 0 var(--ink);font-size:clamp(15px,2.1vmin,18px)}
+.best{font-size:15px;color:var(--ink-soft);margin-top:.9em;text-align:center}
+.name{display:block;font-weight:700;margin:0 0 1em}
+.name input{display:block;width:100%;margin-top:.4em;border:2px solid var(--ink);border-radius:12px;padding:.6em .8em;font:600 18px var(--body);background:var(--card);color:var(--ink)}
+.name input.need{border-color:var(--bad);box-shadow:0 0 0 3px var(--bad-bg)}
+.crit{width:100%;border-collapse:collapse;margin:.3em 0 1em;font-size:clamp(14px,1.9vmin,17px)}
+.crit th,.crit td{border:2px solid var(--ink);padding:.45em .7em;text-align:left;vertical-align:top}
+.crit th{background:color-mix(in srgb,var(--ink) 8%,var(--card))}
+.crit td.g{font:700 1.3em/1 var(--mono);text-align:center;width:3em}
+.crit td.ok{color:var(--good);font-weight:700} .crit td.no{color:var(--bad);font-weight:700}
+.crit code{font:700 .95em var(--mono)}
+.rules{margin:.2em 0 .6em;padding-left:1.2em;line-height:1.5;font-size:clamp(14px,1.9vmin,17px)}
+.rules li{margin:.25em 0}
+.result{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:.6em}
+.result div{flex:1 1 120px;border:2px solid var(--ink);border-radius:14px;padding:10px 12px}
+.result b{display:block;font:700 clamp(24px,4.4vmin,38px)/1.1 var(--mono)}
+.result small{color:var(--ink-soft)}
+.record{color:var(--good);font-weight:700}
+.record[hidden]{display:none}
+.weak{margin:0;padding:0;list-style:none;line-height:1.5}
+.weak li{margin:.45em 0}
+.weak .x{color:var(--ink-soft)}
+.examhead{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:.8em}
+.bigmark{font:700 clamp(80px,16vmin,140px)/1 var(--hand);width:1.4em;height:1.4em;display:grid;place-items:center;border:4px solid var(--bad);color:var(--bad);border-radius:50%;transform:rotate(-8deg)}
+.examhead p{margin:.15em 0;font-size:clamp(15px,2vmin,18px)}
+.help{font-size:clamp(15px,2vmin,17px);line-height:1.5}
+.help p{margin:.4em 0}
+.help pre{margin:.4em 0;padding:.5em .8em;border:2px solid var(--ink);border-radius:12px;font:600 15px/1.55 var(--mono);background:color-mix(in srgb,var(--margin) 6%,var(--card));overflow-x:auto}
+.help code{font:700 .95em var(--mono)}
+.help ol{padding-left:1.3em;margin:.4em 0}
+/* лигатуры JetBrains Mono превращают <= в ≤ — отключаем, чтобы видно было ровно то, что написано */
+.expr,.cap,.num,.shot,code,pre,kbd,.crit code{font-variant-ligatures:none;font-feature-settings:"calt" 0,"liga" 0}
+@media (max-width:760px){.progress{margin-left:0;width:100%}.stamp{top:-18px;right:10px;font-size:28px}}
+@media (prefers-reduced-motion: reduce){.mult.bump,.stamp.in,.num.flash,.shot input.shake{animation:none}.num{transition:none}}
+@media print{
+  body{background:#fff} #app,.screen:not(#endScreen){display:none!important}
+  #endScreen{position:static;background:none;backdrop-filter:none;padding:0}
+  #endScreen .sheet{box-shadow:none;border:none;width:100%}
+  #endScreen .go{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><h1>Снай<span>пер</span></h1><small>логические высказывания с числами · задание 3 ОГЭ</small></div>
+    <div class="stats">
+      <div class="pill" id="pTime" hidden>⏱ <b id="clock">10:00</b></div>
+      <div class="pill" id="pPts" hidden>Баллы <b id="epts">0</b></div>
+      <div class="pill" id="pGrade" hidden>Сейчас это <b id="egrade">2</b></div>
+      <div class="pill" id="pScore">Очки <b id="score">0</b></div>
+      <div class="pill" id="pStreak">Серия <b id="streak">0</b><span class="mult" id="mult" hidden>×2</span></div>
+      <div class="pill" id="pSolved">Попаданий <b id="solved">0</b></div>
+      <button class="ibtn" id="helpBtn" aria-label="Справка">📖</button>
+      <button class="ibtn" id="pauseBtn" aria-label="Пауза">⏸</button>
+      <button class="ibtn" id="muteBtn" aria-label="Выключить звук">🔊</button>
+    </div>
+  </header>
+  <div class="timebar" id="timebar" hidden><i id="timefill"></i></div>
+
+  <section class="sheet">
+    <span class="ptab">задание</span>
+    <div class="meta"><span class="tag mode" id="tagMode">Снайпер</span><span class="tag" id="tagLevel">Отрезок</span><span class="progress" id="progress"></span></div>
+    <p class="ask" id="ask"></p>
+    <div class="expr" id="expr"></div>
+  </section>
+
+  <section class="sheet field">
+    <span class="ptab">числовая прямая</span>
+    <div class="range" id="range"></div>
+    <div class="ctrl" id="ctrl">
+      <label class="shot" id="shotBox">X =<input id="shot" inputmode="numeric" autocomplete="off" aria-label="Ответ — число X"></label>
+      <button class="btn fire" id="fireBtn">🎯 Огонь <kbd>Enter</kbd></button>
+      <button class="btn" id="hintBtn">💡 Разложить условие</button>
+      <span class="sp"></span>
+      <button class="btn" id="skipBtn">↻ Другое задание</button>
+    </div>
+    <div class="stamp" id="stamp" hidden></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="actions" id="actions"></div>
+  </section>
+  <p class="keys" id="keys">наведи: клик по числу или <kbd>←</kbd> <kbd>→</kbd> · число можно набрать с клавиатуры · <kbd>Enter</kbd> огонь · <kbd>Esc</kbd> пауза</p>
+</div>
+
+<section class="screen" id="startScreen">
+  <div class="sheet">
+    <h2>Снайпер</h2>
+    <div class="tabs" id="kindTabs"></div>
+
+    <div id="examPanel">
+      <p class="lead">Работа длится <b id="examMin">10</b> минут. В каждом задании нужно найти число X, при котором высказывание истинно или ложно, — как в задании 3 ОГЭ. На каждое задание — один выстрел. Задания с каждым разом сложнее.</p>
+      <label class="name">Фамилия и имя<input id="studentName" autocomplete="off" placeholder="Например: Иванов Пётр, 8Б"></label>
+      <h3>За что даются баллы</h3>
+      <table class="crit" id="critPts"></table>
+      <h3>Оценка</h3>
+      <table class="crit" id="critGrades"></table>
+      <h3>Правила</h3>
+      <ul class="rules" id="examRules"></ul>
+    </div>
+
+    <div id="trainPanel">
+      <p class="lead">Найди нужное число и попади в него на числовой прямой. После выстрела прямая разложит условие на части: видно, где истинна каждая часть и всё высказывание целиком.</p>
+      <div class="group"><span>Режим</span><div class="chips" id="cMode"></div></div>
+      <div class="group"><span>Уровень</span><div class="chips" id="cLevel"></div></div>
+      <div class="group"><span>Время</span><div class="chips" id="cDur"></div></div>
+    </div>
+
+    <button class="go" id="startBtn">Начать</button>
+    <button class="go ghost" id="helpBtn2">Справка: как решать задание 3</button>
+    <div class="best" id="bestLine"></div>
+  </div>
+</section>
+
+<section class="screen" id="helpScreen" hidden>
+  <div class="sheet help">
+    <h2>Справка</h2>
+    <h3>Как решать задание 3</h3>
+    <ol>
+      <li><b>Сними НЕ.</b> НЕ меняет и направление знака, и строгость:
+        <pre>НЕ (X &lt; 5)  →  X ≥ 5        НЕ (X ≤ 5)  →  X &gt; 5
+НЕ (X &gt; 5)  →  X ≤ 5        НЕ (X ≥ 5)  →  X &lt; 5
+НЕ (X чётное)  →  X нечётное</pre></li>
+      <li><b>Отметь каждую часть</b> на числовой прямой.</li>
+      <li><b>Сложи части.</b> И — истинны обе части: берём общую часть полос. ИЛИ — истинна хотя бы одна: берём всё, что закрашено.</li>
+      <li><b>Если спрашивают «ложно»</b> — нужны числа, которые <i>не</i> попали в итоговую полосу.</li>
+      <li><b>Учти, какие числа разрешены:</b> натуральные — 1, 2, 3, …; двузначные — от 10 до 99; трёхзначные — от 100 до 999.</li>
+      <li><b>Наименьшее</b> — самое левое подходящее число, <b>наибольшее</b> — самое правое.</li>
+      <li><b>Проверь подстановкой</b> ответ и соседнее с ним число.</li>
+    </ol>
+    <h3>Пример</h3>
+    <p>Наименьшее целое X, для которого истинно <code>НЕ (X &lt; 5) И (X &lt; 9)</code>.</p>
+    <pre>НЕ (X &lt; 5)  →  X ≥ 5
+X ≥ 5 И X &lt; 9  →  5, 6, 7, 8
+наименьшее: 5
+проверка X = 5: НЕ (5 &lt; 5) = НЕ (ложь) = истина; 5 &lt; 9 — истина; истина И истина = истина
+проверка X = 4: НЕ (4 &lt; 5) = НЕ (истина) = ложь — не подходит</pre>
+    <p>Порядок действий в высказывании: сначала НЕ, потом И, потом ИЛИ. Скобки меняют порядок.</p>
+    <p><b>Строго и нестрого:</b> X &lt; 5 — число 5 не подходит; X ≤ 5 — подходит.</p>
+    <button class="go" id="helpClose">Понятно</button>
+  </div>
+</section>
+
+<section class="screen" id="pauseScreen" hidden>
+  <div class="sheet" style="width:min(440px,100%);text-align:center">
+    <h2>Пауза</h2>
+    <button class="go" id="resumeBtn">Продолжить</button>
+    <button class="go ghost" id="finishBtn">Завершить раунд</button>
+    <button class="go ghost" id="quitBtn">Выйти в меню</button>
+  </div>
+</section>
+
+<section class="screen" id="endScreen" hidden>
+  <div class="sheet">
+    <div id="rExam" hidden>
+      <h2>Работа завершена</h2>
+      <div class="examhead">
+        <div class="bigmark" id="xGrade">5</div>
+        <div><p><b id="xName"></b></p><p id="xDate"></p><p>Набрано баллов: <b id="xPts"></b></p><p id="xAway"></p></div>
+      </div>
+      <table class="crit" id="xTable"></table>
+      <h3>Разбор заданий</h3>
+      <table class="crit" id="xLog"></table>
+    </div>
+    <div id="rTrain">
+      <h2>Раунд окончен</h2>
+      <div class="result">
+        <div><b id="rScore">0</b><small>очков</small></div>
+        <div><b id="rSolved">0</b><small>попаданий</small></div>
+        <div><b id="rAcc">0%</b><small>точность</small></div>
+        <div><b id="rStreak">0</b><small>лучшая серия</small></div>
+      </div>
+      <p class="record" id="rRecord" hidden>Новый рекорд!</p>
+    </div>
+    <div id="rWeak"></div>
+    <button class="go" id="againBtn">Сыграть ещё раз</button>
+    <button class="go ghost" id="printBtn" hidden>🖨 Распечатать результат</button>
+    <button class="go ghost" id="menuBtn">В меню</button>
+  </div>
+</section>
+
+<script>
+/* ===== КОНТРОЛЬНАЯ: всё, что может захотеть поменять учитель ===== */
+const EXAM = {
+  minutes: 10,
+  seq: [3, 3, 4, 5, 3, 6, 4, 5, 7, 6, 5, 7],      // уровни заданий по порядку, дальше по кругу
+  points: { 3:1, 4:2, 5:2, 6:2, 7:3 },             // за попадание; промах — 0 баллов
+  grades: [[14, 5], [10, 4], [6, 3], [0, 2]]       // [от скольких баллов, оценка]
+};
+
+/* ================= НАСТРОЙКИ ================= */
+const LEVELS = {
+  1:{ name:'Разминка',       note:'одно сравнение',         pts:5 },
+  2:{ name:'Отрицание',      note:'НЕ и сравнение',         pts:8 },
+  3:{ name:'Отрезок',        note:'И · формат ОГЭ',         pts:10 },
+  4:{ name:'Или',            note:'ИЛИ · формат ОГЭ',       pts:12 },
+  5:{ name:'Свойства числа', note:'чётность, делимость',    pts:12 },
+  6:{ name:'Ложно',          note:'вопрос «ложно»',         pts:15 },
+  7:{ name:'Цифры',          note:'двузначные, трёхзначные', pts:15 },
+  8:{ name:'Сколько',        note:'количество чисел',       pts:15 }
+};
+const MIX = [3, 4, 5, 6, 7];
+const MODES = { snipe:'Снайпер', mark:'Отметь все' };
+const ERR = {
+  'neg-strict': ['НЕ и граница', 'НЕ меняет и направление знака, и строгость: НЕ (X < 5) — это X ≥ 5, а НЕ (X ≤ 5) — это X > 5.'],
+  'no-not':     ['Пропущено НЕ', 'НЕ меняет значение части на противоположное. Сначала замени НЕ (X < 5) на X ≥ 5, потом решай.'],
+  strict:       ['Строгое и нестрогое сравнение', 'X > 5 — само число 5 не подходит, X ≥ 5 — подходит. Проверяй граничное число подстановкой.'],
+  'false':      ['«Истинно» и «ложно»', 'Прочитай вопрос ещё раз: если спрашивают, где высказывание ложно, ищи числа, где оно не выполняется.'],
+  'min-max':    ['Наименьшее и наибольшее', 'Наименьшее — самое левое подходящее число на прямой, наибольшее — самое правое.'],
+  'and-or':     ['И и ИЛИ', 'И — истинны обе части (общая часть полос), ИЛИ — хотя бы одна (всё, что закрашено).'],
+  domain:       ['Какие числа разрешены', 'Учитывай условие: натуральные — с 1, двузначные — от 10 до 99, трёхзначные — от 100 до 999.'],
+  part:         ['Обе части условия', 'Учитывай обе части: подставь ответ в каждую и вычисли операцию между ними.'],
+  calc:         ['Подстановка', 'Подставь число в каждую часть условия и вычисли значение по шагам: сначала НЕ, потом И / ИЛИ.']
+};
+const TRAP_ORDER = ['neg-strict', 'no-not', 'strict', 'false', 'min-max', 'and-or', 'domain', 'part'];
+
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random() * a.length)];
+const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const chance = p => Math.random() < p;
+const mod = (a, n) => ((a % n) + n) % n;
+const fmt = x => x < 0 ? '−' + (-x) : String(x);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const parseNum = s => { const t = String(s).replace(/[−–]/g, '-').replace(/\s/g, ''); return /^-?\d{1,4}$/.test(t) ? +t : null; };
+const plural = (n, a, b, c) => { const m = n % 100, k = n % 10; return m >= 11 && m <= 14 ? c : k === 1 ? a : k >= 2 && k <= 4 ? b : c; };
+
+/* ================= ВЫСКАЗЫВАНИЯ ================= */
+const A = {
+  cmp:   (op, c) => ({ t:'cmp', op, c }),
+  even:  () => ({ t:'even' }),
+  odd:   () => ({ t:'odd' }),
+  div:   k => ({ t:'div', k }),
+  last:  d => ({ t:'last', d }),
+  first: p => ({ t:'first', p })                    // p: 'even' | 'odd' — первая цифра
+};
+const NOT = a => ({ t:'not', a });
+const BIN = (t, a, b) => ({ t, a, b });
+const isBin = e => e.t === 'and' || e.t === 'or';
+const partsOf = e => isBin(e) ? [e.a, e.b] : [e];
+const mapParts = (e, f) => isBin(e) ? BIN(e.t, f(e.a), f(e.b)) : f(e);
+
+function ev(e, x){
+  switch (e.t){
+    case 'cmp':   return e.op === '<' ? x < e.c : e.op === '>' ? x > e.c : e.op === '<=' ? x <= e.c : x >= e.c;
+    case 'even':  return mod(x, 2) === 0;
+    case 'odd':   return mod(x, 2) === 1;
+    case 'div':   return mod(x, e.k) === 0;
+    case 'last':  return Math.abs(x) % 10 === e.d;
+    case 'first': { const f = +String(Math.abs(x))[0]; return e.p === 'even' ? f % 2 === 0 : f % 2 === 1; }
+    case 'not':   return !ev(e.a, x);
+    case 'and':   return ev(e.a, x) && ev(e.b, x);
+    case 'or':    return ev(e.a, x) || ev(e.b, x);
+  }
+  throw new Error('Неизвестный узел ' + e.t);
+}
+
+const OPS = { '<':'<', '>':'>', '<=':'≤', '>=':'≥' };
+const NEG = { '<':'>=', '>':'<=', '<=':'>', '>=':'<' };
+function atomText(a, x = 'X'){
+  switch (a.t){
+    case 'cmp':   return `${x} ${OPS[a.op]} ${fmt(a.c)}`;
+    case 'even':  return `${x} чётное`;
+    case 'odd':   return `${x} нечётное`;
+    case 'div':   return `${x} делится на ${a.k}`;
+    case 'last':  return `${x} оканчивается на ${a.d}`;
+    case 'first': return `первая цифра ${x} ${a.p === 'even' ? 'чётная' : 'нечётная'}`;
+  }
+}
+// часть в записи ОГЭ: «НЕ (X < 5)», «(X < 9)»; одиночное сравнение без скобок
+const partText = (p, single = false) => p.t === 'not' ? `НЕ (${atomText(p.a)})` : single ? atomText(p) : `(${atomText(p)})`;
+const opWord = t => t === 'and' ? 'И' : 'ИЛИ';
+const exprText = e => isBin(e) ? `${partText(e.a)} ${opWord(e.t)} ${partText(e.b)}` : partText(e, true);
+// та же часть без НЕ — подпись полосы на прямой
+function plainText(p){
+  if (p.t !== 'not') return atomText(p);
+  const a = p.a;
+  switch (a.t){
+    case 'cmp':   return `X ${OPS[NEG[a.op]]} ${fmt(a.c)}`;
+    case 'even':  return 'X нечётное';
+    case 'odd':   return 'X чётное';
+    case 'div':   return `X не делится на ${a.k}`;
+    case 'last':  return `X не оканчивается на ${a.d}`;
+    case 'first': return `первая цифра X ${a.p === 'even' ? 'нечётная' : 'чётная'}`;
+  }
+}
+
+/* ---------- какие числа разрешены ---------- */
+const DOMS = {
+  int:   { lo:-300, hi:300, one:'целое',       many:'целых',       all:'целые',       not:'не целое' },
+  nat:   { lo:1,    hi:500, one:'натуральное', many:'натуральных', all:'натуральные', not:'не натуральное' },
+  two:   { lo:10,   hi:99,  one:'двузначное',  many:'двузначных',  all:'двузначные',  not:'не двузначное' },
+  three: { lo:100,  hi:999, one:'трёхзначное', many:'трёхзначных', all:'трёхзначные', not:'не трёхзначное' }
+};
+const inDom = (T, x) => x >= DOMS[T.dom].lo && x <= DOMS[T.dom].hi;
+
+// перебор: все числа области, где высказывание имеет нужное значение
+function solve(T){
+  const D = DOMS[T.dom], s = [];
+  for (let x = D.lo; x <= D.hi; x++) if (ev(T.e, x) === T.want) s.push(x);
+  if (!s.length) return null;
+  if (T.ask === 'count'){
+    const open = (T.dom === 'int' && s[0] === D.lo) || ((T.dom === 'int' || T.dom === 'nat') && s[s.length - 1] === D.hi);
+    return { v: open ? null : s.length, s };
+  }
+  const v = T.ask === 'min' ? s[0] : s[s.length - 1];
+  return { v, s, edge: v === (T.ask === 'min' ? D.lo : D.hi) };   // на краю — значит, условие числа не ограничивает
+}
+
+/* ---------- ловушки: ответ, который получится при типичной ошибке ---------- */
+const WRONG_NEG = { '<':'>', '<=':'>=', '>':'<', '>=':'<=' };     // знак развернули, строгость оставили
+const TOGGLE = { '<':'<=', '<=':'<', '>':'>=', '>=':'>' };
+function trapVariants(T){
+  const e = T.e, P = partsOf(e), v = [];
+  if (P.some(p => p.t === 'not' && p.a.t === 'cmp'))
+    v.push(['neg-strict', { ...T, e: mapParts(e, p => p.t === 'not' && p.a.t === 'cmp' ? A.cmp(WRONG_NEG[p.a.op], p.a.c) : p) }]);
+  if (P.some(p => p.t === 'not')) v.push(['no-not', { ...T, e: mapParts(e, p => p.t === 'not' ? p.a : p) }]);
+  if (P.some(p => p.t === 'cmp')) v.push(['strict', { ...T, e: mapParts(e, p => p.t === 'cmp' ? A.cmp(TOGGLE[p.op], p.c) : p) }]);
+  v.push(['false', { ...T, want: !T.want }]);
+  if (T.ask !== 'count') v.push(['min-max', { ...T, ask: T.ask === 'min' ? 'max' : 'min' }]);
+  if (isBin(e)) v.push(['and-or', { ...T, e: BIN(e.t === 'and' ? 'or' : 'and', e.a, e.b) }]);
+  if (T.dom !== 'int') v.push(['domain', { ...T, dom:'int' }]);
+  if (isBin(e)){ v.push(['part', { ...T, e: e.a }]); v.push(['part', { ...T, e: e.b }]); }
+  return v;
+}
+function computeTraps(T){
+  const out = {};
+  for (const [code, V] of trapVariants(T)){
+    const r = solve(V);
+    if (!r || r.v == null || r.v === T.answer) continue;
+    if (r.edge && (V.dom === 'int' || (V.dom === 'nat' && V.ask === 'max'))) continue;   // «бесконечный» ответ не считаем
+    if (!(r.v in out)) out[r.v] = code;
+  }
+  return out;
+}
+const diagnose = (T, v) => T.traps[v] || null;
+
+/* ---------- генератор заданий ---------- */
+// часть, означающая X ≥ b (dir 'lo') или X ≤ b (dir 'hi'), в одной из четырёх записей
+function bound(dir, b, withNot){
+  const plain = dir === 'lo' ? [A.cmp('>', b - 1), A.cmp('>=', b)] : [A.cmp('<', b + 1), A.cmp('<=', b)];
+  const neg   = dir === 'lo' ? [NOT(A.cmp('<', b)), NOT(A.cmp('<=', b - 1))] : [NOT(A.cmp('>', b)), NOT(A.cmp('>=', b + 1))];
+  return rand(withNot ? neg : plain);
+}
+function prop(dom){
+  const list = [A.even(), A.odd(), A.div(rand([3, 4, 5])), A.last(rint(0, 9))];
+  if (dom === 'two' || dom === 'three') list.push(A.first('even'), A.first('odd'));
+  const p = rand(list);
+  return chance(.35) ? NOT(p) : p;
+}
+const constFor = dom => dom === 'two' ? rint(14, 94) : dom === 'three' ? rint(120, 980) : dom === 'int' && chance(.25) ? rint(-20, -2) : rint(3, 60);
+const nots = () => rand([[1, 0], [0, 1], [1, 1]]);
+const pair = (a, b) => chance(.5) ? [a, b] : [b, a];
+
+function draft(L){
+  const dir = rand(['lo', 'hi']);
+  switch (L){
+    case 1: return { dom:'int', e: bound(dir, constFor('int'), false), ask: dir === 'lo' ? 'min' : 'max', want:true };
+    case 2: return { dom:'int', e: bound(dir, constFor('int'), true),  ask: dir === 'lo' ? 'min' : 'max', want:true };
+    case 3: {
+      const dom = rand(['int', 'nat', 'nat']), b1 = constFor(dom), n = nots();
+      const [p, q] = chance(.75)
+        ? [bound('lo', b1, n[0]), bound('hi', b1 + rint(2, 12), n[1])]        // отрезок
+        : [bound(dir, b1, n[0]), bound(dir, b1 + rint(2, 15), n[1])];          // два луча в одну сторону
+      return { dom, e: BIN('and', ...pair(p, q)), ask: rand(['min', 'max']), want:true };
+    }
+    case 4: {
+      const dom = rand(['int', 'nat']), b1 = constFor(dom), n = nots();
+      const e = BIN('or', ...pair(bound(dir, b1, n[0]), bound(dir, b1 + rint(2, 15), n[1])));
+      return { dom, e, ask: dir === 'lo' ? 'min' : 'max', want:true };
+    }
+    case 5: {
+      const dom = rand(['nat', 'nat', 'int']);
+      const p = bound(dir, constFor('nat'), chance(.6));
+      const q = dom === 'int' ? (chance(.5) ? A.even() : A.odd()) : prop(dom);
+      return { dom, e: BIN(chance(.8) ? 'and' : 'or', ...pair(p, q)), ask: dir === 'lo' ? 'min' : 'max', want:true };
+    }
+    case 6: {
+      if (chance(.6)){                                                         // «ложно» для ИЛИ двух лучей — отрезок
+        const dom = rand(['int', 'nat']), b1 = constFor(dom), n = rand([[1, 0], [0, 1], [1, 1], [0, 0]]);
+        const e = BIN('or', ...pair(bound('hi', b1, n[0]), bound('lo', b1 + rint(3, 14), n[1])));
+        return { dom, e, ask: rand(['min', 'max']), want:false };
+      }
+      const e = BIN('or', ...pair(bound(dir, constFor('nat'), chance(.5)), prop('nat')));
+      return { dom:'nat', e, ask: dir === 'lo' ? 'max' : 'min', want:false };
+    }
+    case 7: {
+      const dom = rand(['two', 'three']);
+      const e = BIN(chance(.7) ? 'and' : 'or', ...pair(bound(dir, constFor(dom), chance(.5)), prop(dom)));
+      return { dom, e, ask: rand(['min', 'max']), want: chance(.7) };
+    }
+    case 8: {
+      const dom = rand(['int', 'nat']), b1 = constFor(dom), b2 = b1 + rint(3, 16);
+      if (chance(.4)){
+        const n = rand([[1, 0], [0, 1], [1, 1], [0, 0]]);
+        return { dom, e: BIN('or', ...pair(bound('hi', b1, n[0]), bound('lo', b2, n[1]))), ask:'count', want:false };
+      }
+      const n = nots();
+      return { dom, e: BIN('and', ...pair(bound('lo', b1, n[0]), bound('hi', b2, n[1]))), ask:'count', want:true };
+    }
+  }
+}
+
+let lastText = '';
+function genTask(level, mode = 'snipe'){
+  for (let tries = 0; tries < 400; tries++){
+    const T = draft(mode === 'mark' ? rand([2, 3, 4, 5, 6]) : level);
+    T.level = mode === 'mark' ? level : level;
+    T.mode = mode;
+    if (mode === 'mark' && T.ask === 'count') T.ask = 'min';
+    const r = solve(T);
+    if (!r || r.v == null || r.edge) continue;
+    if (T.dom === 'int' && Math.abs(r.v) > 150) continue;
+    if (T.ask === 'count' && (r.v < 2 || r.v > 30)) continue;
+    T.answer = r.v; T.set = r.s;
+    T.traps = computeTraps(T);
+    if (Object.keys(T.traps).length < (level <= 2 ? 1 : 2)) continue;   // задание должно что-то проверять
+    T.text = exprText(T.e);
+    if (T.text === lastText && tries < 300) continue;
+    if (mode === 'mark'){
+      const a = T.answer - rint(2, 6), win = [a, a + 14];
+      const target = [];
+      for (let x = win[0]; x <= win[1]; x++) if (inDom(T, x) && ev(T.e, x) === T.want) target.push(x);
+      if (target.length < 2 || target.length > 12) continue;
+      T.win = win; T.target = target;
+    }
+    lastText = T.text;
+    Object.assign(T, { off: Math.random(), aim:null, marks:new Set(), done:false, hint:false });
+    return T;
+  }
+  // запасное задание, если генератор не справился
+  return Object.assign({ dom:'int', e: BIN('and', NOT(A.cmp('<', 5)), A.cmp('<', 9)), ask:'min', want:true, level, mode,
+    answer:5, set:[5, 6, 7, 8], traps:{ 6:'neg-strict', 8:'min-max' }, text:'НЕ (X < 5) И (X < 9)',
+    off:.4, aim:null, marks:new Set(), done:false, hint:false },
+    mode === 'mark' ? { win:[1, 15], target:[5, 6, 7, 8] } : {});
+}
+
+/* ---------- тексты разбора ---------- */
+const TV = b => b ? 'истина' : 'ложь';
+function partSub(p, v){
+  const x = fmt(v);
+  if (p.t === 'not') return `НЕ (${atomText(p.a, x)}) = НЕ (${TV(ev(p.a, v))}) = ${TV(ev(p, v))}`;
+  return `${atomText(p, x)} — ${TV(ev(p, v))}`;
+}
+function subHTML(T, v){
+  const lines = partsOf(T.e).map(p => partSub(p, v));
+  if (isBin(T.e)) lines.push(`${TV(ev(T.e.a, v))} ${opWord(T.e.t)} ${TV(ev(T.e.b, v))} = ${TV(ev(T.e, v))}`);
+  return lines.map(l => `<code>${esc(l)}</code>`).join('<br>');
+}
+function listFit(T){
+  const s = T.set, f = a => a.map(fmt).join(', ');
+  if (T.ask === 'count') return s.length <= 12 ? f(s) : f(s.slice(0, 5)) + ', …, ' + f(s.slice(-3));
+  if (T.ask === 'min') return f(s.slice(0, 4)) + (s.length > 4 ? ', …' : '');
+  return (s.length > 4 ? '…, ' : '') + f(s.slice(-4));
+}
+const notRules = T => partsOf(T.e).filter(p => p.t === 'not').map(p => `${partText(p)} — это ${plainText(p)}`).join('; ');
+const extWord = T => T.ask === 'min' ? 'наименьшее' : 'наибольшее';
+function summary(T){
+  const w = (T.want ? 'Истинно' : 'Ложно') + (T.dom === 'int' ? '' : ` (среди ${DOMS[T.dom].many} чисел)`);
+  return T.ask === 'count'
+    ? `${w} при X = ${listFit(T)} — всего ${T.answer}.`
+    : `${w} при X = ${listFit(T)} → ${extWord(T)} ${fmt(T.answer)}.`;
+}
+function askHTML(T){
+  const D = DOMS[T.dom], b = s => T.level <= 5 ? `<b>${s}</b>` : s, w = T.want ? 'истинно' : 'ложно';
+  if (T.mode === 'mark') return `Отметь на прямой все ${D.all} числа X, для которых ${b(w)} высказывание:`;
+  if (T.ask === 'count') return `Сколько существует ${D.many} чисел X, для которых ${b(w)} высказывание:`;
+  return `Напишите ${b(extWord(T))} ${D.one} число X, для которого ${b(w)} высказывание:`;
+}
+
+/* ================= СОСТОЯНИЕ ================= */
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+};
+let cfg = { kind:'exam', mode:'snipe', level:'mix', dur:300 };
+let S = null;
+let muted = store.get('snp:muted') === '1';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const bestKey = () => `snp:best:${cfg.mode}:${cfg.level}:${cfg.dur}`;
+
+/* ---------- звук ---------- */
+let ac = null;
+function tone(f1, f2, dur, type, vol, delay = 0){
+  if (muted || !ac) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur);
+}
+const sfx = {
+  aim:  () => tone(900, 700, .03, 'triangle', .04),
+  shot: () => tone(180, 60, .12, 'square', .08),
+  good: () => [523, 659, 784].forEach((f, i) => tone(f, f, .14, 'sine', .14, .1 + i * .08)),
+  bad:  () => tone(220, 120, .3, 'sawtooth', .07, .1),
+  end:  () => [784, 659, 523].forEach((f, i) => tone(f, f, .2, 'sine', .14, i * .14))
+};
+function setMute(m){
+  muted = m; store.set('snp:muted', m ? '1' : '0');
+  $('muteBtn').textContent = m ? '🔇' : '🔊';
+  $('muteBtn').setAttribute('aria-label', m ? 'Включить звук' : 'Выключить звук');
+}
+
+/* ---------- меню ---------- */
+function chip(html, pressed, fn){
+  const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = html;
+  b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b;
+}
+function chips(id, list){ const c = $(id); c.innerHTML = ''; list.forEach(x => c.appendChild(x)); }
+const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+function renderMenu(){
+  chips('kindTabs', [
+    chip('📝 Контрольная на оценку', cfg.kind === 'exam', () => { cfg.kind = 'exam'; renderMenu(); }),
+    chip('🎯 Тренировка', cfg.kind === 'train', () => { cfg.kind = 'train'; renderMenu(); })
+  ]);
+  const exam = cfg.kind === 'exam';
+  $('examPanel').hidden = !exam; $('trainPanel').hidden = exam;
+  $('startBtn').textContent = exam ? `Начать работу (${EXAM.minutes} минут)` : 'Начать тренировку';
+  if (exam){
+    $('examMin').textContent = EXAM.minutes;
+    const lv = Object.keys(EXAM.points);
+    $('critPts').innerHTML = '<tr><th>Уровень</th><th>Что в задании</th><th>Попадание</th></tr>' +
+      lv.map(k => `<tr><td>${LEVELS[k].name}</td><td>${LEVELS[k].note}</td><td>+${EXAM.points[k]}</td></tr>`).join('');
+    $('critGrades').innerHTML = EXAM.grades.map(([min, g], i) =>
+      `<tr><td class="g">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${min} баллов` : `меньше ${EXAM.grades[i - 1][0]} баллов`}</td></tr>`).join('');
+    $('examRules').innerHTML = [
+      `Работа идёт ровно ${EXAM.minutes} минут, закончить раньше нельзя. Когда время выйдет, оценка появится сама.`,
+      'На каждое задание — один выстрел: наведи на число и нажми «Огонь» или впиши число в поле.',
+      'Промах — 0 баллов, штрафа нет. Трудное задание можно пропустить.',
+      'Справка и разбор во время работы закрыты. Разбор всех заданий — на экране результата.',
+      'Если уйти со страницы или переключить вкладку, это будет видно в результате.'
+    ].map(x => `<li>${x}</li>`).join('');
+  } else {
+    chips('cMode', Object.keys(MODES).map(k => chip(MODES[k] + (k === 'mark' ? ' <small>все числа, где истинно</small>' : ' <small>одно число, как в ОГЭ</small>'),
+      cfg.mode === k, () => { cfg.mode = k; renderMenu(); })));
+    const lv = [['mix', 'Вперемешку <small>уровни 3–7</small>'], ...Object.keys(LEVELS).map(k => [k, `${k}. ${LEVELS[k].name} <small>${LEVELS[k].note}</small>`])];
+    chips('cLevel', lv.filter(([k]) => cfg.mode === 'snipe' || k !== '8')
+      .map(([k, l]) => chip(l, String(cfg.level) === k, () => { cfg.level = k; renderMenu(); })));
+    $('cLevel').parentElement.hidden = cfg.mode === 'mark';
+    chips('cDur', [[180, '3 минуты'], [300, '5 минут'], [0, 'Без ограничения']].map(([d, l]) => chip(l, cfg.dur === d, () => { cfg.dur = d; renderMenu(); })));
+  }
+  const best = !exam && store.get(bestKey());
+  $('bestLine').textContent = best ? 'Рекорд с этими настройками: ' + best : '';
+}
+
+/* ================= РАУНД ================= */
+function start(){
+  const exam = cfg.kind === 'exam', name = $('studentName').value.trim();
+  if (exam && !name){ const i = $('studentName'); i.classList.add('need'); i.focus(); i.placeholder = 'Сначала впиши фамилию и имя'; return; }
+  if (!ac){ try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  const byLvl = {}; Object.keys(EXAM.points).forEach(k => byLvl[k] = { n:0, ok:0, pts:0 });
+  S = { running:true, paused:false, t:0, dur: exam ? EXAM.minutes * 60 : cfg.dur, score:0, streak:0, best:0, mult:1, solved:0,
+        answers:0, errs:{}, task:null, exam, name, t0: Date.now(), startedAt: new Date(), pts:0, taskNo:0, away:0, byLvl, log:[],
+        mode: exam ? 'snipe' : cfg.mode, nextTimer:null };
+  if (cfg.mode === 'mark' && !exam && cfg.level === '8') cfg.level = 'mix';
+  ['startScreen', 'endScreen', 'pauseScreen'].forEach(id => $(id).hidden = true);
+  $('timebar').hidden = !S.dur;
+  ['pTime', 'pPts', 'pGrade'].forEach(id => $(id).hidden = !exam);
+  ['pScore', 'pStreak', 'pSolved', 'helpBtn', 'pauseBtn'].forEach(id => $(id).hidden = exam);
+  updateHud(); newTask();
+}
+
+function streakUp(){
+  S.streak++; S.best = Math.max(S.best, S.streak);
+  const m = Math.min(5, 1 + Math.floor(S.streak / 3));
+  if (m > S.mult && !reduced){ const el = $('mult'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+  S.mult = m;
+}
+function streakBreak(){ S.streak = 0; S.mult = 1; }
+function updateHud(){
+  $('score').textContent = S.score; $('streak').textContent = S.streak; $('solved').textContent = S.solved;
+  const m = $('mult'); m.hidden = S.mult < 2; m.textContent = '×' + S.mult;
+  if (S.exam){ $('epts').textContent = S.pts; $('egrade').textContent = gradeFor(S.pts); }
+}
+
+function newTask(){
+  clearTimeout(S.nextTimer);
+  let level;
+  if (S.exam){ level = EXAM.seq[S.taskNo % EXAM.seq.length]; S.byLvl[level].n++; }
+  else level = cfg.level === 'mix' ? rand(MIX) : +cfg.level;
+  S.taskNo++;
+  S.task = genTask(level, S.mode);
+  $('shot').value = '';
+  render();
+}
+
+function aimAt(x, fromInput = false){
+  const T = S && S.task;
+  if (!T || T.done || !S.running || S.paused) return;
+  if (T.mode === 'mark' || T.ask === 'count'){                 // отметки: в «Отметь все» — ответ, в «Сколько» — черновик
+    if (!inDom(T, x) && T.mode === 'mark') return;
+    T.marks.has(x) ? T.marks.delete(x) : T.marks.add(x);
+    sfx.aim(); renderRange(); return;
+  }
+  if (!fromInput && T.aim === x){ fire(); return; }            // второй клик по той же точке — выстрел
+  T.aim = x; sfx.aim();
+  if (!fromInput) $('shot').value = fmt(x).replace('−', '-');
+  renderRange();
+}
+function moveAim(d){
+  const T = S && S.task;
+  if (!T || T.done || T.mode === 'mark' || T.ask === 'count') return;
+  const [a, b] = windowFor(T);
+  const x = T.aim == null ? Math.round((a + b) / 2) : Math.max(a, Math.min(b, T.aim + d));
+  aimAt(x);
+}
+
+function score(T, ok){
+  if (ok){
+    S.solved++; streakUp(); sfx.good();
+    if (S.exam){ const p = EXAM.points[T.level] || 1; S.pts += p; S.byLvl[T.level].ok++; S.byLvl[T.level].pts += p; T.delta = p; }
+    else { const p = Math.round(LEVELS[T.level].pts * S.mult / (T.hint ? 2 : 1)); S.score += p; T.delta = p; }
+  } else {
+    streakBreak(); sfx.bad();
+    const key = T.trap || 'calc';
+    S.errs[key] = (S.errs[key] || 0) + 1;
+  }
+}
+
+function fire(){
+  const T = S && S.task;
+  if (!S.running || S.paused || !T || T.done) return;
+  if (T.mode === 'mark') return checkMarks();
+  const v = parseNum($('shot').value);
+  if (v == null){
+    const i = $('shot'); i.classList.remove('shake'); void i.offsetWidth; i.classList.add('shake');
+    $('feedback').className = 'feedback bad'; $('feedback').innerHTML = 'Наведи прицел на число или впиши число X в поле.';
+    return;
+  }
+  T.done = true; T.v = v; T.ok = v === T.answer; S.answers++;
+  T.trap = T.ok ? null : diagnose(T, v);
+  sfx.shot(); score(T, T.ok);
+  if (S.exam){
+    S.log.push({ T, v, ok:T.ok });
+    updateHud(); render();
+    S.nextTimer = setTimeout(() => S.running && newTask(), reduced ? 250 : 650);
+    return;
+  }
+  updateHud(); render(true);
+  setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
+}
+
+function checkMarks(){
+  const T = S.task;
+  T.miss = T.target.filter(x => !T.marks.has(x));
+  T.extra = [...T.marks].filter(x => !T.target.includes(x)).sort((a, b) => a - b);
+  T.done = true; T.ok = !T.miss.length && !T.extra.length; S.answers++;
+  // промах на границе с НЕ — скорее всего, ошибка «НЕ и граница»
+  const edgeNot = partsOf(T.e).some(p => p.t === 'not' && p.a.t === 'cmp' && [...T.miss, ...T.extra].some(x => Math.abs(x - p.a.c) <= 1));
+  T.trap = T.ok ? null : edgeNot ? 'neg-strict' : null;
+  sfx.shot(); score(T, T.ok);
+  updateHud(); render(true);
+  setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
+}
+
+function skip(){
+  if (!S.running || S.paused) return;
+  const T = S.task;
+  if (!T.done){
+    streakBreak();
+    if (S.exam) S.log.push({ T, v:null, ok:false });
+  }
+  updateHud(); newTask();
+}
+
+/* ---------- отрисовка ---------- */
+const COLORS = ['var(--m1)', 'var(--m2)'];
+function fitCols(){
+  const w = $('range').clientWidth || 900;
+  return Math.max(7, Math.min(25, Math.floor(w / 38)));
+}
+function windowFor(T){
+  if (T.win) return T.win;
+  const W = fitCols();
+  if (T.ask === 'count'){
+    let a = T.set[0] - 2, b = T.set[T.set.length - 1] + 2;
+    while (b - a + 1 < W){ a--; if (b - a + 1 < W) b++; }
+    return [a, b];
+  }
+  const k = 3 + Math.round(T.off * (W - 7));
+  let a = T.answer - k;
+  if (T.dom !== 'int'){                                          // за краем области — не больше двух серых чисел
+    const D = DOMS[T.dom];
+    a = Math.min(Math.max(a, D.lo - 2), D.hi + 2 - W + 1);
+  }
+  return [a, a + W - 1];
+}
+
+function render(justDone = false){
+  const T = S.task;
+  $('tagMode').textContent = (S.exam ? `Задание ${S.taskNo} · ` : '') + (T.mode === 'mark' ? 'Отметь все' : T.ask === 'count' ? 'Сколько' : 'Снайпер');
+  $('tagLevel').textContent = T.mode === 'mark' ? 'тренировка' : LEVELS[T.level].name;
+  $('progress').textContent = S.exam || !S.running ? '' : `Выстрелов: ${S.answers}`;
+  $('ask').innerHTML = askHTML(T);
+  const P = partsOf(T.e);
+  $('expr').innerHTML = isBin(T.e)
+    ? `<span class="part" style="--m:${COLORS[0]}">${esc(partText(P[0]))}</span><span class="lop">${opWord(T.e.t)}</span><span class="part" style="--m:${COLORS[1]}">${esc(partText(P[1]))}</span>`
+    : `<span class="part" style="--m:${COLORS[0]}">${esc(partText(P[0], true))}</span>`;
+  renderRange(justDone);
+
+  const mark = T.mode === 'mark';
+  $('shotBox').hidden = mark;
+  $('fireBtn').innerHTML = mark ? '✓ Проверить <kbd>Enter</kbd>' : T.ask === 'count' ? '✓ Ответить <kbd>Enter</kbd>' : '🎯 Огонь <kbd>Enter</kbd>';
+  $('ctrl').hidden = T.done && !S.exam;
+  $('fireBtn').disabled = T.done;
+  $('hintBtn').hidden = S.exam || T.hint || T.done;
+  $('skipBtn').textContent = S.exam ? '↷ Пропустить (0 баллов)' : '↻ Другое задание';
+  $('shot').disabled = T.done || !S.running;
+
+  const stamp = $('stamp');
+  if (T.done){
+    stamp.hidden = false;
+    if (S.exam){ stamp.textContent = 'ПРИНЯТО'; stamp.className = 'stamp neutral' + (reduced ? '' : ' in'); }
+    else { stamp.textContent = T.ok ? 'ПОПАЛ!' : 'ПРОМАХ'; stamp.className = 'stamp ' + (T.ok ? 'good' : 'bad') + (reduced ? '' : ' in'); }
+    $('feedback').className = 'feedback ' + (T.ok ? 'good' : 'bad');
+    $('feedback').innerHTML = S.exam ? '' : feedbackHTML(T);
+  } else {
+    stamp.hidden = true; $('feedback').innerHTML = '';
+  }
+  renderActions();
+}
+
+function renderRange(justDone = false){
+  const T = S.task, [a, b] = windowFor(T), n = b - a + 1;
+  const showParts = (T.done && !S.exam) || T.hint, showRes = T.done && !S.exam;
+  const P = partsOf(T.e), xs = [];
+  for (let x = a; x <= b; x++) xs.push(x);
+  let h = '';
+  if (showParts){
+    P.forEach((p, i) => {
+      h += `<div class="cap" style="--m:${COLORS[i]}"><span>${esc(plainText(p))}</span></div>`;
+      h += xs.map(x => `<i class="band${ev(p, x) ? ' on' : ''}${x === T.aim || x === T.v ? ' aimc' : ''}" style="--m:${COLORS[i]}"></i>`).join('');
+    });
+  }
+  if (showRes){
+    h += `<div class="cap res"><span>всё высказывание ${T.want ? 'истинно' : 'ложно'}${T.dom === 'int' ? '' : ' · только ' + DOMS[T.dom].many}</span></div>`;
+    h += xs.map(x => `<i class="band res-b${inDom(T, x) && ev(T.e, x) === T.want ? ' on' : ''}${x === T.v ? ' aimc' : ''}"></i>`).join('');
+  }
+  h += xs.map(x => {
+    const c = ['num'];
+    if (!inDom(T, x)) c.push('out');
+    if (T.marks.has(x)) c.push('mk');
+    if (!T.done && x === T.aim) c.push('aim');
+    if (T.done && !S.exam){
+      if (T.mode === 'mark'){
+        if (T.target.includes(x)) c.push(T.marks.has(x) ? 'hit' : 'lack');
+        else if (T.marks.has(x)) c.push('miss');
+      } else if (T.ask !== 'count'){
+        if (x === T.v) c.push(T.ok ? 'hit' : 'miss');
+        if (x === T.answer) c.push('ans');
+      }
+      if (justDone && x === T.v && !reduced) c.push('flash');
+    }
+    if (T.done && S.exam && x === T.v) c.push('mk');
+    const label = `X = ${fmt(x)}` + (inDom(T, x) ? '' : `, ${DOMS[T.dom].not}`);
+    return `<button class="${c.join(' ')}" data-x="${x}" aria-label="${label}" tabindex="-1">${fmt(x)}</button>`;
+  }).join('');
+  const r = $('range');
+  r.innerHTML = `<div class="rgrid" style="--n:${n}">${h}</div>`;
+}
+
+function feedbackHTML(T){
+  const pts = T.delta ? ` +${T.delta}` : '';
+  const nr = notRules(T), nrHTML = nr ? ` ${esc(nr)}.` : '';
+  const trapHTML = T.trap ? `<span class="why"><b>Похоже на ошибку «${ERR[T.trap][0]}».</b> ${esc(ERR[T.trap][1])}</span>` : '';
+  if (T.mode === 'mark'){
+    if (T.ok) return `<b class="h">Точно!${pts}</b> Все ${T.target.length} ${plural(T.target.length, 'число', 'числа', 'чисел')} отмечены.<span class="why">${nrHTML}</span>`;
+    const bad = T.miss[0] != null ? T.miss[0] : T.extra[0];
+    return `<b class="h">Не совсем.</b> ` +
+      (T.miss.length ? `Не отмечены: ${T.miss.map(fmt).join(', ')}. ` : '') +
+      (T.extra.length ? `Лишние: ${T.extra.map(fmt).join(', ')}. ` : '') +
+      `<span class="why">Проверим X = ${fmt(bad)}:<br>${subHTML(T, bad)}${nr ? '<br>' + esc(nr) + '.' : ''}</span>${trapHTML}`;
+  }
+  const sum = esc(summary(T));
+  if (T.ok) return `<b class="h">Попал!${pts}</b> ${sum}${nr ? `<span class="why">${esc(nr)}.</span>` : ''}`;
+  const v = T.v;
+  let verdict = '';
+  if (T.ask === 'count') verdict = `Подходящих чисел ${T.answer}, а не ${fmt(v)}.`;
+  else if (!inDom(T, v)) verdict = `Число ${fmt(v)} — ${DOMS[T.dom].not}.`;
+  else {
+    const fits = ev(T.e, v) === T.want;
+    verdict = (fits
+      ? `При X = ${fmt(v)} высказывание ${T.want ? 'истинно' : 'ложно'}, но это не ${extWord(T)} такое число.`
+      : `При X = ${fmt(v)} высказывание ${T.want ? 'ложно' : 'истинно'}, а нужно — ${T.want ? 'истинно' : 'ложно'}.`) +
+      `<span class="why">${subHTML(T, v)}</span>`;
+  }
+  return `<b class="h">Промах.</b> Правильный ответ — <b>${fmt(T.answer)}</b>. ${verdict}<span class="why">${sum}${nrHTML}</span>${trapHTML}`;
+}
+
+function btn(text, cls, fn){ const b = document.createElement('button'); b.className = 'btn ' + cls; b.innerHTML = text; b.onclick = fn; return b; }
+function renderActions(){
+  const T = S.task, act = $('actions'); act.innerHTML = '';
+  if (!S.running || S.exam || !T.done) return;
+  const sp = document.createElement('span'); sp.className = 'sp'; act.appendChild(sp);
+  act.appendChild(btn('Дальше →', 'main', newTask));
+}
+
+/* ---------- конец раунда ---------- */
+function end(){
+  if (!S || !S.running) return;
+  clearTimeout(S.nextTimer);
+  S.running = false; S.paused = false; sfx.end();
+  $('pauseScreen').hidden = true; $('helpScreen').hidden = true;
+  $('rExam').hidden = !S.exam; $('rTrain').hidden = S.exam;
+  $('againBtn').hidden = S.exam; $('printBtn').hidden = !S.exam;
+  if (S.exam){
+    $('clock').textContent = '0:00';
+    $('xGrade').textContent = gradeFor(S.pts);
+    $('xName').textContent = S.name;
+    $('xDate').textContent = S.startedAt.toLocaleString('ru-RU', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) + ` · ${EXAM.minutes} минут`;
+    $('xPts').textContent = S.pts;
+    $('xAway').textContent = S.away ? `Уходил со страницы: ${S.away} ${plural(S.away, 'раз', 'раза', 'раз')}` : 'Со страницы не уходил';
+    $('xAway').style.color = S.away ? 'var(--bad)' : 'var(--good)';
+    const used = Object.keys(S.byLvl).filter(k => S.byLvl[k].n);
+    $('xTable').innerHTML = '<tr><th>Уровень</th><th>Попаданий</th><th>Баллы</th></tr>' +
+      used.map(k => `<tr><td>${LEVELS[k].name}</td><td>${S.byLvl[k].ok} из ${S.byLvl[k].n}</td><td>${S.byLvl[k].pts}</td></tr>`).join('') +
+      `<tr><th>Итого</th><th>${used.reduce((s, k) => s + S.byLvl[k].ok, 0)}</th><th>${S.pts}</th></tr>`;
+    $('xLog').innerHTML = S.log.length
+      ? '<tr><th>№</th><th>Задание</th><th>Ответ</th><th>Верно</th></tr>' + S.log.map(({ T, v, ok }, i) =>
+          `<tr><td>${i + 1}</td><td>${T.ask === 'count' ? 'сколько ' + DOMS[T.dom].many : extWord(T) + ' ' + DOMS[T.dom].one}, ${T.want ? 'истинно' : 'ложно'}:<br><code>${esc(T.text)}</code>` +
+          (ok || v == null ? '' : `<br><small>${T.trap ? ERR[T.trap][0] + ': ' : ''}${esc(T.trap ? ERR[T.trap][1] : summary(T))}</small>`) +
+          `</td><td class="${ok ? 'ok' : 'no'}">${v == null ? 'пропуск' : fmt(v)}</td><td>${fmt(T.answer)}</td></tr>`).join('')
+      : '<tr><td>Ни одного ответа</td></tr>';
+  }
+  $('rScore').textContent = S.score; $('rSolved').textContent = S.solved; $('rStreak').textContent = S.best;
+  $('rAcc').textContent = (S.answers ? Math.round(S.solved / S.answers * 100) : 0) + '%';
+  if (!S.exam){
+    const prev = +store.get(bestKey()) || 0;
+    $('rRecord').hidden = !(S.score > prev && S.score > 0);
+    if (S.score > prev) store.set(bestKey(), S.score);
+  }
+  const weak = Object.entries(S.errs).sort((a, b) => b[1] - a[1]);
+  $('rWeak').innerHTML = weak.length
+    ? `<h3>Над чем поработать</h3><ul class="weak">${weak.map(([k, n]) => `<li><b>${ERR[k][0]}</b> — ошибок: ${n}<br><span class="x">${esc(ERR[k][1])}</span></li>`).join('')}</ul>`
+    : (S.answers ? '<p class="record">Ни одного промаха!</p>' : '');
+  $('endScreen').hidden = false; (S.exam ? $('menuBtn') : $('againBtn')).focus();
+}
+
+/* ---------- пауза, справка, таймер ---------- */
+function setPause(p){
+  if (!S || !S.running || S.exam) return;
+  S.paused = p; $('pauseScreen').hidden = !p; if (p) $('resumeBtn').focus();
+}
+let helpResume = false;
+function openHelp(){
+  if (S && S.running && S.exam) return;
+  if (S && S.running && !S.paused){ S.paused = true; helpResume = true; }
+  $('helpScreen').hidden = false; $('helpClose').focus();
+}
+function closeHelp(){
+  $('helpScreen').hidden = true;
+  if (helpResume && S && S.running) S.paused = false;
+  helpResume = false;
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden || !S || !S.running) return;
+  if (S.exam) S.away++;
+  else if ($('helpScreen').hidden) setPause(true);
+});
+
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (S && S.running && S.exam){
+    S.t = (Date.now() - S.t0) / 1000;                      // по настоящим часам: пауз нет
+    const left = Math.max(0, Math.ceil(S.dur - S.t));
+    $('clock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    $('pTime').classList.toggle('warn', left <= 60);
+  }
+  if (S && S.running && S.dur && (S.exam || !S.paused)){
+    if (!S.exam) S.t += dt;
+    $('timefill').style.transform = `scaleX(${Math.max(0, 1 - S.t / S.dur)})`;
+    $('timebar').classList.toggle('low', S.dur - S.t < 20);
+    if (S.t >= S.dur) end();
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- управление ---------- */
+$('range').addEventListener('click', e => {
+  const b = e.target.closest('.num');
+  if (b) aimAt(+b.dataset.x);
+});
+$('shot').addEventListener('input', () => {
+  const v = parseNum($('shot').value), T = S && S.task;
+  if (!T || T.done || T.mode === 'mark' || T.ask === 'count') return;
+  T.aim = v; renderRange();
+});
+$('shot').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); e.stopPropagation(); fire(); } });
+$('fireBtn').onclick = fire;
+$('hintBtn').onclick = () => { if (S && S.running && !S.exam && !S.task.done){ S.task.hint = true; render(); } };
+$('skipBtn').onclick = skip;
+addEventListener('keydown', e => {
+  if (!$('helpScreen').hidden){ if (e.key === 'Escape') closeHelp(); return; }
+  if (!S || !S.running) return;
+  if (e.key === 'Escape'){ if (!S.exam) setPause(!S.paused); return; }
+  if (S.paused || document.activeElement === $('studentName') || document.activeElement === $('shot')) return;
+  const T = S.task;
+  if (T.done){
+    if (e.key === 'Enter' && !S.exam){
+      if (document.activeElement && document.activeElement.classList.contains('btn')) return;   // кнопка сработает сама
+      e.preventDefault(); newTask();
+    }
+    return;
+  }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight'){ e.preventDefault(); moveAim(e.key === 'ArrowLeft' ? -1 : 1); }
+  else if (e.key === 'Enter'){
+    if (document.activeElement && document.activeElement.classList.contains('btn')) return;
+    e.preventDefault(); fire();
+  }
+  else if (T.mode !== 'mark' && /^[0-9-]$/.test(e.key)){ const i = $('shot'); i.focus(); }   // символ попадёт в поле сам
+});
+$('startBtn').onclick = start;
+$('againBtn').onclick = start;
+$('printBtn').onclick = () => print();
+$('menuBtn').onclick = () => {
+  $('endScreen').hidden = true; $('startScreen').hidden = false;
+  ['pTime', 'pPts', 'pGrade'].forEach(id => $(id).hidden = true);
+  ['pScore', 'pStreak', 'pSolved', 'helpBtn', 'pauseBtn'].forEach(id => $(id).hidden = false);
+  renderMenu();
+};
+$('studentName').addEventListener('input', e => e.target.classList.remove('need'));
+$('studentName').addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+$('helpBtn').onclick = openHelp;
+$('helpBtn2').onclick = openHelp;
+$('helpClose').onclick = closeHelp;
+$('pauseBtn').onclick = () => setPause(true);
+$('resumeBtn').onclick = () => setPause(false);
+$('finishBtn').onclick = end;
+$('quitBtn').onclick = () => { clearTimeout(S.nextTimer); S.running = false; S.paused = false; $('pauseScreen').hidden = true; $('startScreen').hidden = false; renderMenu(); };
+$('muteBtn').onclick = () => setMute(!muted);
+addEventListener('resize', () => { if (S && S.task && !S.task.win) renderRange(); });
+
+// пример на фоне меню
+S = { running:false, paused:false, exam:false, score:0, streak:0, mult:1, solved:0, answers:0, task:null, taskNo:0 };
+S.task = genTask(3);
+render();
+setMute(muted); renderMenu(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -2,12 +2,13 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { isLocalGame } from '../lib';
+import { SITE } from '../config';
 
 export const GET: APIRoute = async ({ site }) => {
   const base = import.meta.env.BASE_URL;
   const items = await getCollection('items');
   const school = items.filter(i => i.data.type === 'game' || i.data.type === 'trainer');
-  const grades = [...new Set(school.flatMap(i => i.data.grades))].sort((a, b) => a - b);
+  const grades = SITE.grades.filter(g => school.some(i => i.data.grades.includes(g)));   // пустые классы в карту не попадают
   const day = (d?: Date) => d?.toISOString().slice(0, 10);
   const urls: [string, string?][] = [
     ['', undefined],

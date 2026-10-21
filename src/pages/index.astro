@@ -10,7 +10,8 @@ import { SITE, ACCESS } from '../config';
 import { playHref, pageHref, gradeLabel, klassHref, klassName, colorVars } from '../lib';
 const all = (await getCollection('items')).sort((a, b) => a.data.order - b.data.order);
 const school = all.filter(i => i.data.type === 'game' || i.data.type === 'trainer');
-const grades = [...new Set(school.flatMap(i => i.data.grades))].sort((a, b) => a - b);
+const grades = SITE.grades;
+const filled = grades.filter(g => school.some(i => i.data.grades.includes(g)));   // полки — только для классов с материалами
 const more = all.filter(i => i.data.type === 'course' || i.data.type === 'app');
 // «Новое» — последний опубликованный материал (по полю added), при равных датах — отмеченный featured
 const time = (i: typeof all[number]) => i.data.added?.getTime() ?? 0;
@@ -66,16 +67,16 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
       <h2>Уроки по классам</h2>
       <div class="tiles">
         {grades.map(g => (
-          <a class="tile" href={klassHref(g)}>
+          <a class={`tile${filled.includes(g) ? '' : ' empty'}`} href={klassHref(g)}>
             <b>{g}</b>
-            <span>{g === 9 ? 'класс · ОГЭ' : 'класс'}</span>
+            <span>{!filled.includes(g) ? 'скоро' : g === 9 ? 'класс · ОГЭ' : g === 11 ? 'класс · ЕГЭ' : 'класс'}</span>
           </a>
         ))}
       </div>
     </div>
   </section>
 
-  {grades.map(g => (
+  {filled.map(g => (
     <section class="shelf">
       <div class="wrap">
         <div class="head"><h2>{klassName(g)}</h2><a href={klassHref(g)}>Все уроки {g} класса →</a></div>
@@ -132,6 +133,7 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
     transition:border-color 180ms var(--ease-out),background-color 180ms var(--ease-out),transform 160ms var(--ease-out)}
   @media (hover:hover) and (pointer:fine){ .tile:hover{border-color:var(--accent);background:var(--tint)} }
   .tile:active{transform:scale(.97)}
+  .tile.empty b{color:var(--soft);opacity:.7}
   .tile b{font:800 clamp(40px,5vw,52px)/1 var(--display);color:var(--accent);letter-spacing:-.03em}
   .tile span{font-weight:700;font-size:16px;color:var(--soft)}
 

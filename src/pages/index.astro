@@ -65,16 +65,12 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
     <div class="wrap">
       <h2>Уроки по классам</h2>
       <div class="tiles">
-        {grades.map(g => {
-          const n = school.filter(i => i.data.grades.includes(g)).length;
-          return (
-            <a class="tile" href={klassHref(g)}>
-              <b>{g}</b>
-              <span>{klassName(g)}</span>
-              <small>{n} {n === 1 ? 'игра' : n < 5 ? 'игры' : 'игр'} по порядку учебника →</small>
-            </a>
-          );
-        })}
+        {grades.map(g => (
+          <a class="tile" href={klassHref(g)}>
+            <b>{g}</b>
+            <span>{g === 9 ? 'класс · ОГЭ' : 'класс'}</span>
+          </a>
+        ))}
       </div>
     </div>
   </section>
@@ -130,14 +126,14 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
 
   .pick{padding-bottom:0}
   .pick h2{font-size:clamp(18px,1.8vw,22px)}
-  .tiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
-  .tile{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:14px;align-items:center;
-    padding:12px 16px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);text-decoration:none;transition:border-color 180ms var(--ease-out),transform 160ms var(--ease-out)}
-  @media (hover:hover) and (pointer:fine){ .tile:hover{border-color:var(--accent)} }
-  .tile:active{transform:scale(.98)}
-  .tile b{grid-row:span 2;font:800 32px/1 var(--display);color:var(--accent)}
-  .tile span{font-weight:700;font-size:16px}
-  .tile small{color:var(--soft);font-size:13px}
+  .tiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,100px),1fr))}
+  .tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:104px;padding:14px 8px;
+    border-radius:16px;background:var(--surface);border:1.5px solid var(--line);text-decoration:none;text-align:center;
+    transition:border-color 180ms var(--ease-out),background-color 180ms var(--ease-out),transform 160ms var(--ease-out)}
+  @media (hover:hover) and (pointer:fine){ .tile:hover{border-color:var(--accent);background:var(--tint)} }
+  .tile:active{transform:scale(.97)}
+  .tile b{font:800 clamp(40px,5vw,52px)/1 var(--display);color:var(--accent);letter-spacing:-.03em}
+  .tile span{font-weight:700;font-size:16px;color:var(--soft)}
 
   .shelf{padding-bottom:0}
   .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}

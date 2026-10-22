@@ -274,7 +274,7 @@ const EXAM = {
   seq: ['add', 'sub', 'mul'],                         // примеры идут по кругу
   lenAt: n => n < 3 ? 3 : n < 6 ? 4 : 5,              // длина чисел по номеру примера (с нуля)
   points: { add:2, sub:2, mul:3 },
-  errorPenalty: 1,                                    // минус за пример, решённый с ошибками
+  errorPenalty: 1,                                    // минус за каждую неверную проверку и каждую неверную цифру в ней (итог не меньше 0)
   grades: [[14, 5], [10, 4], [6, 3], [0, 2]]          // [от скольких баллов, оценка]
 };
 const ERR_TIPS = {
@@ -299,7 +299,7 @@ let cfg = { kind:'exam', op:'add', base:2, len:4, carry:'self', dur:300 };
 let S = null;
 let muted = store.get('stolbik:muted') === '1';
 const bestKey = () => `stolbik:best:${cfg.op}:${cfg.base}:${cfg.len}:${cfg.carry}:${cfg.dur}`;
-const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+const gradeFor = pts => (EXAM.grades.find(([min]) => pts >= min) || EXAM.grades[EXAM.grades.length - 1])[1];
 
 /* ---------- звук ---------- */
 let ac = null;
@@ -344,7 +344,7 @@ function renderMenu(){
       <tr><td>Сложение в столбик</td><td>${P.add}</td></tr>
       <tr><td>Вычитание в столбик</td><td>${P.sub}</td></tr>
       <tr><td>Умножение в столбик</td><td>${P.mul}</td></tr>
-      <tr><td colspan="2">Если при проверке была ошибка, а потом ты её исправил — минус ${EXAM.errorPenalty} балл (но не меньше 1).</td></tr>`;
+      <tr><td colspan="2">Если проверка нашла ошибки — минус ${EXAM.errorPenalty} за саму проверку и ещё по ${EXAM.errorPenalty} за каждую неверную цифру, но не меньше 0 за пример. Проверяй, когда уверен в ответе.</td></tr>`;
     $('critGrades').innerHTML = EXAM.grades.map(([min, g], i) =>
       `<tr><td class="g2">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${min} баллов` : `меньше ${EXAM.grades[i-1][0]} баллов`}</td></tr>`).join('');
     $('examRules').innerHTML = [
@@ -614,7 +614,7 @@ function check(){
   if (T.carryMode === 'self') Object.keys(T.cor).filter(k => k[0] === 'c').forEach(k => { if ((T.val[k] || 0) !== T.cor[k]) T.warn.add(k); });
   if (!T.bad.size) return solve();
   S.attempts += T.clean ? 1 : 0;
-  T.clean = false; S.errs[T.op]++; streakBreak(); S.score = Math.max(0, S.score - 3); sfx.bad();
+  T.clean = false; T.miss = (T.miss || 0) + T.bad.size + 1;   // +1 — сама неверная проверка S.errs[T.op]++; streakBreak(); S.score = Math.max(0, S.score - 3); sfx.bad();
   const first = T.seq.find(k => T.bad.has(k));
   T.cur = T.seq.indexOf(first); T.hotP = posOf(first);
   feedback(`Ошибок: ${T.bad.size}. ${explain(first)}${T.warn.size ? ' Оранжевым отмечены переносы, которые не сходятся.' : ''}`, 'bad');
@@ -633,13 +633,15 @@ function solve(){
   if (T.clean){ S.attempts++; S.firstOk++; }
   T.phase = 'done'; T.hotP = undefined; S.solved++;
   if (T.clean) streakUp();
-  const pts = (T.clean ? 10 : 5) * S.mult;
+  // после неверной проверки красные клетки уже показали, где ошибка, — в двоичной это почти готовый ответ,
+  // поэтому очки за исправление зависят от того, сколько цифр было неверно
+  const pts = T.clean ? 10 * S.mult : Math.max(0, 5 - 2 * T.miss);
   S.score += pts; sfx.good();
-  let msg = `Верно! +${pts}`;
+  let msg = pts ? `Верно! +${pts}` : 'Верно, но после исправления многих цифр очков нет';
   if (S.exam){
-    const ep = Math.max(1, EXAM.points[T.op] - (T.clean ? 0 : EXAM.errorPenalty));
+    const ep = Math.max(0, EXAM.points[T.op] - (T.clean ? 0 : T.miss * EXAM.errorPenalty));
     S.pts += ep; S.byType[T.op].ok++; S.byType[T.op].pts += ep;
-    msg = `Верно! +${ep} ${ep === 1 ? 'балл' : 'балла'}${T.clean ? '' : ' (была ошибка)'}`;
+    msg = `Верно! +${ep} ${ep === 1 ? 'балл' : ep >= 2 && ep <= 4 ? 'балла' : 'баллов'}${T.clean ? '' : ' (были ошибки)'}`;
   }
   feedback(msg + (T.warn.size ? '. Ответ верный, но некоторые переносы записаны неправильно — посмотри на оранжевые.' : ''), 'good');
   $('check').innerHTML = decimalCheck();
@@ -768,6 +770,7 @@ addEventListener('keydown', e => {
   if (!S || !S.running) return;
   if (e.key === 'Escape'){ if (!S.exam) setPause(!S.paused); return; }
   if (S.paused) return;
+  if (e.repeat && !e.key.startsWith('Arrow') && e.key !== 'Backspace') return;   // зажатая клавиша не вводит цифры сама
   const T = S.task;
   if (T.phase === 'input'){
     const v = parseInt(e.key, 16);

@@ -325,7 +325,8 @@ X ≥ 5 И X &lt; 9  →  5, 6, 7, 8
 const EXAM = {
   minutes: 10,
   seq: [3, 3, 4, 5, 3, 6, 4, 5, 7, 6, 5, 7],      // уровни заданий по порядку, дальше по кругу
-  points: { 3:1, 4:2, 5:2, 6:2, 7:3 },             // за попадание; промах — 0 баллов
+  points: { 3:1, 4:2, 5:2, 6:2, 7:3 },             // за попадание
+  missPenalty: 1,                                  // минус за промах: стрелять наугад невыгодно, пропуск — 0
   grades: [[14, 5], [10, 4], [6, 3], [0, 2]]       // [от скольких баллов, оценка]
 };
 
@@ -647,7 +648,7 @@ function chip(html, pressed, fn){
   b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b;
 }
 function chips(id, list){ const c = $(id); c.innerHTML = ''; list.forEach(x => c.appendChild(x)); }
-const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+const gradeFor = pts => (EXAM.grades.find(([min]) => pts >= min) || EXAM.grades[EXAM.grades.length - 1])[1];
 function renderMenu(){
   chips('kindTabs', [
     chip('📝 Контрольная на оценку', cfg.kind === 'exam', () => { cfg.kind = 'exam'; renderMenu(); }),
@@ -666,7 +667,7 @@ function renderMenu(){
     $('examRules').innerHTML = [
       `Работа идёт ровно ${EXAM.minutes} минут, закончить раньше нельзя. Когда время выйдет, оценка появится сама.`,
       'На каждое задание — один выстрел: наведи на число и нажми «Огонь» или впиши число в поле.',
-      'Промах — 0 баллов, штрафа нет. Трудное задание можно пропустить.',
+      `Промах — минус ${EXAM.missPenalty} балл. Пропуск — 0 баллов: не уверен — лучше пропусти, чем стрелять наугад.`,
       'Справка и разбор во время работы закрыты. Разбор всех заданий — на экране результата.',
       'Если уйти со страницы или переключить вкладку, это будет видно в результате.'
     ].map(x => `<li>${x}</li>`).join('');
@@ -752,6 +753,9 @@ function score(T, ok){
     else { const p = Math.round(LEVELS[T.level].pts * S.mult / (T.hint ? 2 : 1)); S.score += p; T.delta = p; }
   } else {
     streakBreak(); sfx.bad();
+    // промах стоит очков, иначе выгодно стрелять наугад
+    if (S.exam){ S.pts -= EXAM.missPenalty; S.byLvl[T.level].pts -= EXAM.missPenalty; }
+    else { const p = Math.min(S.score, 5); S.score -= p; T.delta = -p; }
     const key = T.trap || 'calc';
     S.errs[key] = (S.errs[key] || 0) + 1;
   }
@@ -817,7 +821,8 @@ function windowFor(T){
     while (b - a + 1 < W){ a--; if (b - a + 1 < W) b++; }
     return [a, b];
   }
-  const k = 3 + Math.round(T.off * (W - 7));
+  const m = W >= 13 ? 3 : 1;                                     // на узком экране отступ меньше, иначе ответ всегда в середине
+  const k = m + Math.round(T.off * (W - 1 - 2 * m));
   let a = T.answer - k;
   if (T.dom !== 'int'){                                          // за краем области — не больше двух серых чисел
     const D = DOMS[T.dom];
@@ -900,13 +905,13 @@ function renderRange(justDone = false){
 }
 
 function feedbackHTML(T){
-  const pts = T.delta ? ` +${T.delta}` : '';
+  const pts = T.delta > 0 ? ` +${T.delta}` : T.delta < 0 ? ` −${-T.delta}` : '';
   const nr = notRules(T), nrHTML = nr ? ` ${esc(nr)}.` : '';
   const trapHTML = T.trap ? `<span class="why"><b>Похоже на ошибку «${ERR[T.trap][0]}».</b> ${esc(ERR[T.trap][1])}</span>` : '';
   if (T.mode === 'mark'){
     if (T.ok) return `<b class="h">Точно!${pts}</b> Все ${T.target.length} ${plural(T.target.length, 'число', 'числа', 'чисел')} отмечены.<span class="why">${nrHTML}</span>`;
     const bad = T.miss[0] != null ? T.miss[0] : T.extra[0];
-    return `<b class="h">Не совсем.</b> ` +
+    return `<b class="h">Не совсем.${pts}</b> ` +
       (T.miss.length ? `Не отмечены: ${T.miss.map(fmt).join(', ')}. ` : '') +
       (T.extra.length ? `Лишние: ${T.extra.map(fmt).join(', ')}. ` : '') +
       `<span class="why">Проверим X = ${fmt(bad)}:<br>${subHTML(T, bad)}${nr ? '<br>' + esc(nr) + '.' : ''}</span>${trapHTML}`;
@@ -924,7 +929,7 @@ function feedbackHTML(T){
       : `При X = ${fmt(v)} высказывание ${T.want ? 'ложно' : 'истинно'}, а нужно — ${T.want ? 'истинно' : 'ложно'}.`) +
       `<span class="why">${subHTML(T, v)}</span>`;
   }
-  return `<b class="h">Промах.</b> Правильный ответ — <b>${fmt(T.answer)}</b>. ${verdict}<span class="why">${sum}${nrHTML}</span>${trapHTML}`;
+  return `<b class="h">Промах.${pts}</b> Правильный ответ — <b>${fmt(T.answer)}</b>. ${verdict}<span class="why">${sum}${nrHTML}</span>${trapHTML}`;
 }
 
 function btn(text, cls, fn){ const b = document.createElement('button'); b.className = 'btn ' + cls; b.innerHTML = text; b.onclick = fn; return b; }
@@ -1026,7 +1031,7 @@ $('shot').addEventListener('input', () => {
   if (!T || T.done || T.mode === 'mark' || T.ask === 'count') return;
   T.aim = v; renderRange();
 });
-$('shot').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); e.stopPropagation(); fire(); } });
+$('shot').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); e.stopPropagation(); if (!e.repeat) fire(); } });
 $('fireBtn').onclick = fire;
 $('hintBtn').onclick = () => { if (S && S.running && !S.exam && !S.task.done){ S.task.hint = true; render(); } };
 $('skipBtn').onclick = skip;
@@ -1035,6 +1040,7 @@ addEventListener('keydown', e => {
   if (!S || !S.running) return;
   if (e.key === 'Escape'){ if (!S.exam) setPause(!S.paused); return; }
   if (S.paused || document.activeElement === $('studentName') || document.activeElement === $('shot')) return;
+  if (e.repeat && !e.key.startsWith('Arrow')) return;           // зажатая клавиша не стреляет сама
   const T = S.task;
   if (T.done){
     if (e.key === 'Enter' && !S.exam){

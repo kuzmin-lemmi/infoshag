@@ -308,7 +308,8 @@ const EXAM = {
   seq: ['table', 'sub', 'det'],                                   // задания идут по кругу
   levelAt: n => n < 3 ? 'warm' : n < 6 ? 'mid' : 'hard',         // n — номер задания с нуля
   points: { table:{ warm:2, mid:3, hard:4 }, sub:1, det:2 },
-  errorPenalty: 1,                                                // минус за таблицу с ошибками
+  errorPenalty: 1,                                                // минус за каждую неверную клетку или ошибку порядка в таблице
+  wrongPenalty: { sub:2, det:1 },                                 // минус за неверный выбор: отвечать наугад невыгодно
   grades: [[16, 5], [11, 4], [6, 3], [0, 2]]                      // [от скольких баллов, оценка]
 };
 const TYPE_NAMES = { table:'Таблица истинности', sub:'Вычисли значение', det:'Детектив' };
@@ -440,7 +441,7 @@ function chip(html, pressed, fn){
   b.setAttribute('aria-pressed', pressed); b.onclick = fn; return b;
 }
 function chips(id, list){ const c = $(id); c.innerHTML = ''; list.forEach(x => c.appendChild(x)); }
-const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+const gradeFor = pts => (EXAM.grades.find(([min]) => pts >= min) || EXAM.grades[EXAM.grades.length - 1])[1];
 function renderMenu(){
   chips('kindTabs', [
     chip('📝 Контрольная на оценку', cfg.kind === 'exam', () => { cfg.kind = 'exam'; renderMenu(); }),
@@ -453,15 +454,15 @@ function renderMenu(){
     $('examMin').textContent = EXAM.minutes;
     const P = EXAM.points;
     $('critPts').innerHTML = `<tr><th>Задание</th><th>Баллы</th></tr>
-      <tr><td><b>Таблица истинности</b><br>расставить порядок действий и заполнить таблицу</td><td>${P.table.warm} / ${P.table.mid} / ${P.table.hard} — по сложности<br>−${EXAM.errorPenalty}, если были ошибки</td></tr>
-      <tr><td><b>Вычисли значение</b><br>найти F при заданных A, B, C</td><td>${P.sub}</td></tr>
-      <tr><td><b>Детектив</b><br>выбрать формулу по готовой таблице</td><td>${P.det}</td></tr>`;
+      <tr><td><b>Таблица истинности</b><br>расставить порядок действий и заполнить таблицу</td><td>${P.table.warm} / ${P.table.mid} / ${P.table.hard} — по сложности<br>−${EXAM.errorPenalty} за каждую неверную клетку, но не меньше 0</td></tr>
+      <tr><td><b>Вычисли значение</b><br>найти F при заданных A, B, C</td><td>${P.sub}<br>неверно: −${EXAM.wrongPenalty.sub}</td></tr>
+      <tr><td><b>Детектив</b><br>выбрать формулу по готовой таблице</td><td>${P.det}<br>неверно: −${EXAM.wrongPenalty.det}</td></tr>`;
     $('critGrades').innerHTML = EXAM.grades.map(([min, g], i) =>
       `<tr><td class="g">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${min} баллов` : `меньше ${EXAM.grades[i-1][0]} баллов`}</td></tr>`).join('');
     $('examRules').innerHTML = [
       `Работа идёт ровно ${EXAM.minutes} минут, закончить раньше нельзя. Когда время выйдет, оценка появится сама.`,
       'Подсказки и справка во время работы отключены.',
-      'Задание можно пропустить, но баллов за него не будет.',
+      'Задание можно пропустить, но баллов за него не будет. Не уверен — лучше пропусти: за неверный выбор баллы снимаются.',
       'Задание, которое не успел закончить к концу времени, не засчитывается.',
       'Если уйти со страницы или переключить вкладку, это будет видно в результате.'
     ].map(x => `<li>${x}</li>`).join('');
@@ -530,6 +531,11 @@ function examAward(kind, pts){
   if (!S.exam) return;
   S.pts += pts; S.byType[kind].ok++; S.byType[kind].pts += pts;
 }
+// неверный выбор в «Вычисли» и «Детективе»: угадывание не должно приносить очков
+function wrongChoice(kind, trainPenalty){
+  if (S.exam){ const p = EXAM.wrongPenalty[kind]; S.pts -= p; S.byType[kind].pts -= p; return `−${p} ${p === 1 ? 'балл' : 'балла'}`; }
+  const p = Math.min(S.score, trainPenalty); S.score -= p; return p ? `−${p}` : '';
+}
 
 /* ---------- таблица ---------- */
 function makeTable(level = cfg.level){
@@ -546,7 +552,7 @@ function makeTable(level = cfg.level){
   }));
   const ordering = cfg.order && cols.length > 1;
   return { kind:'table', level, ...g, cols, byKey, order: ordering ? [] : cols.map((_, i) => i),
-           phase: ordering ? 'order' : 'fill', ac:0, cur:0, clean:true };
+           phase: ordering ? 'order' : 'fill', ac:0, cur:0, clean:true, miss:0 };
 }
 const colOf = n => S.task.byKey.get(key(n));
 function childCols(ci){
@@ -600,12 +606,12 @@ function pickOp(ci){
   if (!S.running || S.paused || T.kind !== 'table' || T.phase !== 'order' || T.order.includes(ci)) return;
   const missing = childCols(ci).filter(k => !T.order.includes(k));
   if (missing.length){
-    S.errs.order++; streakBreak(); sfx.bad(); T.clean = false;
+    S.errs.order++; streakBreak(); sfx.bad(); T.clean = false; T.miss++;
     feedback(`Рано. Эта операция работает с результатом ${esc(nm(T.cols[missing[0]].node))} — его нужно вычислить раньше.`, 'bad');
     document.querySelectorAll(`#formula .op[data-c="${ci}"]`).forEach(o => { o.classList.remove('shake'); void o.offsetWidth; o.classList.add('shake'); });
     updateHud(); return;
   }
-  T.order.push(ci); S.score += 2; sfx.tap();
+  T.order.push(ci); sfx.tap();
   if (T.order.length === T.cols.length){
     T.phase = 'fill'; T.ac = 0; T.cur = 0; sfx.good();
     feedback('Порядок верный! Теперь заполняй столбцы таблицы.', 'good');
@@ -661,14 +667,15 @@ function checkCol(){
   if (!wrong.length){
     S.okChecks++; c.done = true; c.justDone = true;
     let pts;
-    if (c.hinted) pts = 2;
-    else { if (c.firstTry) streakUp(); pts = (c.firstTry ? 5 : 3) * S.mult; }
+    if (!c.firstTry) pts = 0;                    // после проверки красные клетки уже показали ответ
+    else if (c.hinted) pts = 2;
+    else { streakUp(); pts = 5 * S.mult; }
     S.score += pts; T.ac++; T.cur = 0; sfx.good();
     if (T.ac >= T.order.length) return solveTable(pts);
     const nx = T.cols[T.order[T.ac]];
     feedback(`Верно! +${pts}. Следующий столбец: ${nx.isRoot ? 'F' : esc(txt(nx.node, cfg.nt))}.`, 'good');
   } else {
-    c.bad = new Set(wrong); c.firstTry = false; T.clean = false;
+    c.bad = new Set(wrong); c.firstTry = false; T.clean = false; T.miss += wrong.length;
     S.errs[c.node.t]++; streakBreak(); S.score = Math.max(0, S.score - 2); sfx.bad();
     T.cur = wrong[0];
     feedback(explain(c, wrong[0], true) + (wrong.length > 1 ? ` Всего ошибок в столбце: ${wrong.length}.` : ''), 'bad');
@@ -678,13 +685,14 @@ function checkCol(){
 
 function solveTable(lastPts){
   const T = S.task; T.phase = 'done';
-  const bonus = T.clean ? 10 * S.mult : 5;
+  const bonus = T.clean ? 10 * S.mult : 0;
   S.score += bonus; S.solved++; sfx.solved();
   if (S.exam){
-    const pts = Math.max(1, EXAM.points.table[T.level] - (T.clean ? 0 : EXAM.errorPenalty));
+    const pts = Math.max(0, EXAM.points.table[T.level] - T.miss * EXAM.errorPenalty);
     examAward('table', pts);
-    feedback(`Таблица готова! +${pts} ${pts === 1 ? 'балл' : 'балла'}${T.clean ? ' — без единой ошибки' : ' (были ошибки)'}.`, 'good');
-  } else feedback(`Функция решена! +${lastPts} за столбец и +${bonus} за всю таблицу${T.clean ? ' без ошибок' : ''}.`, 'good');
+    feedback(`Таблица готова! +${pts} ${pts === 1 ? 'балл' : pts >= 2 && pts <= 4 ? 'балла' : 'баллов'}${T.clean ? ' — без единой ошибки' : ` (ошибок: ${T.miss})`}.`, 'good');
+  } else feedback(T.clean ? `Функция решена! +${lastPts} за столбец и +${bonus} за всю таблицу без ошибок.`
+                          : 'Функция решена. За таблицу с ошибками бонуса нет — следующую попробуй без ошибок.', 'good');
   updateHud(); render();
   setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
 }
@@ -751,9 +759,10 @@ function choose(i){
     feedback(`Верно! +${S.exam ? EXAM.points.det + ' балла' : pts}. Именно эта формула даёт такую таблицу.`, 'good');
   } else {
     S.errs.det++; streakBreak(); sfx.bad();
+    const fine = wrongChoice('det', 10);
     const v = vec(T.opts[i].tree, T.rows);
     const diff = T.rows.map((_, r) => v[r] !== T.F[r] ? r + 1 : 0).filter(Boolean);
-    feedback(`Не та формула: в ${diff.length > 1 ? 'строках' : 'строке'} ${diff.join(', ')} она даёт другое значение — смотри красные клетки. Правильная отмечена зелёным.`, 'bad');
+    feedback(`Не та формула${fine ? ` (${fine})` : ''}: в ${diff.length > 1 ? 'строках' : 'строке'} ${diff.join(', ')} она даёт другое значение — смотри красные клетки. Правильная отмечена зелёным.`, 'bad');
   }
   updateHud(); render();
   setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
@@ -792,7 +801,8 @@ function answerSub(v){
     feedback(`Верно! ${steps}`, 'good');
   } else {
     S.errs.sub++; streakBreak(); sfx.bad();
-    feedback(`Неверно. Считаем по шагам: ${steps}`, 'bad');
+    const fine = wrongChoice('sub', 10);
+    feedback(`Неверно${fine ? ` (${fine})` : ''}. Считаем по шагам: ${steps}`, 'bad');
   }
   updateHud(); render();
   setTimeout(() => { const b = $('actions').querySelector('.main'); if (b) b.focus(); }, 0);
@@ -938,6 +948,7 @@ addEventListener('keydown', e => {
   if (!S || !S.running) return;
   if (e.key === 'Escape'){ if (!S.exam) setPause(!S.paused); return; }
   if (S.paused) return;
+  if (e.repeat && !e.key.startsWith('Arrow') && e.key !== 'Backspace') return;   // зажатая клавиша не отвечает сама
   const T = S.task;
   if (T.kind === 'table' && T.phase === 'fill'){
     if (e.key === '0' || e.key === '1'){ e.preventDefault(); setCell(+e.key, true); }

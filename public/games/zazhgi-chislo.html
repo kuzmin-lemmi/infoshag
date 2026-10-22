@@ -288,7 +288,7 @@ function nextTask(){
   let n;
   do { n = 1 + Math.floor(Math.random() * max); } while (S.task && n === S.task.n && max > 2);
   const T = TASKS[type];
-  S.task = { type, ...T, n, fwd: T.to === 2, firstTry:true };
+  S.task = { type, ...T, n, fwd: T.to === 2, firstTry:true, flips:0 };
   S.bits = Array.from({length:8}, (_, p) => S.task.fwd ? 0 : (n >> p) & 1);
   buildPanel(); renderTask();
 }
@@ -381,13 +381,28 @@ function explain(n){
 
 function toggle(p){
   if (!S || !S.running || S.paused || lock || !S.task.fwd) return;
-  S.bits[p] ^= 1; sfx.click(); paintLamps(); setFeedback('', '');
+  S.bits[p] ^= 1; S.task.flips++; sfx.click(); paintLamps(); setFeedback('', '');
   if (cfg.hints && value() === S.task.n) success();
 }
 
+// сколько лишних нажатий на лампочки ещё считается честным решением (несколько исправленных ошибок)
+const FLIP_SLACK = 6;
+const ones = n => n.toString(2).replace(/0/g, '').length;
+
 function success(){
   lock = true;
-  const pts = 10 + 2 * Math.floor(S.streak / 5);
+  const T = S.task;
+  // с подсказками число засчитывается само, поэтому перебор лампочек наугад очков не даёт
+  const brute = T.fwd && T.flips > ones(T.n) + FLIP_SLACK;
+  if (brute){
+    S.streak = 0; S.hits++;
+    if (T.firstTry) S.log.push({ task:T, got:'brute' });
+    $('panel').classList.add('ok'); sfx.good();
+    setFeedback(`Число зажглось, но перебором — очков нет. ${explain(T.n)}`, 'bad'); updateHud();
+    setTimeout(() => { if (S.running) nextTask(); }, 2200);
+    return;
+  }
+  const pts = T.firstTry ? 10 + 2 * Math.floor(S.streak / 5) : 3;        // со второй попытки — меньше, чем штраф за ошибку
   S.score += pts; S.hits++; S.streak++; S.best = Math.max(S.best, S.streak);
   $('panel').classList.add('ok'); sfx.good();
   setFeedback(`Верно! +${pts}`, 'good'); updateHud();
@@ -448,7 +463,7 @@ function end(){
   $('rRecord').hidden = !(S.score > prev && S.score > 0);
   if (S.score > prev) store.set(bestKey(), S.score);
   const items = S.log.slice(-10).map(({task:T, got}) =>
-    `<li><b>${num(T.n, T.from)} → ${num(T.n, T.to)}</b> <span class="x">${got === null ? 'пропущено' : 'у тебя ' + num(got, T.to)}</span></li>`);
+    `<li><b>${num(T.n, T.from)} → ${num(T.n, T.to)}</b> <span class="x">${got === null ? 'пропущено' : got === 'brute' ? 'подобрано перебором' : 'у тебя ' + num(got, T.to)}</span></li>`);
   $('log').innerHTML = items.length
     ? `<h3>Над чем поработать</h3><ul>${items.join('')}</ul>`
     : '<p class="clean">Ни одной ошибки и пропуска!</p>';
@@ -592,6 +607,7 @@ addEventListener('keydown', e => {
   if (!S || !S.running) return;
   if (e.key === 'Escape') return setPause(!S.paused);
   if (S.paused) return;
+  if (e.repeat) return;                                       // зажатая клавиша не щёлкает лампочками сама
   const k = +e.key;
   if (S.task.fwd){
     if (k >= 1 && k <= 8) toggle(8 - k);          // клавиши 1–8 слева направо

@@ -387,7 +387,7 @@ function answerDuel(choice){
   const why = `${expand(a, ba)}&nbsp;&nbsp;${sign}&nbsp;&nbsp;${expand(b, bb)}`;
   if (choice === right){
     (right === 'L' ? $('sideL') : right === 'R' ? $('sideR') : $('eqBtn')).classList.add('good');
-    win(); setFeedback(`Верно! ${num(a,ba)} ${sign} ${num(b,bb)}`, 'good');
+    const pts = win(); setFeedback(`Верно! +${pts}${S.q.helped ? ' (со справкой)' : ''}. ${num(a,ba)} ${sign} ${num(b,bb)}`, 'good');
     setTimeout(next, 1300);
   } else {
     if (choice === 'L') $('sideL').classList.add('bad');
@@ -422,7 +422,7 @@ function pick(c, el){
     sfx.tap(); S.q.placed.push(c); $('seat' + k).appendChild(el);
     if (S.q.placed.length === 4){
       lock = true; S.q.cards.forEach(x => { x.el.classList.add('good'); x.el.querySelector('.d').textContent = '= ' + x.v; });
-      win(); setFeedback('Верно! ' + order.map(x => num(x.v, x.b)).join(' &lt; '), 'good');
+      const pts = win(); setFeedback(`Верно! +${pts}${S.q.helped ? ' (со справкой)' : ''}. ` + order.map(x => num(x.v, x.b)).join(' &lt; '), 'good');
       setTimeout(next, 1500);
     }
   } else failSort(c);
@@ -441,10 +441,12 @@ function failSort(c){
 }
 
 function win(){
+  // справка показывает разбор текущего задания в десятичной — после неё очки как за подсказку
+  if (S.q.helped){ S.score += 2; S.solved++; sfx.good(); updateHud(); return 2; }
   const bonus = Math.ceil(Math.max(0, S.qt));
   const pts = 10 + bonus + 2*Math.floor(S.streak / 5);
   S.score += pts; S.solved++; S.streak++; S.best = Math.max(S.best, S.streak);
-  sfx.good(); updateHud();
+  sfx.good(); updateHud(); return pts;
 }
 function lose(){
   S.lives--; S.streak = 0; sfx.bad(); updateHud();
@@ -473,8 +475,9 @@ function openHelp(){
   if (S && S.running && !S.paused){ S.paused = true; helpResume = true; }
   let example = '';
   if (S && S.running && S.q){
-    if (cfg.mode === 'duel') example = `<h3>Разбор этого задания</h3><div class="calc"><div>${expand(S.q.a, S.q.ba)}</div><div>${expand(S.q.b, S.q.bb)}</div></div>`;
-    else example = `<h3>Разбор этого задания</h3><div class="calc">${S.q.cards.map(c => `<div>${expand(c.v, c.b)}</div>`).join('')}</div>`;
+    if (!lock) S.q.helped = true;
+    if (cfg.mode === 'duel') example = `<h3>Разбор этого задания</h3><p>С разбором за это задание будет только +2 очка.</p><div class="calc"><div>${expand(S.q.a, S.q.ba)}</div><div>${expand(S.q.b, S.q.bb)}</div></div>`;
+    else example = `<h3>Разбор этого задания</h3><p>С разбором за это задание будет только +2 очка.</p><div class="calc">${S.q.cards.map(c => `<div>${expand(c.v, c.b)}</div>`).join('')}</div>`;
   } else {
     example = `<h3>Пример</h3><div class="calc"><div>${expand(13, 8)}</div><div>${expand(13, 16)}</div><div>${expand(13, 2)}</div></div>
       <p>Значит, 15<sub>8</sub> = D<sub>16</sub> = 1101<sub>2</sub> = 13<sub>10</sub> — это одно и то же число, просто записано по-разному.</p>`;
@@ -531,14 +534,14 @@ function loop(now){
 /* ---------- управление ---------- */
 $('sideL').addEventListener('click', () => answerDuel('L'));
 $('sideR').addEventListener('click', () => answerDuel('R'));
-$('sideL').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); answerDuel('L'); } });
-$('sideR').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); answerDuel('R'); } });
+$('sideL').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!e.repeat) answerDuel('L'); } });
+$('sideR').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!e.repeat) answerDuel('R'); } });
 $('eqBtn').onclick = () => answerDuel('E');
 addEventListener('keydown', e => {
   if (!$('helpScreen').hidden){ if (e.key === 'Escape') closeHelp(); return; }
   if (!S || !S.running) return;
   if (e.key === 'Escape') return setPause(!S.paused);
-  if (S.paused) return;
+  if (S.paused || e.repeat) return;                       // зажатая клавиша не отвечает сама
   if (cfg.mode === 'duel'){
     if (e.key === 'ArrowLeft') answerDuel('L');
     if (e.key === 'ArrowRight') answerDuel('R');

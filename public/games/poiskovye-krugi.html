@@ -317,6 +317,7 @@ const EXAM = {
   levelAt: n => n < 3 ? 1 : n < 6 ? 2 : 3,                // уровень по номеру задания (с нуля)
   points: { shade:2, guess:2, count:3 },
   errorPenalty: 1,                                        // минус, если ответ исправлен со второй попытки
+  guessPenalty: 1,                                        // минус за неверный выбор в «Угадай запрос»: отвечать наугад невыгодно
   grades: [[14, 5], [10, 4], [6, 3], [0, 2]]              // [от скольких баллов, оценка]
 };
 const ERR_TIPS = {
@@ -343,7 +344,7 @@ let cfg = { kind:'exam', type:'mix', level:1, nt:'sym', dur:300 };
 let S = null;
 let muted = store.get('krugi:muted') === '1';
 const bestKey = () => `krugi:best:${cfg.type}:${cfg.level}:${cfg.dur}`;
-const gradeFor = pts => EXAM.grades.find(([min]) => pts >= min)[1];
+const gradeFor = pts => (EXAM.grades.find(([min]) => pts >= min) || EXAM.grades[EXAM.grades.length - 1])[1];
 
 /* ================= ГЕОМЕТРИЯ ДИАГРАММЫ ================= */
 const U = { x:12, y:12, w:576, h:496 };
@@ -625,15 +626,15 @@ function renderMenu(){
     const P = EXAM.points;
     $('critPts').innerHTML = `<tr><th>Задание</th><th>Баллы</th></tr>
       <tr><td><b>Закрась запрос</b><br>отметить на кругах области, которые найдёт запрос</td><td>${P.shade}</td></tr>
-      <tr><td><b>Угадай запрос</b><br>выбрать запрос по отмеченным областям</td><td>${P.guess}</td></tr>
+      <tr><td><b>Угадай запрос</b><br>выбрать запрос по отмеченным областям</td><td>${P.guess}<br>неверно: −${EXAM.guessPenalty}</td></tr>
       <tr><td><b>Сколько страниц</b><br>посчитать, сколько страниц найдёт запрос</td><td>${P.count}</td></tr>
-      <tr><td colspan="2">Со второй попытки — на ${EXAM.errorPenalty} балл меньше. Если и вторая неверна, баллов нет.</td></tr>`;
+      <tr><td colspan="2">«Закрась» и «Сколько»: со второй попытки — на ${EXAM.errorPenalty} балл меньше, если и вторая неверна — баллов нет. «Угадай запрос»: попытка одна, за неверный выбор баллы снимаются.</td></tr>`;
     $('critGrades').innerHTML = EXAM.grades.map(([min, g], i) =>
       `<tr><td class="g2">${g}</td><td>${i < EXAM.grades.length - 1 ? `от ${min} баллов` : `меньше ${EXAM.grades[i-1][0]} баллов`}</td></tr>`).join('');
     $('examRules').innerHTML = [
       `Работа идёт ровно ${EXAM.minutes} минут. Закончить раньше нельзя: когда время выйдет, оценка появится сама.`,
       'Справка во время работы отключена. Можно пользоваться черновиком.',
-      'Задание можно пропустить, но баллов за него не будет. Незаконченное к концу времени задание не засчитывается.',
+      'Задание можно пропустить, но баллов за него не будет. Не уверен — лучше пропусти, чем выбирать наугад. Незаконченное к концу времени задание не засчитывается.',
       'Если уйти со страницы или переключить вкладку, это будет видно в результате.'
     ].map(x => `<li>${x}</li>`).join('');
     $('bestLine').textContent = '';
@@ -880,8 +881,13 @@ function chooseGuess(i){
     T.fb = `Верно! ${msg}.`; T.fbCls = 'good';
   } else {
     T.clean = false; noteErr(T); finish(false);
+    // угадывание из четырёх вариантов не должно приносить очков
+    let fine = '';
+    if (S.exam){ S.pts -= EXAM.guessPenalty; S.byType.guess.pts -= EXAM.guessPenalty; fine = `−${EXAM.guessPenalty} ${plural(EXAM.guessPenalty,'балл','балла','баллов')}. `; }
+    else { const p = Math.min(S.score, 5); S.score -= p; if (p) fine = `−${p}. `; }
+    updateHud();
     const ch = regList(regionsOf(T.opts[i].tree, T.q.nc), T.q.nc);
-    T.fb = `Этот запрос найдёт области ${ch}, а нужны ${regList(regionsOf(T.q.tree, T.q.nc), T.q.nc)}. На диаграмме: красное — лишнее, зелёный пунктир — пропущенное. Верный запрос отмечен зелёным.`;
+    T.fb = `${fine}Этот запрос найдёт области ${ch}, а нужны ${regList(regionsOf(T.q.tree, T.q.nc), T.q.nc)}. На диаграмме: красное — лишнее, зелёный пунктир — пропущенное. Верный запрос отмечен зелёным.`;
     T.fbCls = 'bad';
   }
   render(); focusMain();
@@ -1060,6 +1066,7 @@ addEventListener('keydown', e => {
   if (S.paused) return;
   const T = S.task;
   if (e.target && e.target.tagName === 'INPUT') return;
+  if (e.repeat && e.key !== 'Backspace') return;               // зажатая клавиша не отвечает сама
   if (T.kind === 'shade' && T.phase === 'input'){
     const d = +e.key;
     if (/^[0-7]$/.test(e.key) && d <= (T.q.nc === 3 ? 7 : 3)){ e.preventDefault(); toggleRegion(maskOf(T.q.nc, d)); }

@@ -34,6 +34,6 @@ const shift = (hex: string, against: number[]) => {
   return toHex(to);
 };
 export const colorVars = (hex: string) =>
-  `--c:${hex};--cb:${shift(hex, [255, 255, 255])};--cd:${shift(hex, [15, 33, 71])}`;
+  `--c:${hex};--cb:${shift(hex, [243, 240, 246])};--cd:${shift(hex, [41, 37, 49])}`;   // фон и карточка «Сумерек»
 // Картинка превью ссылки — карточка с названием игры, собранная при сборке (src/pages/og/[id].png.ts)
 export const ogImage = (item: { id: string }) => `og/${item.id}.png`;

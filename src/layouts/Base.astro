@@ -20,7 +20,7 @@ const path = Astro.url.pathname;
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <!-- сохранённая тема применяется до отрисовки, чтобы страница не мигала -->
-  <script is:inline>try{var t=localStorage.getItem('theme'),p=localStorage.getItem('palette');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t;if(p==='graphite'||p==='dusk')document.documentElement.dataset.palette=p}catch(e){}document.documentElement.classList.add('js')</script>
+  <script is:inline>try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t;localStorage.removeItem('palette')}catch(e){}document.documentElement.classList.add('js')</script>
 </head>
 <body>
   <a class="skip" href="#main">Перейти к содержимому</a>

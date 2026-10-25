@@ -1,52 +1,28 @@
 ---
-// Выбор оформления сайта: тема (светлая / тёмная) и оттенок (Инфошаг / Графит / Сумерки) выбираются отдельно.
-// Оттенок хранится в своём ключе palette, поэтому игры по-прежнему видят просто светлую или тёмную тему.
+// Выбор темы сайта: светлая или тёмная. Тот же выбор, что у кнопки в шапке, — игры открываются в выбранной теме.
 const themes = [
-  { id: 'light', label: 'Светлая' },
-  { id: 'dark', label: 'Тёмная' },
-];
-const palettes = [
-  { id: 'brand', label: 'Инфошаг', colors: ['#0B1F4D', '#0A68D6', '#3DA2FF', '#F2F7FD'] },
-  { id: 'graphite', label: 'Графит', colors: ['#111522', '#303D59', '#98A9C4', '#DCE3EF'] },
-  { id: 'dusk', label: 'Сумерки', colors: ['#17151C', '#45404F', '#AAA2B3', '#E2DDE7'] },
+  { id: 'light', label: 'Светлая', colors: ['#F3F0F6', '#6A4FB5', '#17151C'] },
+  { id: 'dark', label: 'Тёмная', colors: ['#17151C', '#B49BFF', '#F1EDF5'] },
 ];
 ---
-<div class="look-pick">
-  <div class="group" role="radiogroup" aria-label="Тема">
-    <span class="cap">Тема</span>
-    {themes.map(t => <button type="button" role="radio" aria-checked="false" data-theme-pick={t.id}>{t.label}</button>)}
-  </div>
-  <div class="group" role="radiogroup" aria-label="Оттенок">
-    <span class="cap">Оттенок</span>
-    {palettes.map(p => (
-      <button type="button" role="radio" aria-checked="false" data-palette-pick={p.id}>
-        <span class="sw" aria-hidden="true">{p.colors.map(c => <i style={`background:${c}`}></i>)}</span>
-        {p.label}
-      </button>
-    ))}
-  </div>
+<div class="group" role="radiogroup" aria-label="Тема">
+  {themes.map(t => (
+    <button type="button" role="radio" aria-checked="false" data-theme-pick={t.id}>
+      <span class="sw" aria-hidden="true">{t.colors.map(c => <i style={`background:${c}`}></i>)}</span>
+      {t.label}
+    </button>
+  ))}
 </div>
 
 <script>
   const root = document.documentElement;
   const mq = matchMedia('(prefers-color-scheme: dark)');
   const theme = () => root.dataset.theme ?? (mq.matches ? 'dark' : 'light');
-  const palette = () => root.dataset.palette ?? 'brand';
-  const themeBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-pick]')];
-  const paletteBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-palette-pick]')];
-  const sync = () => {
-    themeBtns.forEach(b => b.setAttribute('aria-checked', String(b.dataset.themePick === theme())));
-    paletteBtns.forEach(b => b.setAttribute('aria-checked', String(b.dataset.palettePick === palette())));
-  };
-  themeBtns.forEach(b => b.addEventListener('click', () => {
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-pick]')];
+  const sync = () => buttons.forEach(b => b.setAttribute('aria-checked', String(b.dataset.themePick === theme())));
+  buttons.forEach(b => b.addEventListener('click', () => {
     root.dataset.theme = b.dataset.themePick!;
     try { localStorage.setItem('theme', b.dataset.themePick!); } catch {}
-    dispatchEvent(new Event('themechange'));
-  }));
-  paletteBtns.forEach(b => b.addEventListener('click', () => {
-    const p = b.dataset.palettePick!;
-    if (p === 'brand') delete root.dataset.palette; else root.dataset.palette = p;
-    try { if (p === 'brand') localStorage.removeItem('palette'); else localStorage.setItem('palette', p); } catch {}
     dispatchEvent(new Event('themechange'));
   }));
   addEventListener('themechange', sync);
@@ -55,17 +31,13 @@ const palettes = [
 </script>
 
 <style>
-  .look-pick{display:flex;flex-direction:column;gap:12px}
   .group{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-  .cap{width:5.5em;font-weight:700;font-size:14px;color:var(--soft)}
-  .group button{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:.5em 1em;border-radius:12px;
+  .group button{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:.5em 1em .5em .6em;border-radius:12px;
     border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:700 15px var(--body);cursor:pointer;
     transition:transform 160ms var(--ease-out),border-color 160ms var(--ease-out)}
-  .group button:has(.sw){padding-left:.6em}
   .group button[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
   .group button:active{transform:scale(.97)}
   .sw{display:inline-flex;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
-  .sw i{width:10px;height:24px}
-  @media (max-width:520px){ .cap{width:100%} }
+  .sw i{width:12px;height:24px}
   @media (prefers-reduced-motion:reduce){ .group button{transition:none} .group button:active{transform:none} }
 </style>

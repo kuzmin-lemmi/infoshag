@@ -4,9 +4,9 @@ import Base from '../layouts/Base.astro';
 import Logo from '../components/Logo.astro';
 import { getCollection } from 'astro:content';
 import { klassHref, klassName } from '../lib';
-import { SITE } from '../config';
+import { SITE, SCHOOL_TYPES } from '../config';
 const base = import.meta.env.BASE_URL;
-const school = (await getCollection('items')).filter(i => i.data.type === 'game' || i.data.type === 'trainer');
+const school = (await getCollection('items')).filter(i => SCHOOL_TYPES.includes(i.data.type));
 const grades = SITE.grades.filter(g => school.some(i => i.data.grades.includes(g)));
 ---
 <Base title="Страница не найдена" description="Такой страницы на сайте нет — загляни в каталог игр." noindex>

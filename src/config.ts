@@ -14,9 +14,13 @@ export const SITE = {
 export const TYPES = {
   game:    { label: 'Игра',      plural: 'Игры для уроков' },
   trainer: { label: 'Тренажёр',  plural: 'Тренажёры' },
+  guide:   { label: 'Разбор',    plural: 'Разборы заданий' },
   course:  { label: 'Курс',      plural: 'Курсы' },
   app:     { label: 'Программа', plural: 'Программы и сервисы' },
 } as const;
+
+// Материалы для школьных уроков: попадают на полки классов, в журнал класса и в карту сайта
+export const SCHOOL_TYPES: readonly string[] = ['game', 'trainer', 'guide'];
 
 export const ACCESS = {
   free:     'Бесплатно',

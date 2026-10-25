@@ -4,7 +4,7 @@ import Base from '../../layouts/Base.astro';
 import LessonRow from '../../components/LessonRow.astro';
 import { getCollection } from 'astro:content';
 import { klassHref, klassName } from '../../lib';
-import { SITE } from '../../config';
+import { SITE, SCHOOL_TYPES } from '../../config';
 
 export async function getStaticPaths() {
   return SITE.grades.map(g => ({ params: { grade: String(g) } }));
@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 const grades = SITE.grades;
 const g = Number(Astro.params.grade);
 const items = (await getCollection('items'))
-  .filter(i => (i.data.type === 'game' || i.data.type === 'trainer') && i.data.grades.includes(g))
+  .filter(i => (SCHOOL_TYPES.includes(i.data.type)) && i.data.grades.includes(g))
   .sort((a, b) => a.data.order - b.data.order);
 ---
 <Base title={`Информатика, ${klassName(g)}`} description={`Игры и тренажёры для уроков информатики в ${g} классе — по порядку учебника Босовой.`} noindex={items.length === 0}>

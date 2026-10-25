@@ -7,7 +7,7 @@ const items = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/items' }),
   schema: z.object({
     title: z.string(),
-    type: z.enum(['game', 'trainer', 'course', 'app']),
+    type: z.enum(['game', 'trainer', 'guide', 'course', 'app']),
     summary: z.string(),
     emoji: z.string().default('✨'),
     color: z.string().default('#5B6CFF'),

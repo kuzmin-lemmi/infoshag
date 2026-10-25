@@ -7,10 +7,10 @@ import Logo from '../components/Logo.astro';
 import { Picture } from 'astro:assets';
 import heroArt from '../assets/infoshag-hero.png';
 import { getCollection } from 'astro:content';
-import { SITE, ACCESS } from '../config';
+import { SITE, ACCESS, SCHOOL_TYPES } from '../config';
 import { playHref, pageHref, gradeLabel, klassHref, klassName, colorVars } from '../lib';
 const all = (await getCollection('items')).sort((a, b) => a.data.order - b.data.order);
-const school = all.filter(i => i.data.type === 'game' || i.data.type === 'trainer');
+const school = all.filter(i => SCHOOL_TYPES.includes(i.data.type));
 const grades = SITE.grades;
 const filled = grades.filter(g => school.some(i => i.data.grades.includes(g)));   // полки — только для классов с материалами
 const more = all.filter(i => i.data.type === 'course' || i.data.type === 'app');

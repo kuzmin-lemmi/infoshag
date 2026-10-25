@@ -94,9 +94,8 @@ const path = Astro.url.pathname;
       const next = isDark() ? 'light' : 'dark';
       document.documentElement.dataset.theme = next;
       try { localStorage.setItem('theme', next); } catch {}
-      dispatchEvent(new Event('themechange'));
+      sync();
     });
-    addEventListener('themechange', sync);   // тему меняет и выбор оформления на главной
     mq.addEventListener('change', sync);
     sync();
   }

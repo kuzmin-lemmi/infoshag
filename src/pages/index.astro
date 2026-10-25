@@ -3,9 +3,7 @@ import Base from '../layouts/Base.astro';
 import Preview from '../components/Preview.astro';
 import ShelfCard from '../components/ShelfCard.astro';
 import Rail from '../components/Rail.astro';
-import Logo from '../components/Logo.astro';
-import ThemePicker from '../components/ThemePicker.astro';
-import { Picture } from 'astro:assets';
+import Logo from '../components/Logo.astro';import { Picture } from 'astro:assets';
 import heroArt from '../assets/infoshag-hero.png';
 import { getCollection } from 'astro:content';
 import { SITE, ACCESS, SCHOOL_TYPES } from '../config';
@@ -97,14 +95,6 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
       </div>
     </section>
   )}
-
-  <section class="look">
-    <div class="wrap">
-      <h2>Оформление сайта</h2>
-      <p class="muted">Выбор запоминается в этом браузере, игры открываются в той же теме.</p>
-      <ThemePicker />
-    </div>
-  </section>
 </Base>
 
 <style>

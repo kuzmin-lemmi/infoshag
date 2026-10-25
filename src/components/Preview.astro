@@ -9,7 +9,8 @@ interface Props { item: any; load?: 'visible' | 'hover'; }
 const { item, load = 'hover' } = Astro.props;
 const d = item.data;
 const base = import.meta.env.BASE_URL;
-const live = !d.video && !/^https?:/.test(d.url) && d.url.endsWith('.html');
+// разбор — длинная страница текста: в уменьшенном виде он не интереснее картинки, поэтому у разборов только poster
+const live = d.type !== 'guide' && !d.video && !/^https?:/.test(d.url) && d.url.endsWith('.html');
 // тёмный кадр рядом с обычным: posts/<slug>-dark.jpg — подставляется в тёмной теме
 const posterDark = d.poster?.replace(/(\.\w+)$/, '-dark$1');
 const hasDark = posterDark && existsSync(join(process.cwd(), 'public', posterDark));

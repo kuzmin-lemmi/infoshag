@@ -21,6 +21,9 @@ const AFTER = {
   snaiper: `cfg.level = '3'; start(); document.getElementById('shot').value = String(S.task.answer); fire(); scrollTo(0, 0);`
 };
 
+// превью нарисованы отдельно (не снимок игры) — общий запуск их не перезаписывает
+const KEEP = new Set(['ege-27-klastery']);
+
 const browsers = [
   process.env.CHROME,
   'C:/Program Files/Google/Chrome/Application/chrome.exe',
@@ -79,7 +82,7 @@ const START = wait => `(async () => {
 })()`;
 
 const only = process.argv.slice(2);
-const slugs = readdirSync(GAMES).filter(f => f.endsWith('.html')).map(f => f.slice(0, -5)).filter(s => !only.length || only.includes(s));
+const slugs = readdirSync(GAMES).filter(f => f.endsWith('.html')).map(f => f.slice(0, -5)).filter(s => only.length ? only.includes(s) : !KEEP.has(s));
 mkdirSync(OUT, { recursive: true });
 
 try {

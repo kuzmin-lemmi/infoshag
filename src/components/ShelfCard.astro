@@ -21,7 +21,7 @@ const dl = downloadHref(d);
     {d.topic && <p class="topic">{d.topic}</p>}
     <div class="act">
       <a class="play" href={playHref(item)} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
-        {external ? 'Открыть ↗' : '▶ Играть'}
+        {external ? 'Открыть ↗' : d.type === 'guide' ? '▶ Открыть' : '▶ Играть'}
       </a>
       {dl && <a class="dl" href={dl} download={downloadName(d.url)} title="Скачать игру бесплатно — один HTML-файл">⬇ Скачать</a>}
     </div>

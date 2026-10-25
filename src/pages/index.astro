@@ -55,7 +55,7 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
           </p>
           <div class="cta">
             <a class="btn primary" href={playHref(hero)} target={heroExternal ? '_blank' : undefined} rel={heroExternal ? 'noopener' : undefined}>
-              {heroExternal ? 'Открыть ↗' : '▶ Играть'}
+              {heroExternal ? 'Открыть ↗' : h.type === 'guide' ? '▶ Открыть' : '▶ Играть'}
             </a>
             <a class="btn" href={pageHref(hero.id)}>Подробнее</a>
           </div>

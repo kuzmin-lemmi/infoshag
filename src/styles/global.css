@@ -13,6 +13,9 @@
   :root:not([data-theme="light"]){ --bg:#081430; --surface:#0F2147; --ink:#EAF2FF; --soft:#9DB0D6; --line:#22386A; --accent:#3DA2FF; --accent-ink:#06122B; --teal:#2FE0CF; --violet:#A891EE; --tint:#0D1C40; --logo-bg:#FFFFFF; color-scheme:dark; }
 }
 :root[data-theme="dark"]{ --bg:#081430; --surface:#0F2147; --ink:#EAF2FF; --soft:#9DB0D6; --line:#22386A; --accent:#3DA2FF; --accent-ink:#06122B; --teal:#2FE0CF; --violet:#A891EE; --tint:#0D1C40; --logo-bg:#FFFFFF; color-scheme:dark; }
+/* Оттенки тёмной темы — только для сайта: игры видят обычную тёмную тему (ключ theme), оттенок хранится отдельно (ключ palette) */
+:root[data-theme="dark"][data-palette="graphite"]{ --bg:#111522; --surface:#1E263B; --ink:#EEF2F8; --soft:#98A9C4; --line:#303D59; --accent:#6FA8FF; --accent-ink:#0B1220; --tint:#182033; }
+:root[data-theme="dark"][data-palette="dusk"]{ --bg:#17151C; --surface:#292531; --ink:#F1EDF5; --soft:#AAA2B3; --line:#45404F; --accent:#B49BFF; --accent-ink:#17151C; --violet:#C3B0FF; --tint:#201C27; }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:80px}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}

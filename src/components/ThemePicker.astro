@@ -1,0 +1,57 @@
+---
+// Выбор оформления сайта: светлая, тёмная и два оттенка тёмной — «Графит» и «Сумерки».
+// Оттенок хранится отдельно от темы (ключ palette), поэтому игры по-прежнему видят просто тёмную тему.
+const options = [
+  { id: 'light', label: 'Светлая', colors: ['#F2F7FD', '#0A68D6', '#0B1F4D'] },
+  { id: 'dark', label: 'Тёмная', colors: ['#081430', '#3DA2FF', '#EAF2FF'] },
+  { id: 'graphite', label: 'Графит', colors: ['#111522', '#536684', '#DCE3EF'] },
+  { id: 'dusk', label: 'Сумерки', colors: ['#17151C', '#716879', '#E2DDE7'] },
+];
+---
+<div class="themes" role="radiogroup" aria-label="Оформление сайта">
+  {options.map(o => (
+    <button type="button" role="radio" aria-checked="false" data-pick={o.id}>
+      <span class="sw" aria-hidden="true">{o.colors.map(c => <i style={`background:${c}`}></i>)}</span>
+      {o.label}
+    </button>
+  ))}
+</div>
+
+<script>
+  const root = document.documentElement;
+  const mq = matchMedia('(prefers-color-scheme: dark)');
+  const current = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : mq.matches;
+    return dark ? (root.dataset.palette || 'dark') : 'light';
+  };
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-pick]')];
+  const sync = () => buttons.forEach(b => b.setAttribute('aria-checked', String(b.dataset.pick === current())));
+  buttons.forEach(b => b.addEventListener('click', () => {
+    const pick = b.dataset.pick!;
+    const theme = pick === 'light' ? 'light' : 'dark';
+    root.dataset.theme = theme;
+    if (pick === 'graphite' || pick === 'dusk') root.dataset.palette = pick;
+    else if (pick === 'dark') delete root.dataset.palette;
+    try {
+      localStorage.setItem('theme', theme);
+      if (pick === 'dark') localStorage.removeItem('palette');
+      else if (pick !== 'light') localStorage.setItem('palette', pick);
+    } catch {}
+    dispatchEvent(new Event('themechange'));
+  }));
+  addEventListener('themechange', sync);
+  mq.addEventListener('change', sync);
+  sync();
+</script>
+
+<style>
+  .themes{display:flex;flex-wrap:wrap;gap:10px}
+  .themes button{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:.5em 1em .5em .6em;border-radius:12px;
+    border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:700 15px var(--body);cursor:pointer;
+    transition:transform 160ms var(--ease-out),border-color 160ms var(--ease-out)}
+  .themes button[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+  .themes button:active{transform:scale(.97)}
+  .sw{display:inline-flex;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .sw i{width:12px;height:24px}
+  @media (prefers-reduced-motion:reduce){ .themes button{transition:none} .themes button:active{transform:none} }
+</style>

@@ -40,6 +40,7 @@ const path = Astro.url.pathname;
         </div>
       </nav>
       <div class="tools">
+        <SiteSearch />
         <button class="theme" id="theme" type="button" aria-label="Тёмная тема" aria-pressed="false">
           <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.25" fill="none" stroke="currentColor" stroke-width="1.75" /><path d="M10 2.75a7.25 7.25 0 0 1 0 14.5z" fill="currentColor" /></svg>
         </button>
@@ -50,7 +51,6 @@ const path = Astro.url.pathname;
       </div>
     </div>
   </header>
-  {path !== `${base}poisk/` && <SiteSearch />}
   <main id="main" tabindex="-1"><slot /></main>
   <footer>
     <div class="wrap foot">
@@ -151,7 +151,7 @@ const path = Astro.url.pathname;
     .logo span:last-child{display:inline}
   }
   @keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-  @media (max-width:360px){ .burger span{display:none} .burger{padding:0 12px} }
+  @media (max-width:360px){ .burger span{display:none} .burger{padding:0 10px} .logo{font-size:18px;gap:6px}.bar{gap:8px}.tools{gap:6px} }
   @media (prefers-reduced-motion:reduce){ .theme:active,.burger:active{transform:none} nav a,.theme,.burger,.burger svg path{transition-duration:.01ms} html.js .top.open nav{animation:none} }
   footer{border-top:1px solid var(--line);background:var(--surface);margin-top:40px;padding:24px 0 calc(24px + env(safe-area-inset-bottom,0px))}
   .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--soft);font-size:15px}

@@ -33,7 +33,7 @@ test('Номер ЕГЭ ищется точно: 27 не совпадает с �
   assert.ok(searchEntries(index,'системы счисления').some(row=>row.id==='ege-14'));
 });
 
-test('Все результаты имеют рабочие адреса и точные якоря; поле поиска есть на главной и страницах классов',()=>{
+test('Все результаты имеют рабочие адреса и точные якоря; кнопка поиска есть в шапке главной и страниц классов',()=>{
   assert.equal(new Set(index.map(row=>row.id)).size,index.length);
   for(const row of index){
     const url=new URL(row.href,'https://infoshag.ru');
@@ -43,8 +43,8 @@ test('Все результаты имеют рабочие адреса и то
     if(url.hash)assert.ok(read(file).includes(`id="${url.hash.slice(1)}"`),row.href);
   }
   for(const path of ['dist/index.html','dist/klass/6/index.html','dist/klass/11/index.html']){
-    assert.match(read(path),/action="\/poisk\/"/);
-    assert.match(read(path),/id="site-search"[^>]*name="q"/);
+    assert.match(read(path),/<header[\s\S]*href="\/poisk\/"[^>]*aria-label="Поиск по темам"[\s\S]*<\/header>/);
+    assert.doesNotMatch(read(path), /id="site-search"/);
   }
 });
 

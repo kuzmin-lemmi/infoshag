@@ -49,7 +49,7 @@ const rows = [
       </div>
       <aside class="side">
         <div class="media"><Preview item={item} load="visible" /></div>
-        <p class="cap muted">{d.video ? 'Ролик из игры' : 'Так игра выглядит на экране'}</p>
+        <p class="cap muted">{d.type === 'course' ? 'Авторский курс на Stepik' : d.video ? 'Ролик из игры' : 'Так игра выглядит на экране'}</p>
       </aside>
     </div>
   </section>

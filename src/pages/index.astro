@@ -90,7 +90,7 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
   {more.length > 0 && (
     <section class="shelf">
       <div class="wrap">
-        <div class="head"><h2>Курсы и программы</h2><a href={SITE.github}>Все проекты на GitHub ↗</a></div>
+        <div class="head"><h2>Курсы и программы</h2><a href={import.meta.env.BASE_URL + 'catalog/?type=course'}>Все курсы →</a></div>
         <Rail label="Курсы и программы">{more.map(i => <ShelfCard item={i} />)}</Rail>
       </div>
     </section>

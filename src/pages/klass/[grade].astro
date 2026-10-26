@@ -45,13 +45,13 @@ const unplaced = items.filter(item => !bindings.some(b => b.itemId === item.id &
         {quarters.map(({quarter, topics, additional}) => <section class="quarter-pane" data-plan-pane data-quarter={quarter} aria-label={`${quarter} четверть`}>
           <div class="section-heading"><h2>{quarter} четверть</h2><span class="hint">Тема · материалы</span></div>
           <ol class="lesson-list">
-            {topics.map(topic => <li class="lesson-row" value={topic.number} data-lesson data-annual-numbers={topic.annualNumbers.join(',')} data-ready={topic.primary.length + topic.related.length > 0 ? 'true' : 'false'}>
+            {topics.map(topic => <li class="lesson-row" id={`lesson-${topic.annualNumbers[0]}`} value={topic.number} data-lesson data-annual-numbers={topic.annualNumbers.join(',')} data-ready={topic.primary.length + topic.related.length > 0 ? 'true' : 'false'}>
               <div class="lesson-topic"><span class="lesson-number" aria-label={`Тема ${topic.number}`}>{topic.number}</span><div><h3>{topic.title}</h3><p class="lesson-meta">{topic.annualNumbers.length > 1 ? 'уроки' : 'урок'} {lessonRanges(topic.annualNumbers)} · {topic.annualNumbers.length} ч</p></div></div>
               <PlanMaterials primary={topic.primary} related={topic.related} />
             </li>)}
           </ol>
           <p class="empty-quarter" data-empty hidden>{additional.length ? 'К отдельным урокам материалы пока не добавлены. Ниже — дополнительные материалы четверти. Снимите фильтр, чтобы увидеть все темы.' : 'К этой четверти материалы пока не добавлены. Снимите фильтр, чтобы увидеть все темы.'}</p>
-          <div class="quarter-additional" data-quarter-additional data-additional-count={additional.length}>
+          <div class="quarter-additional" id={`quarter-additional-${quarter}`} data-quarter-additional data-additional-count={additional.length}>
             <h3 class="additional-heading">Дополнительные материалы четверти</h3>
             {additional.length ? <>
               <p class="plan-note">Для повторения и проверки знаний по четверти в целом.</p>
@@ -100,7 +100,7 @@ const unplaced = items.filter(item => !bindings.some(b => b.itemId === item.id &
   h2{font-size:21px;margin:0}
   .hint{font-size:12px;color:var(--soft)}
   .lesson-list{list-style:none;margin:0;padding:0}
-  .lesson-row{display:grid;grid-template-columns:minmax(220px,40%) minmax(0,1fr);gap:28px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line);min-height:80px}
+  .lesson-row{scroll-margin-top:90px;display:grid;grid-template-columns:minmax(220px,40%) minmax(0,1fr);gap:28px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line);min-height:80px}
   .lesson-topic{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start}
   .lesson-number{color:var(--accent);font-size:15px;font-variant-numeric:tabular-nums}
   .lesson-meta{margin:5px 0 0;font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums}

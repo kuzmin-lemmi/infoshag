@@ -1,0 +1,16 @@
+---
+const base = import.meta.env.BASE_URL;
+---
+<div class="wrap site-search">
+  <form action={`${base}poisk/`} method="get" role="search" aria-label="Поиск по сайту">
+    <label for="site-search">Поиск по темам</label>
+    <div class="search-line"><input id="site-search" type="search" name="q" placeholder="Тема, материал или ЕГЭ 27" required maxlength="200" /><button type="submit">Найти</button></div>
+  </form>
+</div>
+<style>
+  .site-search{padding-top:16px;padding-bottom:4px}
+  form{max-width:660px}label{display:block;font-size:12px;color:var(--soft);margin-bottom:6px}
+  .search-line{display:flex;gap:8px}
+  input{min-width:0;flex:1;font:400 16px var(--body);padding:10px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink)}
+  button{font:600 14px var(--body);padding:10px 16px;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:var(--accent-ink);cursor:pointer;min-height:44px}
+</style>

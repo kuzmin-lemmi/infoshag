@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { buildSearchIndex } from '../search';
+import plans from '../data/lesson-plans.json';
+import exam from '../data/ege-tasks.json';
+import bindings from '../data/lesson-materials.json';
+import egeBindings from '../data/ege-materials.json';
+import { SITE } from '../config';
+const base = import.meta.env.BASE_URL;
+const items = await getCollection('items');
+const index = buildSearchIndex(plans, exam.tasks, items, bindings, egeBindings, base);
+const json = JSON.stringify(index).replace(/</g, '\\u003c');
+---
+<Base title="Поиск по темам" description="Найдите тему урока, задание ЕГЭ или материал по информатике во всех классах." noindex>
+  <section><div class="wrap search-page" data-topic-search>
+    <h1>Поиск по темам</h1>
+    <p class="lead">Темы всех классов и четвертей, задания ЕГЭ, игры и разборы.</p>
+    <form action={`${base}poisk/`} method="get" role="search" aria-label="Поиск тем и материалов">
+      <label class="query-label" for="topic-query">Тема, название материала или номер задания ЕГЭ</label>
+      <div class="query-line"><input id="topic-query" name="q" type="search" placeholder="Например: файлы, системы счисления, ЕГЭ 27" maxlength="200" /><button type="submit">Найти</button></div>
+      <label class="grade-label">Класс<select name="grade" data-search-grade><option value="">Все классы</option>{SITE.grades.map(grade => <option value={grade}>{grade} класс</option>)}</select></label>
+    </form>
+    <noscript><p>Для поиска включите JavaScript. Можно также открыть <a href={`${base}catalog/`}>каталог</a> или выбрать класс в меню.</p></noscript>
+    <p class="status" data-search-status role="status" aria-live="polite">Введите тему или название материала.</p>
+    <ul class="results" data-search-results></ul>
+    <script type="application/json" id="topic-search-index" set:html={json} />
+  </div></section>
+</Base>
+<script>
+  import { initTopicSearch } from '../scripts/topic-search';
+  const root = document.querySelector<HTMLElement>('[data-topic-search]');
+  if (root) initTopicSearch(root);
+</script>
+<style>
+  .search-page{max-width:1000px}.lead{color:var(--soft);margin:10px 0 24px;font-size:15px}
+  form{margin-bottom:24px}.query-label{display:block;font-size:13px;color:var(--soft);margin-bottom:7px}
+  .query-line{display:flex;gap:8px}input{min-width:0;flex:1;font:400 16px var(--body);padding:12px 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink)}
+  button{font:600 14px var(--body);padding:10px 17px;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:var(--accent-ink);cursor:pointer;min-height:44px}
+  .grade-label{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--soft);margin-top:12px}
+  select{font:400 16px var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-height:44px;max-width:100%}
+  .status{font-size:13px;color:var(--soft);margin:0 0 8px}.results{list-style:none;padding:0;margin:0}
+  .results :global(li){padding:20px 0;border-bottom:1px solid var(--line)}
+  .results :global(.result-meta){font-size:12px;color:var(--soft);margin:0 0 7px}
+  .results :global(h2){font-size:17px;font-weight:650;line-height:1.5;letter-spacing:0;margin:0}
+  .results :global(h2 a){color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+  .results :global(h2 a:hover){color:var(--accent);text-decoration:underline}
+  .results :global(.result-description){font-size:13px;line-height:1.6;color:var(--soft);margin:7px 0 0;overflow-wrap:anywhere}
+  .results :global(.result-open){display:inline-block;color:var(--accent);font-size:13px;margin-top:9px;padding:5px 0}
+  @media(max-width:480px){.query-label{max-width:30ch}.results :global(.result-open){min-height:44px;padding:12px 0}}
+</style>

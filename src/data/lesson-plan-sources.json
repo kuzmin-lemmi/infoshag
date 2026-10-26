@@ -1,0 +1,35 @@
+[
+  {
+    "id": "gim87-informatics-5-6-2025",
+    "grades": [
+      5,
+      6
+    ],
+    "pages": [
+      14,
+      19
+    ],
+    "url": "https://gim87-sar.gosuslugi.ru/netcat_files/30/69/8._Informatika_5_6_podp.pdf",
+    "approved": "2025-08-29",
+    "order": "216",
+    "checked": "2026-10-26",
+    "sha256": "f60fae053b000ea145070394d6a0872de957e63aa6c9f08d3f8b68cbcdf0d292"
+  },
+  {
+    "id": "gim87-informatics-7-9-2025",
+    "grades": [
+      7,
+      8,
+      9
+    ],
+    "pages": [
+      26,
+      39
+    ],
+    "url": "https://gim87-sar.gosuslugi.ru/netcat_files/30/69/9._Informatika_7_9_podp.pdf",
+    "approved": "2025-08-29",
+    "order": "216",
+    "checked": "2026-10-26",
+    "sha256": "9a591919ecdb50f0ba89e89582ee5198d31fc74863804b1fe508f2b708ec9e39"
+  }
+]

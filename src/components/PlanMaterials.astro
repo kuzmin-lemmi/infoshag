@@ -1,0 +1,47 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { LinkedMaterial } from '../lesson-plan';
+import { pageHref, playHref, downloadHref, downloadName } from '../lib';
+interface Props {
+  primary: LinkedMaterial<CollectionEntry<'items'>>[];
+  related?: LinkedMaterial<CollectionEntry<'items'>>[];
+}
+const { primary, related = [] } = Astro.props;
+const notes: Record<string, string> = {
+  'veryu-ne-veryu': 'В программе гимназии Python изучается в 8 классе. Тренажёр не содержит вспомогательных алгоритмов.',
+  'kaldera': 'Доступны следование, ветвления и циклы. Главы со вспомогательными алгоритмами пока закрыты.',
+  'kontrolnaya-5-klass-1-chetvert': 'Работа подходит для повторения ряда тем четверти, но не охватывает все темы первой четверти этой программы.',
+  'kontrolnaya-6-klass-1-chetvert': 'Единицы информации в этой программе изучаются во второй четверти. Перед контрольной проверьте готовность класса к этим заданиям или используйте подходящие упражнения тренировки.',
+};
+---
+<div class="materials">
+  {primary.map(({ item, reason }) => <div class="material" data-primary-material={item.id}>
+    <a class="material-title" href={pageHref(item.id)}>{item.data.title}</a>
+    <div class="actions">
+      <a class="launch" href={playHref(item)} aria-label={`Открыть «${item.data.title}»`}>▶ Открыть</a>
+      <a href={pageHref(item.id)} aria-label={`О материале «${item.data.title}»`}>О материале</a>
+      {downloadHref(item.data) && <a href={downloadHref(item.data)} download={downloadName(item.data.url)} aria-label={`Скачать «${item.data.title}»`}>↓ Скачать</a>}
+    </div>
+    <details><summary>Что отрабатывает</summary><p>{reason}</p>{notes[item.id] && <p>{notes[item.id]}</p>}</details>
+  </div>)}
+  {related.map(({ item, reason }) => <div class="related" data-related-material={item.id}>
+    <a href={pageHref(item.id)}>↗ Подходит: «{item.data.title}»</a>
+    <details><summary>Соответствие теме</summary><p>{reason}</p>{notes[item.id] && <p>{notes[item.id]}</p>}</details>
+  </div>)}
+  {!primary.length && !related.length && <span class="no-materials">Материалы пока не добавлены</span>}
+</div>
+<style>
+  .materials{display:flex;flex-wrap:wrap;gap:12px 20px;min-width:0;align-items:start}
+  .material{min-width:0;max-width:100%}
+  .material-title{font-size:14px;font-weight:650;text-decoration:none;overflow-wrap:anywhere}
+  .actions{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+  .actions a{display:inline-flex;align-items:center;min-height:40px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:12px;font-weight:600;text-decoration:none}
+  .actions .launch{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .related{flex-basis:100%;font-size:13px;min-width:0}
+  .related>a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}
+  details{font-size:12px;color:var(--soft);max-width:65ch}
+  summary{cursor:pointer;width:fit-content;padding:4px 0}
+  details p{margin:6px 0;line-height:1.55;overflow-wrap:anywhere}
+  .no-materials{font-size:13px;color:var(--soft)}
+  @media(pointer:coarse){.actions a,summary{min-height:44px}.related>a{display:inline-block;padding:10px 0}}
+</style>

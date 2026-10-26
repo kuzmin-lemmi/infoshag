@@ -8,7 +8,7 @@ export const GET: APIRoute = async ({ site }) => {
   const base = import.meta.env.BASE_URL;
   const items = await getCollection('items');
   const school = items.filter(i => SCHOOL_TYPES.includes(i.data.type));
-  const grades = SITE.grades.filter(g => school.some(i => i.data.grades.includes(g)));   // пустые классы в карту не попадают
+  const grades = SITE.grades.filter(g => g >= 10 || school.some(i => i.data.grades.includes(g)));   // пустые классы в карту не попадают
   const day = (d?: Date) => d?.toISOString().slice(0, 10);
   const urls: [string, string?][] = [
     ['', undefined],

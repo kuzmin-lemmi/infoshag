@@ -1,16 +1,14 @@
 ---
 const base = import.meta.env.BASE_URL;
+const active = Astro.url.pathname === `${base}poisk/`;
 ---
-<div class="wrap site-search">
-  <form action={`${base}poisk/`} method="get" role="search" aria-label="Поиск по сайту">
-    <label for="site-search">Поиск по темам</label>
-    <div class="search-line"><input id="site-search" type="search" name="q" placeholder="Тема, материал или ЕГЭ 27" required maxlength="200" /><button type="submit">Найти</button></div>
-  </form>
-</div>
+<a class="search-link" href={`${base}poisk/`} aria-label="Поиск по темам" title="Поиск по темам" aria-current={active ? 'page' : undefined}>
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75" /><path d="m13 13 4.25 4.25" stroke-linecap="round" /></svg>
+</a>
 <style>
-  .site-search{padding-top:16px;padding-bottom:4px}
-  form{max-width:660px}label{display:block;font-size:12px;color:var(--soft);margin-bottom:6px}
-  .search-line{display:flex;gap:8px}
-  input{min-width:0;flex:1;font:400 16px var(--body);padding:10px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink)}
-  button{font:600 14px var(--body);padding:10px 16px;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:var(--accent-ink);cursor:pointer;min-height:44px}
+  .search-link{flex:none;display:grid;place-items:center;width:40px;height:40px;border:1.5px solid var(--line);border-radius:50%;color:var(--ink);background:var(--surface);text-decoration:none;transition:border-color 160ms var(--ease-out)}
+  .search-link[aria-current]{color:var(--accent);background:var(--tint);border-color:var(--accent)}
+  @media(hover:hover) and (pointer:fine){.search-link:hover{border-color:var(--accent)}}
+  @media(pointer:coarse){.search-link{width:44px;height:44px}}
+  @media(prefers-reduced-motion:reduce){.search-link{transition:none}}
 </style>

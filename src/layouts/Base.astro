@@ -3,6 +3,7 @@ import '../styles/global.css';
 import { SITE } from '../config';
 import { klassShort } from '../lib';
 import Logo from '../components/Logo.astro';
+import SiteSearch from '../components/SiteSearch.astro';
 import Meta from '../components/Meta.astro';
 interface Props { title?: string; description?: string; image?: string; noindex?: boolean; }
 const { title, description = SITE.tagline, image, noindex } = Astro.props;
@@ -49,6 +50,7 @@ const path = Astro.url.pathname;
       </div>
     </div>
   </header>
+  {path !== `${base}poisk/` && <SiteSearch />}
   <main id="main" tabindex="-1"><slot /></main>
   <footer>
     <div class="wrap foot">

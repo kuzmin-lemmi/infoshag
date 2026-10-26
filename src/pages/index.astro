@@ -67,9 +67,9 @@ const added = h.added?.toLocaleDateString('ru-RU', { day: 'numeric', month: 'lon
       <h2>Уроки по классам</h2>
       <div class="tiles">
         {grades.map(g => (
-          <a class={`tile${filled.includes(g) ? '' : ' empty'}`} href={klassHref(g)}>
+          <a class={`tile${filled.includes(g) || g >= 10 ? '' : ' empty'}`} href={klassHref(g)}>
             <b>{g}</b>
-            <span>{!filled.includes(g) ? 'скоро' : g === 9 ? 'класс · ОГЭ' : g === 11 ? 'класс · ЕГЭ' : 'класс'}</span>
+            <span>{g >= 10 ? 'класс · ЕГЭ' : !filled.includes(g) ? 'скоро' : g === 9 ? 'класс · ОГЭ' : 'класс'}</span>
           </a>
         ))}
       </div>

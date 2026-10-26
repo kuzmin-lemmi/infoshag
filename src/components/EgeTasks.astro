@@ -1,0 +1,57 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import PlanMaterials from './PlanMaterials.astro';
+import exam from '../data/ege-tasks.json';
+import bindings from '../data/ege-materials.json';
+import { egeRows } from '../ege';
+interface Props { grade: number; items: CollectionEntry<'items'>[] }
+const { grade, items } = Astro.props;
+const rows = egeRows(exam.tasks, bindings, items, grade);
+const extra = items.filter(item => item.data.grades.includes(grade) && !bindings.some(binding => binding.itemId === item.id));
+---
+<div data-ege-list>
+  <div class="ege-toolbar" data-ege-controls hidden>
+    <label><input type="checkbox" data-ege-ready /> Только с материалами</label>
+  </div>
+  <p class="ege-note">ЕГЭ-{exam.year} · проект ФИПИ. Распределение заданий между классами — маршрут подготовки «Инфошага».</p>
+  <div class="ege-heading"><h2>Задания № {rows[0]?.number}–{rows.at(-1)?.number}</h2><span>Задание · материалы</span></div>
+  <p class="sr-only" data-ege-status role="status" aria-live="polite"></p>
+  <ol class="ege-list" start={rows[0]?.number}>
+    {rows.map(task => <li class="ege-row" id={`ege-${task.number}`} value={task.number} data-ege-task={task.number} data-ready={task.primary.length + task.related.length ? 'true' : 'false'}>
+      <div class="ege-topic"><span class="ege-number" aria-label={`Задание ${task.number}`}>{task.number}</span><div><h3>{task.title}</h3><p>{task.summary}</p></div></div>
+      <div class="ege-materials"><PlanMaterials primary={task.primary} related={task.related} />{task.notices.map(notice => <p class="format-note">{notice}</p>)}</div>
+    </li>)}
+  </ol>
+  <p class="ege-empty" data-ege-empty hidden>Материалы к этим заданиям пока не добавлены. Снимите фильтр, чтобы увидеть все задания.</p>
+  <section class="ege-additional">
+    <h2>Дополнительные материалы для подготовки</h2>
+    {extra.length ? extra.map(item => <PlanMaterials primary={[{ item, reason: 'Дополнительная практика для подготовки к ЕГЭ.' }]} />) : <p class="ege-note">Дополнительные материалы пока не добавлены.</p>}
+  </section>
+  <div class="ege-footer"><details><summary>Основа списка</summary><p>Темы составлены по спецификации проекта ЕГЭ-{exam.year}, проверенной 26 октября 2026 года. Короткие названия и пояснения подготовлены для навигации по материалам. Задания № 1–17 размещены в 10 классе, № 18–27 — в 11 классе.</p><a href={exam.source}>Документы ФИПИ</a> · <a href={exam.archive}>Демоверсия, спецификация и кодификатор (ZIP)</a></details></div>
+</div>
+<script>
+  import { initEge } from '../scripts/ege';
+  const root = document.querySelector<HTMLElement>('[data-ege-list]');
+  if (root) initEge(root);
+</script>
+<style>
+  .ege-toolbar{display:flex;justify-content:flex-end;margin-bottom:12px}
+  .ege-toolbar label{display:flex;align-items:center;gap:8px;font-size:13px;min-height:44px;color:var(--soft)}
+  input{accent-color:var(--accent);width:17px;height:17px}
+  .ege-note{font-size:12px;color:var(--soft);line-height:1.6;margin:0 0 18px}
+  .ege-heading{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:12px 0 18px;border-bottom:1px solid var(--line)}
+  h2{font-size:21px;margin:0}.ege-heading>span{font-size:12px;color:var(--soft)}
+  .ege-list{list-style:none;padding:0;margin:0}
+  .ege-row{display:grid;grid-template-columns:minmax(220px,40%) minmax(0,1fr);gap:28px;padding:22px 0;border-bottom:1px solid var(--line);align-items:center}
+  .ege-topic{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start}
+  .ege-number{color:var(--accent);font-size:15px;font-variant-numeric:tabular-nums}
+  h3{font-size:14px;font-weight:650;line-height:1.5;margin:0;letter-spacing:0;overflow-wrap:anywhere}
+  .ege-topic p{font-size:12px;color:var(--soft);margin:6px 0 0;line-height:1.6}
+  .ege-materials{min-width:0}.format-note{font-size:12px;line-height:1.6;color:var(--soft);margin:12px 0 0;max-width:65ch}
+  .ege-empty{color:var(--soft);font-size:14px;padding:20px 0}
+  .ege-additional{padding:28px 0 8px}.ege-additional h2{font-size:18px;margin:0 0 12px}
+  .ege-footer{padding-top:20px;font-size:12px;color:var(--soft);max-width:700px}.ege-footer p{line-height:1.6}.ege-footer a{color:var(--accent);overflow-wrap:anywhere}
+  summary{cursor:pointer;color:var(--accent);padding:10px 0}
+  [hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  @media(max-width:680px){.ege-row{grid-template-columns:1fr;gap:12px;padding:18px 0}.ege-materials{margin-left:40px}.ege-heading>span{display:none}.ege-toolbar{justify-content:flex-start}}
+</style>

@@ -1,60 +1,122 @@
 ---
-// Журнал по урокам: игры класса по порядку учебника, у каждой — ролик и описание
 import Base from '../../layouts/Base.astro';
-import LessonRow from '../../components/LessonRow.astro';
+import EgeTasks from '../../components/EgeTasks.astro';
+import PlanMaterials from '../../components/PlanMaterials.astro';
 import { getCollection } from 'astro:content';
 import { klassHref, klassName } from '../../lib';
 import { SITE, SCHOOL_TYPES } from '../../config';
+import plans from '../../data/lesson-plans.json';
+import sources from '../../data/lesson-plan-sources.json';
+import bindings from '../../data/lesson-materials.json';
+import { quarterTopics, topicMaterials, quarterMaterials, lessonRanges } from '../../lesson-plan';
 
 export async function getStaticPaths() {
   return SITE.grades.map(g => ({ params: { grade: String(g) } }));
 }
-
-const grades = SITE.grades;
-const g = Number(Astro.params.grade);
-const items = (await getCollection('items'))
-  .filter(i => (SCHOOL_TYPES.includes(i.data.type)) && i.data.grades.includes(g))
+const grade = Number(Astro.params.grade);
+const base = import.meta.env.BASE_URL;
+const plan = plans.find(p => p.grade === grade);
+const source = plan && sources.find(s => s.id === plan.sourceId);
+const allItems = (await getCollection('items'))
+  .filter(i => SCHOOL_TYPES.includes(i.data.type) && i.data.access !== 'soon')
   .sort((a, b) => a.data.order - b.data.order);
+const items = allItems.filter(i => i.data.grades.includes(grade));
+const quarters = plan ? [1, 2, 3, 4].map(quarter => ({ quarter, topics: topicMaterials(quarterTopics(plan, quarter), allItems, bindings, grade), additional: quarterMaterials(allItems, bindings, grade, quarter) })) : [];
+const unplaced = items.filter(item => !bindings.some(b => b.itemId === item.id && ([...b.primary, ...b.related].some(ref => ref.grade === grade) || b.quarters?.some(ref => ref.grade === grade))));
 ---
-<Base title={`Информатика, ${klassName(g)}`} description={`Игры и тренажёры для уроков информатики в ${g} классе — по порядку учебника Босовой.`} noindex={items.length === 0}>
-  <section class="top">
+<Base title={`Информатика · ${klassName(grade)}`} description={plan ? `Темы информатики в ${grade} классе по четвертям: номера уроков, игры и тренажёры к каждой теме.` : `Подготовка к ЕГЭ-2027: задания № ${grade === 10 ? '1–17' : '18–27'}, разборы и тренажёры для ${grade} класса.`} noindex={false}>
+  <section class="plan-page" data-lesson-plan={plan ? '' : undefined}>
     <div class="wrap">
       <nav class="tabs" aria-label="Класс">
-        {grades.map(x => <a href={klassHref(x)} aria-current={x === g ? 'page' : undefined}>{klassName(x)}</a>)}
+        {SITE.grades.map(g => <a href={klassHref(g)} data-grade-link={g <= 9 ? '' : undefined} data-ege-grade-link={g >= 10 ? '' : undefined} aria-current={g === grade ? 'page' : undefined}>{klassName(g)}</a>)}
       </nav>
-      <h1>Информатика · {klassName(g)}</h1>
-      {items.length > 0 && <p class="lead">Игры и тренажёры по порядку учебника Босовой. Каждую можно открыть на доске или скачать.</p>}
-    </div>
-  </section>
-  <section class="list">
-    <div class="wrap rows">
-      {items.map((i, n) => <LessonRow item={i} n={n + 1} />)}
-      {items.length === 0 && (
-        <div class="soon">
-          <b>Материалы для {klassName(g)} скоро появятся</b>
-          <p>Пока загляните в другие классы или в <a href={`${import.meta.env.BASE_URL}catalog/`}>каталог</a>.</p>
+      <div class="plan-hero">
+        <div><p class="eyebrow">{plan ? 'От темы — к готовому уроку' : 'Подготовка к ЕГЭ-2027'}</p><h1>{plan ? `Информатика · ${klassName(grade)}` : `${grade} класс · ЕГЭ`}</h1><p class="lead">{plan ? 'Темы по четвертям и материалы к ним' : `Задания № ${grade === 10 ? '1–17' : '18–27'} · разборы и тренажёры`}</p></div>
+      </div>
+      {plan ? <>
+        <div class="toolbar" data-plan-controls hidden>
+          <div class="quarters" role="group" aria-label="Четверть">
+            {[1, 2, 3, 4].map(q => <button type="button" data-quarter-button={q} aria-pressed="false">{q} четверть<span data-count></span></button>)}
+          </div>
+          <label class="ready-filter"><input type="checkbox" data-ready-only /> Только с материалами</label>
         </div>
-      )}
+        <p class="plan-note">Четверти распределены ориентировочно. Под темой — номера уроков за год и число часов.</p>
+        <p class="sr-only" data-plan-status role="status" aria-live="polite"></p>
+        {quarters.map(({quarter, topics, additional}) => <section class="quarter-pane" data-plan-pane data-quarter={quarter} aria-label={`${quarter} четверть`}>
+          <div class="section-heading"><h2>{quarter} четверть</h2><span class="hint">Тема · материалы</span></div>
+          <ol class="lesson-list">
+            {topics.map(topic => <li class="lesson-row" value={topic.number} data-lesson data-annual-numbers={topic.annualNumbers.join(',')} data-ready={topic.primary.length + topic.related.length > 0 ? 'true' : 'false'}>
+              <div class="lesson-topic"><span class="lesson-number" aria-label={`Тема ${topic.number}`}>{topic.number}</span><div><h3>{topic.title}</h3><p class="lesson-meta">{topic.annualNumbers.length > 1 ? 'уроки' : 'урок'} {lessonRanges(topic.annualNumbers)} · {topic.annualNumbers.length} ч</p></div></div>
+              <PlanMaterials primary={topic.primary} related={topic.related} />
+            </li>)}
+          </ol>
+          <p class="empty-quarter" data-empty hidden>{additional.length ? 'К отдельным урокам материалы пока не добавлены. Ниже — дополнительные материалы четверти. Снимите фильтр, чтобы увидеть все темы.' : 'К этой четверти материалы пока не добавлены. Снимите фильтр, чтобы увидеть все темы.'}</p>
+          <div class="quarter-additional" data-quarter-additional data-additional-count={additional.length}>
+            <h3 class="additional-heading">Дополнительные материалы четверти</h3>
+            {additional.length ? <>
+              <p class="plan-note">Для повторения и проверки знаний по четверти в целом.</p>
+              <ul class="additional-list">{additional.map(material => <li data-quarter-material={material.item.id}><PlanMaterials primary={[material]} /></li>)}</ul>
+            </> : <p class="plan-note">Дополнительные материалы к этой четверти пока не добавлены.</p>}
+          </div>
+        </section>)}
+        {unplaced.length > 0 && <section class="unplaced">
+          <h2>Ещё материалы {grade} класса</h2>
+          <p class="plan-note">Материалы вне тем этого плана — для дополнительной практики и подготовки к экзамену.</p>
+          {unplaced.map(item => <div class="supplement"><PlanMaterials primary={[{ item, reason: 'Материал класса вне тем поурочного плана.', note: bindings.find(b => b.itemId === item.id)?.note }]} /></div>)}
+        </section>}
+        <div class="plan-footer">
+          <details><summary>Основа плана</summary><p>Темы и порядок уроков взяты из рабочей программы гимназии № 87 Саратова, утверждённой 29 августа 2025 года. В каждом классе 34 часа. Четверти распределены на сайте условно: 8 + 8 + 10 + 8 недель. Порядок тем может отличаться от вашего учебника и школьного календаря.</p>{source && <a href={source.url}>Рабочая программа · {source.grades[0]}–{source.grades.at(-1)} классы (PDF)</a>}</details>
+          <a href={`${base}catalog/?grade=${grade}`}>Все материалы {grade} класса →</a>
+        </div>
+      </> : <EgeTasks grade={grade} items={allItems} />}
     </div>
   </section>
 </Base>
-
+<script>
+  import { initLessonPlan } from '../../scripts/lesson-plan';
+  const root = document.querySelector<HTMLElement>('[data-lesson-plan]');
+  if (root) initLessonPlan(root);
+</script>
 <style>
-  .top{padding-bottom:4px}
-  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-  .tabs a{text-decoration:none;font-weight:700;font-size:14.5px;padding:.4em .9em;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--soft)}
-  .tabs a{transition:color 160ms var(--ease-out),transform 160ms var(--ease-out)}
-  @media (hover:hover) and (pointer:fine){ .tabs a:hover{color:var(--ink)} }
-  .tabs a:active{transform:scale(.97)}
+  .plan-page{padding-top:24px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tabs a{text-decoration:none;font-weight:650;font-size:14px;padding:8px 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--soft);min-height:40px}
   .tabs a[aria-current]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-  @media (pointer:coarse){ .tabs a{display:inline-flex;align-items:center;min-height:44px} }
-  @media (prefers-reduced-motion:reduce){ .tabs a:active{transform:none} }
-  h1{font-size:clamp(22px,2.6vw,32px)}
-  .lead{color:var(--soft);font-size:16px;margin:0;max-width:60ch}
-  .list{padding-top:14px}
+  .plan-hero{padding:28px 0 22px}
+  .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 10px}
+  h1{font-size:clamp(24px,3.5vw,36px)}
+  .lead{font-size:15px;color:var(--soft);margin:10px 0 0}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:0 0 14px}
+  .quarters{display:flex;flex-wrap:wrap;gap:6px}
+  .quarters button{font:inherit;cursor:pointer;color:var(--soft);min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:13px}
+  .quarters button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .quarters button:hover{border-color:var(--accent)}
+  [data-count]{font-size:11px}
+  .ready-filter{display:flex;align-items:center;gap:8px;font-size:13px;min-height:44px;color:var(--soft)}
+  input{accent-color:var(--accent);width:17px;height:17px}
+  .plan-note{font-size:12px;color:var(--soft);margin:0 0 18px}
+  .quarter-pane{padding:0}
+  .section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 0 18px;border-bottom:1px solid var(--line)}
+  h2{font-size:21px;margin:0}
+  .hint{font-size:12px;color:var(--soft)}
+  .lesson-list{list-style:none;margin:0;padding:0}
+  .lesson-row{display:grid;grid-template-columns:minmax(220px,40%) minmax(0,1fr);gap:28px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line);min-height:80px}
+  .lesson-topic{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start}
+  .lesson-number{color:var(--accent);font-size:15px;font-variant-numeric:tabular-nums}
+  .lesson-meta{margin:5px 0 0;font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums}
+  h3{font-size:14px;line-height:1.5;letter-spacing:0;margin:0;font-weight:650;overflow-wrap:anywhere}
+  .empty-quarter{font-size:14px;color:var(--soft);padding:20px 0}
+  .quarter-additional{padding:24px 0 8px}.additional-heading{font-size:18px;margin:0 0 10px}.additional-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:16px}
+  .unplaced{padding:28px 0 0}.unplaced h2{margin-bottom:10px}
+  .supplement{padding:14px 0;border-bottom:1px solid var(--line)}
+  .plan-footer{display:flex;justify-content:space-between;gap:24px;align-items:start;padding-top:28px;color:var(--soft);font-size:12px}
+  .plan-footer details{max-width:650px}.plan-footer summary{cursor:pointer;color:var(--accent);padding:8px 0}
+  .plan-footer>a{color:var(--accent);padding:8px 0}.plan-footer a{overflow-wrap:anywhere}
+  [hidden]{display:none!important}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   .rows{display:flex;flex-direction:column;gap:14px}
-  .soon{padding:clamp(28px,5vw,56px) 20px;text-align:center;border-radius:var(--r);border:1.5px dashed var(--line);background:var(--surface)}
-  .soon b{font:800 clamp(18px,2.2vw,22px) var(--display)}
-  .soon p{margin:.5em 0 0;color:var(--soft)}
-  .soon a{color:var(--accent);font-weight:600}
+  .soon{padding:40px 20px;text-align:center;border-radius:var(--r);border:1px dashed var(--line);background:var(--surface)}
+  .soon p{color:var(--soft)}
+  @media(pointer:coarse){.tabs a{min-height:44px}.plan-footer summary{min-height:44px}}
+  @media(max-width:680px){.lesson-row{grid-template-columns:1fr;gap:10px;padding:16px 0}.lesson-row :global(.materials){margin-left:36px}.hint{display:none}.plan-footer{flex-direction:column;gap:12px}.toolbar{gap:4px}.quarters button{padding:8px 10px}.plan-hero{padding:24px 0}}
 </style>

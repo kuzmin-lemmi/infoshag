@@ -8,7 +8,7 @@ export const SITE = {
   github: 'https://github.com/kuzmin-lemmi',
   // классы сайта: страницы и пункты меню есть у всех, даже если материалов пока нет
   grades: [5, 6, 7, 8, 9, 10, 11],
-  vk: '',          // ссылка на сообщество ВК, когда появится витрина
+  vk: 'https://vk.ru/infoshag',
 };
 
 export const TYPES = {

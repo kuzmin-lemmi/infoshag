@@ -1,7 +1,7 @@
 // Собирает самостоятельный HTML-разбор из проверенного конспекта и шаблона.
 import {readFileSync, writeFileSync} from 'node:fs';
 const root = new URL('../', import.meta.url);
-const read = p => readFileSync(new URL(p,root),'utf8');
+const read = p => readFileSync(new URL(p,root),'utf8').replaceAll('\r\n','\n');
 const escape = s => s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 function markdown(s){
   const blocks=[];

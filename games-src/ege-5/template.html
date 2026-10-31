@@ -1,108 +1,420 @@
-<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#101b35"><title>Задание 5 по шагам — Инфошаг</title>
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Задание 5 по шагам</title>
+<meta name="theme-color" content="#101b35">
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light;--bg:#f3f6fc;--surface:#fff;--ink:#142441;--soft:#576782;--line:#dbe3f0;--accent:#1266d6;--tint:#eaf2ff;--code:#f0f4fa;--good:#08764c;--bad:#b92e4b;--shadow:0 14px 40px #18366509;--font:'Golos Text',system-ui,sans-serif;--mono:'JetBrains Mono',Consolas,monospace}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0b1325;--surface:#111e35;--ink:#edf3ff;--soft:#a8b8d2;--line:#2b3d5b;--accent:#6db8ff;--tint:#182e4d;--code:#0a162a;--good:#6ce0ae;--bad:#ff9ab0}}
-:root[data-theme=dark]{color-scheme:dark;--bg:#0b1325;--surface:#111e35;--ink:#edf3ff;--soft:#a8b8d2;--line:#2b3d5b;--accent:#6db8ff;--tint:#182e4d;--code:#0a162a;--good:#6ce0ae;--bad:#ff9ab0}
-*{box-sizing:border-box}html{scroll-padding-top:88px;scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 var(--font)}button,input,select{font:inherit}button,a,input,summary{touch-action:manipulation}button{cursor:pointer}a{color:var(--accent)}button:disabled{opacity:.45;cursor:default}[hidden]{display:none!important}:focus-visible{outline:3px solid var(--accent);outline-offset:4px}.wrap{max-width:1180px;margin:auto;padding:0 clamp(16px,3vw,36px)}header{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}.top{min-height:68px;display:flex;align-items:center;gap:24px}.brand{font-size:19px;font-weight:800;text-decoration:none;color:var(--ink);white-space:nowrap}.brand span{color:var(--accent)}nav{display:flex;gap:16px;overflow:auto;flex:1;font-size:14px;white-space:nowrap}nav a{text-decoration:none;font-weight:600;color:var(--soft)}.theme{border-radius:50%;width:40px;height:40px;flex:none;padding:0}.hero{padding:58px 0 45px;display:grid;grid-template-columns:1.2fr 1fr;align-items:center;gap:34px}.eyebrow,.label{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}h1{font-size:clamp(34px,5vw,58px);line-height:1.08;letter-spacing:-.04em;margin:12px 0 22px}h2{font-size:clamp(26px,3vw,36px);line-height:1.2;letter-spacing:-.025em;margin:7px 0 16px}h3{font-size:22px;line-height:1.3;margin:0 0 14px}p{margin:0 0 16px}.lead{font-size:19px;color:var(--soft)}.muted{color:var(--soft)}.flow{padding:32px;background:#101d38;color:#eef6ff;border-radius:24px;display:grid;gap:14px}.flow code{background:none;padding:0;font-size:28px;color:#6bcaff;letter-spacing:.12em}.flow .arrow{color:#879cbe;font-size:14px}.flow .end{color:#b9a3ff}.pill{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:13px;margin-right:5px}.actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.btn,button{min-height:44px;border:1px solid var(--line);border-radius:11px;background:var(--surface);padding:9px 16px;color:var(--ink);font-weight:600;text-decoration:none;font-size:15px}.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}section{padding:42px 0;border-top:1px solid var(--line)}.section-head{max-width:780px;margin-bottom:25px}.workspace{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px}.lesson-menu{display:grid;gap:5px;align-content:start}.lesson-menu button{text-align:left;display:flex;gap:10px;align-items:center;border-color:transparent;background:none;font-size:14px;line-height:1.4;padding:10px}.lesson-menu button[aria-current=step]{background:var(--tint);border-color:var(--line);color:var(--accent)}.lesson-menu .num{font:500 12px var(--mono);flex:none;color:var(--soft)}.lesson-menu .done{color:var(--good)}.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,3vw,30px);box-shadow:var(--shadow);min-width:0}.reading{max-width:76ch}.reading p:last-child{margin-bottom:0}pre{margin:16px 0;overflow:auto;background:var(--code);border:1px solid var(--line);border-radius:12px;padding:18px;font:14px/1.8 var(--mono);tab-size:4;max-width:100%}code{font-family:var(--mono);font-size:.86em;background:var(--code);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}pre code{padding:0;background:none;white-space:pre;overflow-wrap:normal;font-size:inherit}.lab{margin:24px 0;border-top:1px solid var(--line);padding-top:22px}.field{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}input{width:110px;min-height:44px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:7px 10px}.output{background:var(--tint);border-radius:12px;padding:16px;overflow-wrap:anywhere}.quiz{border-top:1px solid var(--line);padding-top:20px;margin-top:24px}.quiz .actions{margin:12px 0}.answer[aria-pressed=true]{border-color:var(--bad);background:var(--tint)}.answer.correct[aria-pressed=true]{border-color:var(--good)}.feedback{font-size:15px;color:var(--bad)}.feedback.good{color:var(--good)}.lesson-bottom{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:24px;padding-top:20px}.progress{width:100%;height:5px;background:var(--line);border-radius:20px;margin:18px 0}.progress i{display:block;height:100%;background:var(--accent);border-radius:20px;transition:width .2s}.split{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}.condition ol{padding-left:24px}.condition li{padding-left:5px;margin-bottom:12px}.bits{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0}.bit{display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:var(--code);width:35px;height:43px;font:500 18px var(--mono)}.bit.suffix{color:var(--good);background:var(--tint)}.bit.prefix{color:var(--accent);background:var(--tint)}.code-lines{display:grid;overflow:auto;max-width:100%;background:var(--code);border-radius:12px;padding:12px 0}.code-line{text-align:left;white-space:pre;font:13px/1.8 var(--mono);border:0;border-radius:0;padding:8px 12px;background:none;min-height:40px;display:block}.code-line[aria-selected=true]{background:var(--tint);box-shadow:inset 3px 0 var(--accent)}.code-line .line-number{display:inline-block;width:28px;color:var(--soft);user-select:none}.variables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0}.variable{border:1px solid var(--line);border-radius:10px;padding:10px;overflow-wrap:anywhere}.variable small{display:block;color:var(--soft)}.variable b{font:500 16px var(--mono)}.wide{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:14px}.table th,.table td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}.table th{color:var(--soft);font-size:12px;font-weight:600}.table tr.best{background:var(--tint);color:var(--good)}.stats{display:flex;gap:20px;flex-wrap:wrap;margin:16px 0}.stat span{display:block;color:var(--soft);font-size:13px}.stat strong{font-size:25px}.result{font-size:32px;font-weight:800;color:var(--good)}details{border-bottom:1px solid var(--line);padding:16px 0}summary{cursor:pointer;font-weight:600;padding:5px 0}details .reading{margin-top:16px}.notice{border-left:3px solid var(--accent);padding-left:16px;color:var(--soft);margin:20px 0}.answer-hidden{font-size:15px;color:var(--soft)}footer{padding:28px 0 50px;font-size:14px;color:var(--soft)}.noscript{padding:20px;background:var(--tint)}
-@media(max-width:860px){.hero,.split{grid-template-columns:1fr}.hero{padding-top:32px}.workspace{grid-template-columns:1fr}.lesson-menu{display:flex;overflow:auto;padding-bottom:8px}.lesson-menu button{min-width:180px}.flow{padding:24px}.top{gap:16px}nav{gap:14px}.variables{grid-template-columns:1fr 1fr}}
-@media(max-width:430px){body{font-size:16px}.top{gap:10px}.brand{font-size:16px}nav{font-size:12px}.theme{width:36px;height:36px;min-height:36px}.panel{padding:16px}pre{padding:12px;font-size:12px}.code-line{font-size:11px}.variables{grid-template-columns:1fr}h1{font-size:36px}.flow code{font-size:24px}.stats{gap:12px}}
+/* Инфошаг: светлая учебная страница, левое меню блоков + рабочая панель */
+:root{color-scheme:light;--bg:#f3f6fc;--surface:#fff;--ink:#142441;--soft:#576782;--line:#dbe3f0;--accent:#1266d6;--tint:#eaf2ff;--code:#f0f4fa;--good:#08764c;--bad:#b92e4b;--warm:#9a5b00;--warm-tint:#fff4e0;--hero:#101d38;--hero-ink:#eef6ff;--hero-code:#6bcaff;--hero-soft:#879cbe;--hero-end:#b9a3ff;--shadow:0 14px 40px #18366509;--font:'Golos Text',system-ui,sans-serif;--mono:'JetBrains Mono',Consolas,monospace}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0b1325;--surface:#111e35;--ink:#edf3ff;--soft:#a8b8d2;--line:#2b3d5b;--accent:#6db8ff;--tint:#182e4d;--code:#0a162a;--good:#6ce0ae;--bad:#ff9ab0;--warm:#ffc46b;--warm-tint:#2c2412;--hero:#07101f}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0b1325;--surface:#111e35;--ink:#edf3ff;--soft:#a8b8d2;--line:#2b3d5b;--accent:#6db8ff;--tint:#182e4d;--code:#0a162a;--good:#6ce0ae;--bad:#ff9ab0;--warm:#ffc46b;--warm-tint:#2c2412;--hero:#07101f}
+*{box-sizing:border-box}html{scroll-padding-top:88px;scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 var(--font)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}a{color:var(--accent)}button:disabled{opacity:.45;cursor:default}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1180px;margin:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media(min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.top{min-height:64px;display:flex;align-items:center;gap:22px}.brand{font-size:19px;font-weight:800;text-decoration:none;color:var(--ink);white-space:nowrap}.brand span{color:var(--accent)}
+nav{display:flex;gap:16px;overflow:auto;flex:1;font-size:14px;white-space:nowrap;scrollbar-width:none}nav a{text-decoration:none;font-weight:600;color:var(--soft)}nav a:hover{color:var(--accent)}
+.theme{border-radius:50%;width:40px;height:40px;min-height:40px;flex:none;padding:0}
+.hero{padding-block:52px 40px;display:grid;grid-template-columns:1.2fr 1fr;align-items:center;gap:34px}
+.eyebrow,.label{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(34px,5vw,56px);line-height:1.08;letter-spacing:-.035em;margin:12px 0 20px;text-wrap:balance}h2{font-size:clamp(26px,3vw,36px);line-height:1.2;letter-spacing:-.02em;margin:7px 0 14px;text-wrap:balance}h3{font-size:21px;line-height:1.3;margin:0 0 12px;text-wrap:balance}
+p{margin:0 0 14px}.lead{font-size:19px;color:var(--soft)}.muted{color:var(--soft)}
+.flow{padding:30px;background:var(--hero);color:var(--hero-ink);border-radius:24px;display:grid;gap:12px}.flow .label{color:var(--hero-code)}.flow code{background:none;padding:0;font-size:26px;color:var(--hero-code);letter-spacing:.08em}.flow .arrow{color:var(--hero-soft);font-size:14px}.flow .end{color:var(--hero-end)}
+.pill{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:13px;margin:0 5px 6px 0}
+.actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.btn,button{min-height:44px;border:1px solid var(--line);border-radius:11px;background:var(--surface);padding:9px 16px;color:var(--ink);font-weight:600;text-decoration:none;font-size:15px}
+.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+section{padding-block:42px;border-top:1px solid var(--line)}.section-head{max-width:780px;margin-bottom:24px}
+.workspace{display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px}
+.lesson-menu{display:grid;gap:3px;align-content:start;position:sticky;top:calc(80px + env(safe-area-inset-top,0px));max-height:calc(100vh - 100px);overflow:auto}
+.lesson-menu .group{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);padding:12px 10px 4px}
+.lesson-menu button{text-align:left;display:flex;gap:10px;align-items:center;border-color:transparent;background:none;font-size:14px;line-height:1.35;padding:8px 10px;min-height:40px}
+.lesson-menu button[aria-current=step]{background:var(--tint);border-color:var(--line);color:var(--accent)}
+.lesson-menu .num{font:500 12px var(--mono);flex:none;color:var(--soft);width:20px}.lesson-menu .done{color:var(--good)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,3vw,30px);box-shadow:var(--shadow);min-width:0}
+.reading{max-width:76ch}.reading p:last-child{margin-bottom:0}
+pre{margin:14px 0;overflow:auto;background:var(--code);border:1px solid var(--line);border-radius:12px;padding:16px 18px;font:14px/1.75 var(--mono);tab-size:4;max-width:100%}
+code{font-family:var(--mono);font-size:.86em;background:var(--code);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}pre code{padding:0;background:none;white-space:pre;overflow-wrap:normal;font-size:inherit}
+.lab{margin:22px 0;border-top:1px solid var(--line);padding-top:20px}
+.field{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+input{width:110px;min-height:44px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:7px 10px}
+.output{background:var(--tint);border-radius:12px;padding:14px 16px;font:14px/1.7 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
+.output .cap{display:block;font:800 11px var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:4px}
+.quiz{border-top:1px solid var(--line);padding-top:20px;margin-top:22px}.quiz .actions{margin:12px 0}
+.answer[aria-pressed=true]{border-color:var(--bad);background:var(--tint)}.answer.correct[aria-pressed=true]{border-color:var(--good)}
+.feedback{font-size:15px;color:var(--bad)}.feedback.good{color:var(--good)}
+.lesson-bottom{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:22px;padding-top:18px}
+.progress{width:100%;height:5px;background:var(--line);border-radius:20px;margin:16px 0}.progress i{display:block;height:100%;background:var(--accent);border-radius:20px;transition:width .2s}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}.split>*{min-width:0}
+.condition ol{padding-left:24px}.condition li{padding-left:4px;margin-bottom:10px}
+.bits{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0}.bit{display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:var(--code);width:34px;height:42px;font:500 18px var(--mono)}.bit.suffix{color:var(--good);background:var(--tint);border-color:var(--good)}
+.code-lines{display:grid;overflow:auto;max-width:100%;background:var(--code);border:1px solid var(--line);border-radius:12px;padding:10px 0}
+.code-line{text-align:left;white-space:pre;font:13px/1.8 var(--mono);border:0;border-radius:0;padding:7px 12px;background:none;min-height:40px;display:block;font-weight:400}
+.code-line[aria-selected=true]{background:var(--tint);box-shadow:inset 3px 0 var(--accent)}.code-line.skip{color:var(--soft)}
+.code-line .line-number{display:inline-block;width:28px;color:var(--soft);user-select:none}
+.variables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0}.variable{border:1px solid var(--line);border-radius:10px;padding:9px 11px;overflow-wrap:anywhere}.variable small{display:block;color:var(--soft);font-size:12px}.variable b{font:500 16px var(--mono)}
+.wide{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}.table th,.table td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}.table th{color:var(--soft);font-size:12px;font-weight:600;position:sticky;top:0;background:var(--surface)}.table tr.best{background:var(--tint);color:var(--good)}.table tr.first td:first-child{color:var(--warm);font-weight:700}
+.stats{display:flex;gap:22px;flex-wrap:wrap;margin:14px 0}.stat span{display:block;color:var(--soft);font-size:13px}.stat strong{font-size:25px;font-variant-numeric:tabular-nums}
+.result{font-size:32px;font-weight:800;color:var(--good);margin-bottom:6px}
+details{border-bottom:1px solid var(--line);padding:14px 0}summary{cursor:pointer;font-weight:600;padding:5px 0}details .reading{margin-top:14px}
+.notice{border-left:3px solid var(--accent);padding-left:16px;color:var(--soft);margin:18px 0}
+.trap{border:1px solid var(--warm);background:var(--warm-tint);border-radius:12px;padding:14px 16px;margin:16px 0}.trap b{color:var(--warm)}
+.qtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}.qtabs button[aria-selected=true]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.cards .panel{display:flex;flex-direction:column}.cards .panel .actions{margin-top:auto}
+.level{font:600 12px var(--font);color:var(--soft)}
+footer{padding-block:28px 50px;font-size:14px;color:var(--soft)}
+@media(max-width:960px){.cards{grid-template-columns:1fr}}
+@media(max-width:860px){.hero,.split{grid-template-columns:1fr}.hero{padding-top:30px}.workspace{grid-template-columns:1fr}.lesson-menu{display:flex;overflow:auto;padding-bottom:8px;position:static;max-height:none}.lesson-menu .group{display:none}.lesson-menu button{min-width:190px;flex:none}.flow{padding:24px}.top{gap:14px}}
+@media(max-width:430px){body{font-size:16px}.brand{font-size:16px}nav{font-size:12px}.theme{width:36px;height:36px;min-height:36px}.panel{padding:16px}pre{padding:12px;font-size:12px}.code-line{font-size:11px}.variables{grid-template-columns:1fr}h1{font-size:34px}.flow code{font-size:21px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.progress i{transition:none}}
-</style></head>
-<body>
-<header><div class="wrap top"><a class="brand" href="#start">Инфо<span>шаг</span></a><nav aria-label="Разделы"><a href="#python">Python</a><a href="#task">Задача</a><a href="#trace">По строкам</a><a href="#search">Перебор</a><a href="#program">Весь код</a><a href="#reference">Справочник</a></nav><button class="theme" id="theme" aria-label="Переключить тему">◐</button></div></header>
+</style>
+
+</head><body><header><div class="wrap top"><a class="brand" href="#start">Инфо<span>шаг</span></a><nav aria-label="Разделы"><a href="#python">Python</a><a href="#task">Задача</a><a href="#trace">По строкам</a><a href="#bound">Граница</a><a href="#search">Перебор</a><a href="#program">Код</a><a href="#questions">Вопросы</a><a href="#ternary">Троичная</a><a href="#practice">Практика</a></nav><button class="theme" id="theme" aria-label="Переключить тему">◐</button></div></header>
 <main class="wrap">
-<div class="hero" id="start"><div><div class="eyebrow">ЕГЭ · задание 5 · интерактивный разбор</div><h1>От маленьких команд<br>к целой программе</h1><p class="lead">Сначала разберись с двоичными строками и приёмами Python. Затем собери решение задачи — по одной понятной строке.</p><p><span class="pill">12 блоков Python</span><span class="pill">Самостоятельная задача</span></p><div class="actions"><a class="btn primary" href="#python">Начать с Python →</a><a class="btn" href="#task">Перейти к задаче</a></div></div><div class="flow" aria-label="Пример преобразования числа"><div class="label">Одна запись · несколько действий</div><code>13 → 1101</code><div class="arrow">3 единицы → нечётная ветвь</div><code>10 + 1101 + 1</code><div class="arrow">двоичную запись превращаем в число</div><code class="end">1011011 → 91</code></div></div>
-<noscript><p class="noscript">Для интерактивных примеров включи JavaScript. Условие задачи и дополнительный справочник доступны ниже.</p></noscript>
-<section id="python"><div class="section-head"><div class="eyebrow">01 · сначала инструменты</div><h2>Python небольшими порциями</h2><p class="muted">Выбирай блоки по порядку. В каждом — объяснение, пример с твоим числом и короткая проверка. Правильные ответы отмечают пройденное.</p><p id="progressText" aria-live="polite"></p><div class="progress" aria-hidden="true"><i id="progressBar"></i></div></div><div class="workspace"><div class="lesson-menu" id="lessonMenu" aria-label="Блоки Python"></div><article class="panel" id="lessonPanel"><div class="label" id="lessonNumber"></div><h3 id="lessonTitle"></h3><div class="reading" id="lessonReading"></div><div class="lab"><h3>Попробуй на своём числе</h3><div class="field"><label for="labN">N от 4 до 255</label><input id="labN" type="number" min="4" max="255" value="13"></div><pre id="labCode"></pre><div class="output" id="labOutput" aria-live="polite"></div></div><div class="quiz"><div class="label">Проверь себя</div><p id="quizQuestion"></p><div class="actions" id="quizOptions"></div><p class="feedback" id="quizFeedback" aria-live="polite"></p></div><div class="lesson-bottom"><button id="lessonPrev">← Предыдущий</button><button class="primary" id="lessonNext">Следующий →</button></div></article></div></section>
-<section id="task"><div class="section-head"><div class="eyebrow">02 · самостоятельный пример</div><h2>Как получить минимальное R?</h2><p class="muted">Теперь используем знакомые блоки вместе. Это учебная задача с собственным сочетанием правил, а не копия демоверсии.</p></div><div class="split"><div class="panel condition"><h3>Условие</h3><p>На вход подаётся натуральное число <b>N ≥ 4</b>.</p><ol><li>Строится двоичная запись N без ведущих нулей.</li><li>Подсчитываются единицы в <b>исходной</b> записи.</li><li>Если единиц чётное количество, справа дописываются <b>две последние цифры</b> исходной записи.</li><li>Если единиц нечётное количество, слева дописывается <b>10</b>, а справа — <b>двоичная запись остатка N % 4</b>. Нулевой остаток записывается одной цифрой <b>0</b>.</li><li>Полученная запись — двоичная запись числа R.</li></ol><p><b>Найди минимальное R, превышающее 230.</b> Ответ запиши в десятичной системе.</p><p class="notice">Ищем минимум результата R. Минимальный подходящий вход N — другой вопрос.</p></div><div class="panel"><h3>Проследи один пример</h3><div class="field"><label for="exampleN">Исходное N</label><input id="exampleN" type="number" min="4" max="1000" value="13"></div><div class="actions" id="presets"><button data-n="4">4 · остаток 0</button><button data-n="6">6 · чётная ветвь</button><button data-n="13">13 · нечётная</button><button data-n="14">14 · остаток 2</button></div><div class="variables" id="exampleVars"></div><div class="label">Новая двоичная запись</div><div class="bits" id="exampleBits" aria-label="Построенная запись"></div><p id="exampleExplain" aria-live="polite"></p><div class="quiz" id="taskQuiz"></div></div></div></section>
-<section id="trace"><div class="section-head"><div class="eyebrow">03 · собираем функцию</div><h2>Одна строка — одно действие</h2><p class="muted">Выбери строку Python. Справа увидишь её смысл и значения переменных на этом шаге. Неисполненная ветвь тоже объясняется.</p></div><div class="field"><label for="traceN">Проверяем N</label><input id="traceN" type="number" min="4" max="1000" value="13"></div><div class="split"><div class="code-lines" id="codeLines" role="tablist" aria-label="Строки функции"></div><div class="panel" role="tabpanel" id="tracePanel" aria-labelledby="traceLine0"><div class="label" id="traceCount"></div><h3 id="traceTitle"></h3><div id="traceExplain"></div><div class="variables" id="traceVars"></div><div class="actions"><button id="tracePrev">← Назад</button><button class="primary" id="traceNext">Следующая строка →</button></div></div></div></section>
-<section id="bound"><div class="section-head"><div class="eyebrow">04 · перед перебором</div><h2>Почему достаточно проверить до 240?</h2></div><div class="split"><div class="panel reading"><h3>Сначала найдём подходящий результат</h3><p>Для N = 60 запись равна <code>111100</code>. Единиц четыре, поэтому приписываем последние две цифры <code>00</code>.</p><pre>111100 + 00 = 11110000₂ = 240</pre><p>Число 240 превышает 230. Значит, минимальный подходящий результат уже <b>не больше 240</b>.</p></div><div class="panel reading"><h3>Теперь исключим лишние входы</h3><p>В обеих ветвях к записи N только добавляются цифры. Поэтому <b>R ≥ N</b>.</p><p>При N &gt; 240 получится R &gt; 240. Такой результат не улучшит уже найденный. Проверим все N от 4 до 240 включительно:</p><pre>for n in range(4, 241):</pre><p class="muted">Эта граница выведена для нашего алгоритма. В другой задаче её нужно обосновать заново.</p></div></div></section>
-<section id="search"><div class="section-head"><div class="eyebrow">05 · ищем результат</div><h2>Перебор без преждевременной остановки</h2><p class="muted">Посмотри, как меняется лучший результат. Первая подходящая пара ещё не гарантирует минимум R.</p></div><div class="panel"><div class="actions"><button id="scanReset">Сначала</button><button id="scanNext">Один N →</button><button id="scanTen">Ещё 10</button><button id="scanPlay">▶ Автоматически</button><button class="primary" id="scanEnd">До конца</button></div><div class="stats" id="scanStats" aria-live="polite"></div><p id="scanExplain"></p><div class="wide" style="max-height:330px"><table class="table"><thead><tr><th>N</th><th>Исходная запись</th><th>R</th><th>Лучший R сейчас</th></tr></thead><tbody id="scanRows"></tbody></table></div><div id="scanConclusion" hidden><p class="notice">Перебор завершён. Сравни первое подходящее N и вход, который даёт наименьшее R.</p><div class="output" id="searchAnswer"></div></div></div><div class="panel quiz" id="searchQuiz"></div></section>
-<section id="program"><div class="section-head"><div class="eyebrow">06 · полное решение</div><h2>Вся программа на Python</h2><p class="muted">Сначала обычный цикл, затем компактная запись. Скопируй программу и проверь её в Python.</p></div><div class="panel"><div class="actions"><button class="primary" id="copyCode">Скопировать код</button><button id="downloadCode">Скачать .py</button><button id="showAnswer">Показать ответ и проверку</button></div><pre><code id="fullCode"></code></pre><div id="finalAnswer" hidden></div><details><summary>Тот же поиск одной строкой</summary><pre>answer = min(r for n in range(4, 241) if (r := transform(n)) &gt; 230)</pre><p><code>:=</code> сохраняет результат в r. Функция вызывается один раз на каждый N. Эта запись заменяет только цикл поиска, а сама функция <code>transform</code> всё равно нужна.</p></details><details><summary>Как узнать не только R, но и исходное N?</summary><pre>pairs = []
-for n in range(4, 241):
-    r = transform(n)
-    if r &gt; 230:
-        pairs.append((r, n))
-print(min(pairs))</pre><p>Пара <code>(r, n)</code> сравнивается сначала по R. Если поменять элементы местами, будем искать минимум N.</p></details></div></section>
-<section id="practice"><div class="section-head"><div class="eyebrow">07 · проверь самостоятельно</div><h2>А если поменять порог?</h2><p class="muted">Правила алгоритма те же. Измени границу и попробуй предсказать минимальный R. Ответ откроется только по кнопке.</p></div><div class="panel"><div class="field"><label for="threshold">Нужен R больше</label><input id="threshold" type="number" min="0" max="2000" value="150"><button class="primary" id="checkThreshold">Проверить</button></div><div id="practiceResult" hidden aria-live="polite"></div></div></section>
-<section id="reference"><div class="section-head"><div class="eyebrow">08 · когда освоен основной маршрут</div><h2>Приёмы для других вариантов</h2><p class="muted">Троичная запись, сумма цифр, инверсия, замена разрядов и другие операции. Возвращайся к нужному приёму по условию своей задачи.</p></div><div class="panel"><!--__EXTRAS__--></div></section>
-</main><footer class="wrap">Инфошаг · Самостоятельный учебный пример · Без установки и регистрации</footer>
+<div class="hero" id="start"><div><div class="eyebrow">ЕГЭ · задание 5 · пошаговый разбор</div><h1>Задание 5: от одной команды к целой программе</h1><p class="lead">Сначала по одному разбираем приёмы Python, которые встречаются в задании 5. Потом решаем новую задачу среднего уровня: по одной строке, с проверкой на каждом шаге.</p><p><span class="pill">16 блоков Python</span><span class="pill">Своя задача, не из сборника</span><span class="pill">6 типов вопросов</span><span class="pill">Троичная версия</span></p><div class="actions"><a class="btn primary" href="#python">Начать с Python →</a><a class="btn" href="#task">Сразу к задаче</a></div></div>
+<div class="flow" aria-label="Пример работы алгоритма для N = 19"><div class="label">N = 19 · одна запись, три действия</div><code>19 → 10011</code><div class="arrow">19 % 3 = 1 → 1 · 5 = 5 → двоичная запись 101</div><code>10011 + 101</code><div class="arrow">читаем результат как двоичное число</div><code class="end">10011101₂ → 157</code></div></div>
+
+<section id="python"><div class="section-head"><div class="eyebrow">Часть 1 · инструменты</div><h2>Python для задания 5 по порядку</h2><p class="muted">Блоки идут от простого к сложному. В каждом: объяснение, пример на твоём числе и один вопрос. Правильный ответ отмечает блок пройденным.</p><p id="progressText" aria-live="polite"></p><div class="progress" aria-hidden="true"><i id="progressBar"></i></div></div>
+<div class="workspace"><div class="lesson-menu" id="lessonMenu" aria-label="Блоки Python"></div>
+<article class="panel" id="lessonPanel"><div class="label" id="lessonNumber"></div><h3 id="lessonTitle"></h3><div class="reading" id="lessonReading"></div>
+<div class="lab"><h3>Попробуй на своём числе</h3><div class="field"><label for="labN" id="labLabel">N от 1 до 255</label><input id="labN" type="number" min="1" max="255" value="19"></div><pre><code id="labCode"></code></pre><div class="output" id="labOutput" aria-live="polite"></div></div>
+<div class="quiz"><div class="label">Проверь себя</div><p id="quizQuestion"></p><div class="actions" id="quizOptions"></div><p class="feedback" id="quizFeedback" aria-live="polite"></p></div>
+<div class="lesson-bottom"><button id="lessonPrev">← Предыдущий</button><button class="primary" id="lessonNext">Следующий →</button></div></article></div></section>
+
+<section id="task"><div class="section-head"><div class="eyebrow">Часть 2 · задача</div><h2>Минимальное R, большее 150</h2><p class="muted">Самостоятельная учебная задача с преобразованием двоичной записи. Сначала прочитай условие, потом проследи алгоритм на нескольких N.</p></div>
+<div class="split"><div class="panel condition"><h3>Условие</h3><p>На вход алгоритма подаётся натуральное число <b>N</b>. Алгоритм строит по нему новое число <b>R</b> так:</p><ol><li>Строится двоичная запись числа N.</li><li>Запись обрабатывается по правилу:<br>а) если N <b>делится на 3</b>, справа дописываются <b>две последние цифры</b> двоичной записи;<br>б) если N на 3 <b>не делится</b>, остаток от деления N на 3 <b>умножается на 5</b>, переводится в двоичную систему и дописывается справа.</li><li>Полученная запись является двоичной записью числа R.</li></ol><p>Например, 12 = 1100₂ → 110000₂ = 48. Для 7 = 111₂: остаток 1, 1 · 5 = 5 = 101₂ → 111101₂ = 61.</p><p><b>Укажите минимальное число R, большее 150, которое может получиться в результате работы алгоритма.</b> Ответ запишите в десятичной системе.</p><p class="notice">Спрашивают про минимальное <b>R</b>, а не про минимальное N. Это два разных вопроса с разными ответами.</p></div>
+<div class="panel"><h3>Проследи один пример</h3><div class="field"><label for="exampleN">Исходное N</label><input id="exampleN" type="number" min="1" max="999" value="12"></div><div class="actions" id="presets"><button data-n="12">12 · делится на 3</button><button data-n="7">7 · остаток 1</button><button data-n="5">5 · остаток 2</button><button data-n="19">19</button></div><div class="variables" id="exampleVars"></div><div class="label">Новая двоичная запись <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· зелёным — дописанное</span></div><div class="bits" id="exampleBits" aria-label="Построенная запись"></div><p id="exampleExplain" aria-live="polite"></p><div class="quiz" id="taskQuiz"></div></div></div></section>
+
+<section id="trace"><div class="section-head"><div class="eyebrow">Часть 3 · программа</div><h2>Одна строка — одно действие</h2><p class="muted">Нажимай на строки по очереди. Справа видно, что делает строка и какие значения у переменных в этот момент. Строки ветви, которая не выполняется, отмечены серым.</p></div>
+<div class="field"><label for="traceN">Проверяем N</label><input id="traceN" type="number" min="1" max="999" value="19"></div>
+<div class="split"><div class="code-lines" id="codeLines" role="tablist" aria-label="Строки программы"></div><div class="panel" role="tabpanel" id="tracePanel" aria-labelledby="traceLine0"><div class="label" id="traceCount"></div><h3 id="traceTitle"></h3><p id="traceExplain"></p><div class="variables" id="traceVars"></div><div class="actions"><button id="tracePrev">← Назад</button><button class="primary" id="traceNext">Следующая строка →</button></div></div></div></section>
+
+<section id="bound"><div class="section-head"><div class="eyebrow">Часть 4 · перед перебором</div><h2>Сколько N нужно перебрать?</h2></div>
+<div class="split"><div class="panel reading"><h3>Шаг 1. R всегда хотя бы в 4 раза больше N</h3><p>В обеих ветвях к записи N <b>дописываются</b> цифры справа: две цифры, или <code>101</code> (три), или <code>1010</code> (четыре).</p><p>Дописать справа одну двоичную цифру — значит умножить число на 2 и что-то прибавить. Две цифры — умножить хотя бы на 4. Поэтому всегда <b>R ≥ 4 · N</b>.</p><pre>11₁₀ = 1011₂ → 10111010₂ = 186 ≥ 4 · 11 = 44</pre></div>
+<div class="panel reading"><h3>Шаг 2. Отбрасываем лишние N</h3><p>Уже при N = 11 получается R = 186 &gt; 150. Значит, ответ не больше 186.</p><p>Если N ≥ 47, то R ≥ 4 · 47 = 188 &gt; 186. Такие N ответ не улучшат. Достаточно проверить N от 1 до 46:</p><pre>for n in range(1, 47):</pre><p class="muted">На экзамене проще взять с запасом: <code>range(1, 1000)</code>. Компьютер переберёт тысячу чисел мгновенно, а ответ не изменится, потому что большие N дают только большие R.</p></div></div></section>
+
+<section id="search"><div class="section-head"><div class="eyebrow">Часть 5 · перебор</div><h2>Почему нельзя остановиться на первом подходящем</h2><p class="muted">В таблицу попадают только N, для которых R &gt; 150. Оранжевым отмечено первое подходящее N, зелёным — каждый новый минимум R.</p></div>
+<div class="panel"><div class="actions"><button id="scanReset">Сначала</button><button id="scanNext">Один N →</button><button id="scanTen">Ещё 10</button><button id="scanPlay">▶ Автоматически</button><button class="primary" id="scanEnd">До конца</button></div><div class="stats" id="scanStats" aria-live="polite"></div><p id="scanExplain"></p><div class="wide" style="max-height:340px"><table class="table"><thead><tr><th>N</th><th>Запись N</th><th>Новая запись</th><th>R</th><th>Лучший R</th></tr></thead><tbody id="scanRows"></tbody></table></div><div id="scanConclusion" hidden><div class="output" id="searchAnswer" style="margin-top:14px;font-family:var(--font)"></div></div></div>
+<div class="panel quiz" id="searchQuiz"></div></section>
+
+<section id="program"><div class="section-head"><div class="eyebrow">Часть 6 · решение</div><h2>Вся программа</h2><p class="muted">Решение целиком в одном цикле. Подходящие r сохраняем в a, а после цикла выводим min(a). Никакой функции для всей задачи не требуется.</p></div>
+<div class="panel"><div class="actions"><button class="primary" id="copyCode">Скопировать код</button><button id="showAnswer">Показать ответ</button></div><pre><code id="fullCode"></code></pre><div id="finalAnswer" hidden></div>
+<details><summary>Как проверить отдельный пример</summary><div class="reading"><pre><code>n = 12
+b = bin(n)[2:]
+if n % 3 == 0:
+    b += b[-2:]
+else:
+    b += bin((n % 3) * 5)[2:]
+r = int(b, 2)
+print(r)</code></pre><p>Для n = 12 получится 48. Затем поменяй n на 7: получится 61. Для проверки одного входа цикл не нужен.</p></div></details><details><summary>Как узнать не только R, но и N</summary><div class="reading"><pre><code>a = []
+for n in range(1, 1000):
+    b = bin(n)[2:]
+    if n % 3 == 0:
+        b += b[-2:]
+    else:
+        b += bin((n % 3) * 5)[2:]
+    r = int(b, 2)
+    if r &gt; 150:
+        a.append((r, n))
+print(min(a))</code></pre><p>В a сохраняем пары (r, n). Сначала сравниваются r, затем n. Получится (157, 19).</p></div></details><details><summary>Проверка без программы, арифметикой</summary><div class="reading"><p>Дописать справа k двоичных цифр со значением t — то же, что <code>n * 2**k + t</code>.</p><pre><code>n % 3 == 0  →  R = n * 4 + n % 4
+n % 3 == 1  →  R = n * 8 + 5
+n % 3 == 2  →  R = n * 16 + 10</code></pre><p>Для N = 19: остаток 1, R = 19 · 8 + 5 = 157. Для N = 18: R = 18 · 4 + 2 = 74 — мало. Для N = 20: R = 20 · 16 + 10 = 330 — больше.</p></div></details></div></section>
+
+<section id="questions"><div class="section-head"><div class="eyebrow">Часть 7 · тот же алгоритм</div><h2>Другой вопрос — другие последние строки</h2><p class="muted">Блок от <code>b = bin(n)[2:]</code> до <code>r = int(b, 2)</code> не меняется. Меняются отбор, добавляемое значение и последняя строка. Выбери тип вопроса и порог: код и ответ пересчитаются.</p></div>
+<div class="panel"><div class="qtabs" id="qtabs" role="tablist" aria-label="Тип вопроса"></div><div class="field"><label for="qX">Порог X</label><input id="qX" type="number" min="1" max="2000" value="150"></div><p id="qText"></p><pre><code id="qCode"></code></pre><div class="actions"><button id="qShow">Показать ответ</button></div><div id="qAnswer" hidden aria-live="polite"></div></div></section>
+
+<section id="ternary"><div class="section-head"><div class="eyebrow">Часть 8 · шаг дальше</div><h2>Та же задача в троичной системе</h2><p class="muted">Для троичной записи вынесем в функцию только перевод числа. Само решение останется обычным циклом со списком a.</p></div>
+<div class="split"><div class="panel reading"><h3>Меняем систему счисления</h3><p>Строится <b>троичная</b> запись N. Если N делится на 3, дописываются две последние <b>троичные</b> цифры. Иначе остаток, умноженный на 5, переводится в <b>троичную</b> систему и дописывается справа. Найти минимальное R, большее 150.</p><p>В коде меняются три места: <code>bin(n)[2:]</code> заменяем на <code>f(n, 3)</code>, <code>bin((n % 3) * 5)[2:]</code> — на <code>f((n % 3) * 5, 3)</code>, а <code>int(b, 2)</code> — на <code>int(b, 3)</code>.</p><p>Примеры: 6 = 20₃ → 2020₃ = 60. 4 = 11₃, остаток 1, 5 = 12₃ → 1112₃ = 41.</p></div>
+<div class="panel"><pre><code>def f(x, base):
+    if x == 0:
+        return '0'
+    s = ''
+    while x &gt; 0:
+        s += str(x % base)
+        x //= base
+    return s[::-1]
+
+a = []
+for n in range(1, 1000):
+    b = f(n, 3)
+    if n % 3 == 0:
+        b += b[-2:]
+    else:
+        b += f((n % 3) * 5, 3)
+    r = int(b, 3)
+    if r &gt; 150:
+        a.append(r)
+print(min(a))</code></pre><div class="actions"><button id="terShow">Показать ответ</button></div><div id="terAnswer" hidden></div></div></div></section>
+
+<section id="practice"><div class="section-head"><div class="eyebrow">Часть 9 · самостоятельно</div><h2>Три задачи для тренировки</h2><p class="muted">Все три составлены для этой страницы. Сначала реши сама или сам, потом открой ответ и сверь код.</p></div>
+<div class="cards" id="practiceCards"></div></section>
+
+<section id="reference"><div class="section-head"><div class="eyebrow">Справочник</div><h2>Редкие приёмы</h2><p class="muted">Встречаются в старых вариантах и авторских задачах. Возвращайся сюда, когда условие требует.</p></div>
+<div class="panel"><details><summary>Восьмеричная и шестнадцатеричная запись</summary><div class="reading"><pre><code>oct(n)[2:]
+hex(n)[2:]
+f'{n:X}'
+int('AF', 16)</code></pre><p><code>hex</code> даёт маленькие буквы a–f, <code>f'{n:X}'</code> — большие A–F. Для систем больше 10 в <code>f</code> бери цифру из строки-алфавита: <code>'0123456789ABCDEFGHIJ'[x % base]</code>.</p></div></details>
+<details><summary>Фиксированная разрядность: «восьмибитная запись»</summary><div class="reading"><pre><code>s = f'{n:08b}'
+s = bin(n)[2:].zfill(8)</code></pre><p>Ноль спереди добавляется, только если запись короче 8 цифр. Обрезать длинную запись эти команды не умеют.</p></div></details>
+<details><summary>Старый тип: цифры десятичного числа</summary><div class="reading"><pre><code>a, b, c, d = map(int, str(n))
+sums = sorted([a + b, b + c, c + d])
+result = int(''.join(map(str, sums[1:])))</code></pre><p>Сортируй числа до перевода в строки: число 12 больше 3, а строка <code>'12'</code> меньше строки <code>'3'</code>. Перебор четырёхзначных: <code>range(1000, 10000)</code>.</p></div></details>
+<details><summary>Двоично-десятичная запись: каждая цифра — 4 бита</summary><div class="reading"><pre><code>s = ''.join(f'{int(d):04b}' for d in str(n))</code></pre><p>Для 95 получится <code>'10010101'</code>: 9 → 1001, 5 → 0101.</p></div></details>
+<details><summary>Побитовые операции</summary><div class="reading"><pre><code>n.bit_count()
+n &lt;&lt; 2
+n &gt;&gt; 2</code></pre><p><code>n.bit_count()</code> — число единиц, то же что <code>bin(n).count('1')</code>. <code>n &lt;&lt; 2</code> дописывает два нуля справа (умножение на 4), <code>n &gt;&gt; 2</code> удаляет две последние цифры.</p></div></details></div></section>
+</main>
+<footer class="wrap">Инфошаг · задание 5 ЕГЭ по информатике · задачи на странице составлены специально для разбора</footer>
+
 <script>
 (()=>{'use strict';
-const $=s=>document.querySelector(s), lessons=/*__LESSONS__*/;
+const $=s=>document.querySelector(s);
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-const binary=n=>n.toString(2), count=b=>[...b].filter(x=>x==='1').length;
-function calculate(n){const b=binary(n),ones=count(b),even=ones%2===0,rem=n%4,suffix=even?b.slice(-2):binary(rem),prefix=even?'':'10',bits=prefix+b+suffix;return{n,b,ones,even,rem,suffix,prefix,bits,r:parseInt(bits,2)}}
-function number(input,min,max){let v=Number(input.value);if(!Number.isFinite(v))v=min;v=Math.max(min,Math.min(max,Math.trunc(v)));return v}
-function variables(values){return Object.entries(values).map(([k,v])=>`<div class="variable"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join('')}
-let completed=new Set(), selected=0, answers={};try{const saved=JSON.parse(localStorage.getItem('infoshag-ege5-progress')||'[]');if(Array.isArray(saved))completed=new Set(saved.filter(x=>Number.isInteger(x)&&x>=0&&x<12))}catch{}
-function progress(){const total=completed.size;$('#progressText').textContent=`Пройдено ${total} из ${lessons.length} блоков`;$('#progressBar').style.width=`${100*total/lessons.length}%`;try{localStorage.setItem('infoshag-ege5-progress',JSON.stringify([...completed]))}catch{}}
-function dark(){return document.documentElement.dataset.theme?document.documentElement.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches}
-try{const t=localStorage.getItem('infoshag-ege5-theme');if(['light','dark'].includes(t))document.documentElement.dataset.theme=t}catch{}
-$('#theme').onclick=()=>{document.documentElement.dataset.theme=dark()?'light':'dark';try{localStorage.setItem('infoshag-ege5-theme',document.documentElement.dataset.theme)}catch{}};
-const quizzes=[
-['Чему равно выражение «13» + «2», если оба значения — строки?',['15','132','Будет ошибка'],1,'Строки соединяются: «13» + «2» = «132». Сложение 13 + 2 дало бы число 15.'],
-['Что убирает срез [2:] в bin(13)[2:]?',['Последние две цифры','Первые два символа 0b','Две единицы'],1,'Индексы 0 и 1 заняты символами 0b. Срез с индекса 2 оставляет двоичные цифры.'],
-['Что вернёт «1101»[-2:]?',['11','01','110'],1,'Отрицательный индекс −2 указывает на предпоследний символ; срез идёт до конца: 01.'],
-['Чему равна сумма цифр двоичной строки «10110»?',['3','5','22'],0,'В двоичной записи нули ничего не добавляют. Три единицы дают сумму 3. Числовое значение записи — 22.'],
-['Число 8 чётное. Чётно ли количество единиц в его двоичной записи?',['Да','Нет'],1,'8 = 1000₂. В записи одна единица, поэтому её количество нечётно.'],
-['Как приписать справа именно двоичную запись числа 3?',["b + str(3)","b + bin(3)[2:]","b + 3"],1,'Двоичная запись 3 — 11. str(3) даёт символ 3, а строку и целое складывать нельзя.'],
-['В условии нужны последние две цифры исходной записи. Когда их лучше сохранить?',['После всех преобразований','До изменения строки'],1,'Сначала сохрани исходный фрагмент. Иначе возьмёшь последние цифры уже изменённой записи.'],
-['Какой блок выполняется, когда условие if истинно?',['Только if','Только else','Оба'],0,'В конструкции if/else выполняется одна ветвь: if при истинном условии и else при ложном.'],
-['Чему равно int(«101», 2)?',['101','5','Ошибка'],1,'Основание 2 означает двоичную запись: 1·4 + 0·2 + 1 = 5.'],
-['Зачем функция заканчивается return, а не только print?',['Чтобы вернуть значение для дальнейшего поиска','Чтобы раскрасить вывод'],0,'print показывает значение. return передаёт его вызывающему коду: r = transform(n).'],
-['Как проверить N от 4 до 240 включительно?',['range(4, 240)','range(4, 241)','range(5, 241)'],1,'Правая граница range не включается. Нужны 4, 5, …, 240, поэтому правая граница равна 241.'],
-['Когда можно остановиться на первом подходящем N?',['Всегда','Когда ищем минимальное N и перебираем его по возрастанию'],1,'При возрастающем переборе первый подходящий вход — минимальный N. Его результат R может оказаться больше результатов последующих входов.']
+const bin=n=>n.toString(2), tb=(n,b)=>n.toString(b).toUpperCase();
+const cnt=(s,c)=>s.split(c).length-1, dsum=s=>[...s].reduce((a,c)=>a+parseInt(c,36),0);
+const py=v=>v===true?'True':v===false?'False':v;
+const rep=s=>`'${s}'`;
+function T(n){const s=bin(n),div=n%3===0,rem=n%3,tail=div?s.slice(-2):bin(rem*5),bits=s+tail;return{n,s,div,rem,tail,bits,r:parseInt(bits,2)}}
+function T3(n){const s=tb(n,3),div=n%3===0,rem=n%3,tail=div?s.slice(-2):tb(rem*5,3),bits=s+tail;return{n,s,div,rem,tail,bits,r:parseInt(bits,3)}}
+function clampInput(el,min,max){let v=Math.trunc(Number(el.value));if(!Number.isFinite(v))v=min;return Math.max(min,Math.min(max,v))}
+function variables(o){return Object.entries(o).map(([k,v])=>`<div class="variable"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join('')}
+function store(k,v){try{localStorage.setItem(k,v)}catch{}}function load(k){try{return localStorage.getItem(k)}catch{return null}}
+try{const t=load('infoshag-ege5-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch{}
+const isDark=()=>document.documentElement.dataset.theme?document.documentElement.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+$('#theme').onclick=()=>{document.documentElement.dataset.theme=isDark()?'light':'dark';store('infoshag-ege5-theme',document.documentElement.dataset.theme)};
+
+const L=[
+{g:'Запись числа',t:'Число и строка',h:`<p>В задании 5 всё время встречаются две разные вещи: <b>число</b> и <b>запись числа</b>.</p><pre><code>n = 13
+s = '1101'</code></pre><p><code>n</code> — целое число (тип <code>int</code>). С ним считаем: делим, берём остаток, сравниваем.</p><p><code>s</code> — строка (тип <code>str</code>), то есть цепочка символов. С ней работаем как с текстом: дописываем цифры, отрезаем кусочки, считаем символы.</p><p>Знак <code>+</code> ведёт себя по-разному: <code>13 + 2</code> даёт число 15, а <code>'13' + '2'</code> — строку <code>'132'</code>. Сложить строку и число нельзя: <code>'13' + 2</code> вызовет ошибку.</p><p>В коротких примерах запись обозначаем <code>s</code>. В основном решении используем имена автора: <code>n</code> — исходное число, <code>b</code> — его запись, <code>r</code> — результат, <code>a</code> — список подходящих результатов.</p>`,
+d:n=>[`n = ${n}
+s = '${bin(n)}'
+print(n + 2)
+print(s + '2')`,`${n+2}
+${bin(n)}2`],
+q:["Что получится: '13' + '2'?",['15','132','Ошибка'],1,"Это строки, поэтому они склеиваются: '132'."]},
+
+{g:'Запись числа',t:'Двоичная запись: bin',h:`<p>Функция <code>bin</code> переводит число в двоичную запись и возвращает <b>строку</b>.</p><pre><code>print(bin(13))
+print(bin(13)[2:])</code></pre><p>Первая строка выведет <code>0b1101</code>. Символы <code>0b</code> — это пометка «двоичное», цифрами записи они не являются. Срез <code>[2:]</code> отрезает первые два символа, остаётся <code>1101</code>.</p><p>То же самое без среза можно получить через f-строку:</p><pre><code>s = f'{n:b}'</code></pre><p>Если в условии сказано «восьмибитная запись», нужны нули спереди: <code>f'{n:08b}'</code>.</p><p>В решении будем всегда писать <code>bin(n)[2:]</code>, чтобы не путаться.</p>`,
+d:n=>[`print(bin(${n}))
+print(bin(${n})[2:])
+print(f'{${n}:b}')
+print(f'{${n}:08b}')`,`0b${bin(n)}
+${bin(n)}
+${bin(n)}
+${bin(n).padStart(8,'0')}`],
+q:['Что вернёт bin(5)?',["'101'","'0b101'",'101 (число)'],1,"bin возвращает строку с пометкой 0b. Чтобы её убрать, нужен срез [2:]."]},
+
+{g:'Запись числа',t:'Из записи обратно в число: int',h:`<p>В конце алгоритма запись надо снова превратить в число. Для этого <code>int</code> с <b>двумя</b> аргументами: строка и основание системы.</p><pre><code>print(int('1101', 2))
+print(int('112', 3))</code></pre><p>Получим 13 и 14. Второй аргумент говорит Python: «читай эту строку как двоичную» (или троичную).</p><p>Частая ошибка — забыть основание. <code>int('1101')</code> прочитает строку как десятичное число и вернёт тысячу сто один.</p><p>Нули в начале записи <code>int</code> просто пропускает: <code>int('00101', 2)</code> равно 5. Это и есть «незначащие нули».</p>`,
+d:n=>[`s = '${bin(n)}'
+print(int(s, 2))
+print(int(s))
+print(int('${tb(n,3)}', 3))`,`${n}
+${Number(bin(n))}
+${n}`],
+q:["Чему равно int('101', 2)?",['101','5','2'],1,'101₂ = 1·4 + 0·2 + 1 = 5.']},
+
+{g:'Запись числа',t:'Перевод системы: функция f',h:"<p>Для двоичной системы используем <code>bin</code>. Для других оснований вынесем в функцию только одно действие — перевод числа в запись.</p><p>Остатки получаются от младшей цифры к старшей. Накопим их справа, а в конце развернём строку.</p><pre><code>def f(x, base):\n    if x == 0:\n        return '0'\n    s = ''\n    while x &gt; 0:\n        s += str(x % base)\n        x //= base\n    return s[::-1]</code></pre><p><code>x //= base</code> уменьшает число целочисленным делением. Меняется <code>x</code>, а не строка <code>s</code>. Запись <code>s\\=3</code> неверна.</p><p>Для 14 в основании 3 остатки идут 2, 1, 1: в s получается <code>211</code>, после <code>s[::-1]</code> — <code>112</code>.</p><p>Если нужна только троичная система, можно оставить <code>def f(x):</code> и заменить base на 3. Параметр base позволяет пользоваться тем же действием для оснований от 2 до 10. Для оснований выше 10 нужен алфавит цифр. Проверка нуля нужна, чтобы f(0, 3) вернула <code>0</code>.</p>",d:n=>{let x=n,rows=[],s='';while(x>0){s+=String(x%3);rows.push(`${x} % 3 = ${x%3}; s = '${s}'; x = ${Math.floor(x/3)}`);x=Math.floor(x/3)}return[`print(f(${n}, 3))\nprint(f(${n}, 2))`,`${tb(n,3)}\n${bin(n)}\n\nОстатки собираем справа:\n${rows.join('\n')}\nРазворачиваем: '${s}' → '${tb(n,3)}'`]},q:['Что нужно уменьшать внутри while при переводе числа?',['Строку s','Число x через x //= base','Основание base'],1,'x хранит ещё не обработанную часть числа. После x //= base одна цифра уже разобрана.']},
+
+{g:'Читаем запись',t:'Индексы и срезы',h:`<p>У каждого символа строки есть номер — <b>индекс</b>. Счёт идёт с нуля. Отрицательные индексы считают с конца: <code>-1</code> — последний символ.</p><pre><code>s = '10110'
+s[0]
+s[-1]
+s[:2]
+s[-2:]
+s[2:]
+s[1:]
+s[:-1]
+s[::-1]
+len(s)</code></pre><p>Результаты: <code>'1'</code>, <code>'0'</code>, первые две <code>'10'</code>, последние две <code>'10'</code>, без первых двух <code>'110'</code>, без первой <code>'0110'</code>, без последней <code>'1011'</code>, задом наперёд <code>'01101'</code>, длина 5.</p><p>В срезе <code>[начало:конец]</code> конец <b>не</b> включается. Пустое место означает «от самого начала» или «до самого конца».</p><p>Срез никогда не даёт ошибку: если строка короче, он вернёт сколько есть. Например, у <code>'1'</code> срез <code>[-2:]</code> вернёт <code>'1'</code>.</p>`,
+d:n=>{const s=bin(n);const items=[['s[0]',s[0]],['s[-1]',s.at(-1)],['s[:2]',s.slice(0,2)],['s[-2:]',s.slice(-2)],['s[2:]',s.slice(2)],['s[1:]',s.slice(1)],['s[:-1]',s.slice(0,-1)],['s[::-1]',[...s].reverse().join('')]];return[`s = '${s}'
+`+items.map(i=>i[0]).join('\n')+'\nlen(s)',items.map(([k,v])=>`${k.padEnd(8)}→ ${rep(v)}`).join('\n')+`\nlen(s)  → ${s.length}`]},
+q:["Что вернёт '1101'[-2:]?",["'11'","'01'","'10'"],1,'Срез с предпоследнего символа до конца строки: 01.']},
+
+{g:'Читаем запись',t:'Считаем цифры',h:`<p>Метод <code>count</code> считает, сколько раз символ встречается в строке. Символ пишем в кавычках: <code>s.count('1')</code>. Запись <code>s.count(1)</code> — ошибка.</p><pre><code>s = '1202'
+print(s.count('2'))
+print(sum(map(int, s)))</code></pre><p>Получим 2 и 5. Во второй строке <code>map(int, s)</code> превращает каждый символ в число, а <code>sum</code> их складывает. Это <b>сумма цифр</b>.</p><p>В двоичной записи сумма цифр равна количеству единиц. В троичной — уже нет: у <code>'1202'</code> одна единица, а сумма цифр 5. Читай условие внимательно.</p><p>Ещё полезное:</p><pre><code>'2' in s
+max(s)
+len(s)</code></pre><p>Есть ли в записи цифра 2, самая большая цифра, количество разрядов.</p>`,
+d:n=>{const s=bin(n),t=tb(n,3);return[`s2 = '${s}'
+s3 = '${t}'
+print(s2.count('1'), sum(map(int, s2)))
+print(s3.count('1'), sum(map(int, s3)))
+print('2' in s3, max(s3), len(s3))`,`${cnt(s,'1')} ${dsum(s)}
+${cnt(t,'1')} ${dsum(t)}
+${py(t.includes('2'))} ${[...t].sort().at(-1)} ${t.length}`]},
+q:["Чему равна сумма цифр троичной записи '1202'?",['1','5','4'],1,'1 + 2 + 0 + 2 = 5. Количество единиц здесь — другой ответ: 1.']},
+
+{g:'Читаем запись',t:'Чётность и кратность',h:`<p>Оператор <code>%</code> даёт остаток от деления. Через него проверяем условия «чётное», «делится на 3», «кратно 4».</p><pre><code>n % 2 == 0
+n % 3 == 0
+n % 3</code></pre><p>Первое — «n чётное», второе — «n делится на 3». Третье — сам остаток: 0, 1 или 2.</p><p><code>=</code> присваивает, <code>==</code> сравнивает. В условии <code>if</code> нужен <code>==</code>.</p><p>Важно различать, <b>что</b> проверяется:</p><pre><code>n % 2 == 0
+s.count('1') % 2 == 0</code></pre><p>Первое — «чётное число N», второе — «чётное количество единиц». Число 8 чётное, но в записи <code>1000</code> одна единица.</p><p>Полезный факт: число чётное, когда двоичная запись оканчивается на 0. Число делится на 3, когда троичная запись оканчивается на 0.</p>`,
+d:n=>{const s=bin(n),t=tb(n,3);return[`print(${n} % 2, ${n} % 3)
+print('${s}'.count('1') % 2)
+print('${s}'[-1], '${t}'[-1])`,`${n%2} ${n%3}
+${cnt(s,'1')%2}
+${s.at(-1)} ${t.at(-1)}`]},
+q:['Число 8 чётное. А количество единиц в его двоичной записи?',['Чётное','Нечётное'],1,'8 = 1000₂, единица одна. Чётность числа и чётность количества единиц — разные вопросы.']},
+
+{g:'Меняем запись',t:'Дописываем слева и справа',h:`<p>Дописать цифры — значит склеить строки. Порядок важен: что написано левее, то и окажется слева.</p><pre><code>s = '1101'
+print('10' + s)
+print(s + '01')
+print('1' + s + '00')</code></pre><p>Получим <code>101101</code>, <code>110101</code>, <code>1110100</code>.</p><p>Строка сама не меняется. Чтобы сохранить результат, присваиваем: <code>s = s + '01'</code> или короче <code>s += '01'</code>.</p><p>Когда дописываем <b>вычисленное число</b>, есть два случая:</p><pre><code>s += str(s.count('1') % 2)
+s += bin(n % 3 * 5)[2:]</code></pre><p>Первая строка дописывает одну цифру 0 или 1 — подходит <code>str</code>. Вторая дописывает <b>двоичную запись</b> числа — нужен <code>bin</code>. Для 5: <code>str(5)</code> даст <code>'5'</code>, а <code>bin(5)[2:]</code> — <code>'101'</code>.</p><p><code>n % 3 * 5</code> считается слева направо: сначала остаток, потом умножение на 5.</p>`,
+d:n=>{const s=bin(n),v=n%3*5;return[`s = '${s}'
+print('10' + s)
+print(s + '01')
+print(s + str(${n} % 3 * 5))
+print(s + bin(${n} % 3 * 5)[2:])`,`10${s}
+${s}01
+${s}${v}
+${s}${bin(v)}`]},
+q:['Как дописать справа двоичную запись числа 5?',["s + str(5)","s + bin(5)[2:]","s + 5"],1,"str(5) даст символ '5'. Двоичная запись пятёрки — '101', её даёт bin(5)[2:]."]},
+
+{g:'Меняем запись',t:'Заменяем и удаляем разряды',h:`<p>«Два левых разряда заменяются на 10» означает: выбросить первые два символа и поставить на их место <code>10</code>.</p><pre><code>s = '1101'
+print('10' + s[2:])
+print(s[:-2] + '11')
+print(s[1:])</code></pre><p>Получим <code>1001</code> (первые две цифры <code>11</code> заменили на <code>10</code>), <code>1111</code> (последние две <code>01</code> заменили на <code>11</code>) и <code>101</code> — запись без старшей единицы.</p><p><b>Заменить</b> — длина не меняется. <b>Дописать</b> — длина растёт. Не путай <code>'10' + s[2:]</code> и <code>'10' + s</code>.</p><p>Порядок действий из условия соблюдай буквально. Например, условие может говорить: «справа дописывается 0, <b>а затем</b> два левых разряда заменяются на 10». В коде это две строки в том же порядке:</p><pre><code>s = s + '0'
+s = '10' + s[2:]</code></pre>`,
+d:n=>{const s=bin(n);return[`s = '${s}'
+print('10' + s[2:])
+print(s[:-2] + '11')
+print(s[1:])`,`10${s.slice(2)}
+${s.slice(0,-2)}11
+${s.slice(1)||"(пустая строка)"}`]},
+q:["s = '1001'. Что даст '11' + s[2:]?",["'111001'","'1101'","'1111'"],1,"s[2:] — это '01'. Приклеиваем '11' слева: '1101'. Длина осталась 4."]},
+
+{g:'Меняем запись',t:'Меняем цифры местами',h:`<p>«Все нули меняются на единицы, а единицы на нули» — это <b>инверсия</b>. Через два <code>replace</code> подряд её сделать нельзя:</p><pre><code>s = '1100'
+print(s.replace('0', '1').replace('1', '0'))</code></pre><p>Первый <code>replace</code> даст <code>'1111'</code>, второй превратит все единицы в нули: <code>'0000'</code>. Новые единицы смешались со старыми.</p><p>Правильный способ — <code>translate</code>: он заменяет все символы одновременно.</p><pre><code>print(s.translate(str.maketrans('01', '10')))</code></pre><p>Так же меняются любые пары цифр: <code>str.maketrans('02', '20')</code> поменяет нули и двойки в троичной записи.</p><p>Другие перестановки — через срезы:</p><pre><code>s[-1] + s[1:-1] + s[0]
+s[-1] + s[:-1]
+s[::-1]</code></pre><p>Первую и последнюю цифры поменять местами, последнюю перенести в начало, развернуть запись. У однозначной записи первая строка удвоит цифру, поэтому такие задачи обычно оговаривают длину.</p>`,
+d:n=>{const s=bin(n),inv=[...s].map(c=>c==='0'?'1':'0').join(''),bad='0'.repeat(s.length);return[`s = '${s}'
+print(s.translate(str.maketrans('01', '10')))
+print(s.replace('0', '1').replace('1', '0'))
+print(s[-1] + s[1:-1] + s[0])
+print(s[::-1])`,`${inv}
+${bad}
+${s.at(-1)+s.slice(1,-1)+s[0]}
+${[...s].reverse().join('')}`]},
+q:["Что выведет '1100'.replace('0', '1').replace('1', '0')?",["'0011'","'0000'","'1111'"],1,'После первой замены все цифры стали единицами, вторая замена сделала их нулями.']},
+
+{g:'Меняем запись',t:'Повторяем действие',h:`<p>Классика задания 5: «складываются цифры, остаток от деления суммы на 2 дописывается справа; над этой записью производятся те же действия».</p><p>Ключевые слова «над <b>этой</b> записью»: во второй раз считаем единицы уже в новой, удлинённой строке.</p><pre><code>for _ in range(2):
+    s += str(s.count('1') % 2)</code></pre><p>Цикл выполнится два раза. Каждый раз <code>s.count('1')</code> считается заново. Имя <code>_</code> означает «номер шага не нужен».</p><p>Ошибочный вариант считает один раз и дописывает одну и ту же цифру дважды:</p><pre><code>k = s.count('1') % 2
+s += str(k) * 2</code></pre><p>Иногда он даёт тот же ответ, иногда нет. Сравни на своём числе.</p>`,
+d:n=>{const s=bin(n);let a=s;for(let i=0;i<2;i++)a+=cnt(a,'1')%2;const b=s+String(cnt(s,'1')%2).repeat(2);return[`s = '${s}'
+for _ in range(2):
+    s += str(s.count('1') % 2)
+print(s)
+
+s = '${s}'
+k = s.count('1') % 2
+s += str(k) * 2
+print(s)`,`${a}
+${b}
+${a===b?'Для этого N ответы совпали. Попробуй N = 1 или N = 7.':'Ответы разные: второй способ ошибается.'}`]},
+q:["Дописали к '11' контрольный бит, получили '110'. Какой бит добавится вторым шагом?",['0','1'],0,"В '110' две единицы, 2 % 2 = 0. Итог: '1100'."]},
+
+{g:'Собираем решение',t:'Ветвление if / else',h:`<p>Почти в каждой задаче два случая: «если ..., то ...; иначе ...». В Python это <code>if</code> и <code>else</code>.</p><pre><code>if n % 3 == 0:
+    s = s + s[-2:]
+else:
+    s = s + bin(n % 3 * 5)[2:]</code></pre><p>Выполняется <b>ровно одна</b> ветвь. После условия ставим двоеточие, строки внутри ветви сдвигаем на 4 пробела.</p><p>Если случаев три, добавляется <code>elif</code> («иначе если»):</p><pre><code>if n % 3 == 0:
+    ...
+elif n % 3 == 1:
+    ...
+else:
+    ...</code></pre><p>Короткие ветви можно записать в одну строку — это <b>тернарный оператор</b>:</p><pre><code>s += s[-2:] if n % 3 == 0 else bin(n % 3 * 5)[2:]</code></pre><p>Читается так: «допиши <code>s[-2:]</code>, если делится на 3, иначе допиши двоичную запись». Сначала научись писать развёрнутый вариант.</p>`,
+d:n=>{const t=T(n);return[`n = ${n}
+s = '${t.s}'
+if n % 3 == 0:
+    s = s + s[-2:]
+else:
+    s = s + bin(n % 3 * 5)[2:]
+print(s)`,`${t.bits}
+Выполнилась ветвь ${t.div?'if: N делится на 3':'else: остаток '+t.rem}`]},
+q:['Сколько ветвей if / else выполняется за один раз?',['Одна','Обе','Зависит от числа'],0,'Если условие истинно — только if, если ложно — только else.']},
+
+{g:'Собираем решение',t:'Один N без своей функции',h:"<p>В двоичной задаче своя функция не нужна. Выполним действия сразу для текущего n и запишем результат в r.</p><pre><code>n = 12\nb = bin(n)[2:]\nif n % 3 == 0:\n    b += b[-2:]\nelse:\n    b += bin((n % 3) * 5)[2:]\nr = int(b, 2)\nprint(r)</code></pre><p>Получится <code>48</code>. Поменяй n на 7: должно получиться <code>61</code>. Сначала проверяем один вход, затем помещаем эти же действия внутрь цикла. <code>return</code> здесь не требуется: r уже хранит результат.</p>",d:n=>{const t=T(n);return[`n = ${n}\nb = bin(n)[2:]\nif n % 3 == 0:\n    b += b[-2:]\nelse:\n    b += bin((n % 3) * 5)[2:]\nr = int(b, 2)\nprint(r)`,String(t.r)]},q:['Где находится результат после r = int(b, 2)?',['В переменной r','Только на экране','Его нужно вернуть через return'],0,'r уже хранит целое число. Можно проверить r > 150 и добавить r в список.']},
+
+{g:'Собираем решение',t:'Перебор: for и range',h:"<p>Повторяем те же действия для многих N подряд. На каждой итерации заново строим b из текущего n.</p><pre><code>for n in range(1, 6):\n    b = bin(n)[2:]\n    if n % 3 == 0:\n        b += b[-2:]\n    else:\n        b += bin((n % 3) * 5)[2:]\n    r = int(b, 2)\n    print(n, r)</code></pre><p>range(1, 6) даёт 1, 2, 3, 4, 5. Правая граница не входит. Не выноси <code>b = bin(n)[2:]</code> до цикла: каждому n нужна новая строка.</p><p>В основном решении используем <code>range(1, 1000)</code>, то есть N от 1 до 999. Почему этого хватает, разберём в части 4.</p>",d:n=>[`for n in range(${n}, ${n+4}):\n    b = bin(n)[2:]\n    if n % 3 == 0:\n        b += b[-2:]\n    else:\n        b += bin((n % 3) * 5)[2:]\n    r = int(b, 2)\n    print(n, r)`,Array.from({length:4},(_,i)=>`${n+i} ${T(n+i).r}`).join('\n')+`\nПравая граница ${n+4} не включена.`],q:['Где заново строить b для каждого n?',['Один раз перед циклом','Внутри цикла for','После print(min(a))'],1,'Внутри for на каждом шаге строим запись нового n. Иначе преобразуем старую строку.']},
+
+{g:'Собираем решение',t:'Список a, append и min',x:true,h:"<p>Перед циклом создаём пустой список a. Внутри цикла добавляем подходящие результаты, после цикла выбираем минимум.</p><pre><code>a = []\nfor n in range(1, 1000):\n    b = bin(n)[2:]\n    if n % 3 == 0:\n        b += b[-2:]\n    else:\n        b += bin((n % 3) * 5)[2:]\n    r = int(b, 2)\n    if r &gt; 150:\n        a.append(r)\nprint(min(a))</code></pre><p><code>a = []</code> находится перед for, иначе список очищался бы на каждом шаге. <code>a.append(r)</code> — внутри if. <code>print(min(a))</code> — после всего цикла, без отступа.</p><p>Ищем минимальное R, поэтому сохраняем <code>r</code>, а не n. Не присваивай <code>a = a.append(r)</code>: append меняет список на месте и возвращает None.</p><p>Если подходящих результатов нет, min(a) вызовет ValueError. Ниже показано, почему в нашей задаче список точно не пуст.</p>",d:X=>{let a=[];for(let n=1;n<1000;n++){const r=T(n).r;if(r>X)a.push(r)}return[`a = []\nfor n in range(1, 1000):\n    b = bin(n)[2:]\n    if n % 3 == 0:\n        b += b[-2:]\n    else:\n        b += bin((n % 3) * 5)[2:]\n    r = int(b, 2)\n    if r > ${X}:\n        a.append(r)\nprint(min(a))`,String(Math.min(...a))+`\nСобрано результатов: ${a.length}`]},q:['Что добавить в a, если нужен минимальный результат R?',['n','r','b'],1,'Сохраняем числа r: min(a) должен сравнить результаты алгоритма, а не входы n или двоичные строки b.']},
+
+{g:'Собираем решение',t:'Короткие действия и проверка',h:"<p>Короткие выражения удобны для одного действия. Но всё решение оставляем обычным циклом, без lambda и функции для задачи.</p><pre><code>b = bin(n)[2:]\nb += b[-2:]\nb += bin((n % 3) * 5)[2:]\nr = int(b, 2)</code></pre><p>Две строки дописывания относятся к разным ветвям; подряд в решении их не выполняем.</p><p>Независимая проверка арифметикой: при дописывании k цифр со значением t результат равен <code>n * 2**k + t</code>.</p><pre><code>n % 3 == 0  →  R = n * 4 + n % 4\nn % 3 == 1  →  R = n * 8 + 5\nn % 3 == 2  →  R = n * 16 + 10</code></pre><p>Если вопрос изменится, сам блок от b до r останется тем же. Изменятся условие отбора, добавляемое значение и последняя строка. Примеры — в части 7.</p>",d:n=>{const t=T(n);const f=t.div?`${n} * 4 + ${n} % 4`:`${n} * ${t.rem===1?8:16} + ${t.rem===1?5:10}`;return[`n = ${n}\nb = bin(n)[2:]\nif n % 3 == 0:\n    b += b[-2:]\nelse:\n    b += bin((n % 3) * 5)[2:]\nr = int(b, 2)\nprint(r)`,`${t.r}\nПроверка: ${f} = ${t.r}`]},q:['Где поставить print(min(a))?',['Внутри if','Внутри for','После цикла без отступа'],2,'Нужен один минимум после накопления всех результатов. Внутри цикла получались бы промежуточные ответы.']}
+
 ];
-function quiz(box,q,id,onCorrect){box.innerHTML=`<div class="label">Проверь себя</div><p>${esc(q[0])}</p><div class="actions">${q[1].map((v,i)=>`<button class="answer${i===q[2]?' correct':''}" data-answer="${i}" aria-pressed="false">${esc(v)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p>`;box.onclick=e=>{const b=e.target.closest('[data-answer]');if(!b)return;const a=+b.dataset.answer;box.querySelectorAll('[data-answer]').forEach(el=>el.setAttribute('aria-pressed',String(el===b)));const f=box.querySelector('.feedback');f.className='feedback'+(a===q[2]?' good':'');f.textContent=(a===q[2]?'Верно. ':'Попробуй ещё. ')+q[3];answers[id]=a;if(a===q[2])onCorrect?.()}}
-function menu(){ $('#lessonMenu').innerHTML=lessons.map((l,i)=>`<button data-lesson="${i}" aria-current="${selected===i?'step':'false'}"><span class="num${completed.has(i)?' done':''}">${completed.has(i)?'✓':String(i+1).padStart(2,'0')}</span>${esc(l.title)}</button>`).join('');progress()}
-function demo(){const n=number($('#labN'),4,255),t=calculate(n),b=t.b, tail=b.slice(-2);let code='',out='';switch(selected){
-case 0:code=`n = ${n}\nb = '${b}'\nprint(n + 2)\nprint(str(n) + '2')`;out=`Число: ${n+2}. Соединение строк: «${n}2».`;break;
-case 1:code=`bin(${n})\nbin(${n})[2:]`;out=`С префиксом: 0b${b}. Без префикса: ${b}.`;break;
-case 2:code=`b = '${b}'\nb[:2], b[-2:], b[2:], b[:-2], len(b)`;out=`Первые два: ${b.slice(0,2)}; последние два: ${tail}; без первых двух: ${b.slice(2)}; без последних двух: ${b.slice(0,-2)}; длина: ${b.length}.`;break;
-case 3:code=`b = '${b}'\nones = b.count('1')`;out=`В строке ${b} единиц: ${t.ones}. Сумма её двоичных цифр тоже ${t.ones}.`;break;
-case 4:code=`${n} % 2\n'${b}'.count('1') % 2\n${n} % 4`;out=`Чётность N: остаток ${n%2}. Чётность количества единиц: остаток ${t.ones%2}. Остаток N % 4: ${t.rem}.`;break;
-case 5:code=`b = '${b}'\nb + '00'\n'10' + b\nb + bin(${n} % 4)[2:]`;out=`Справа 00: ${b}00. Слева 10: 10${b}. Справа запись остатка ${t.rem}: ${b+binary(t.rem)}.`;break;
-case 6:code=`b = '${b}'\ntail = b[-2:]\nresult_bits = b + tail`;out=`Сохранили tail = «${tail}». Получилось ${b+tail}. Исходная строка b по-прежнему «${b}».`;break;
-case 7:code=`b = '${b}'\nif b.count('1') % 2 == 0:\n    result_bits = b + b[-2:]\nelse:\n    result_bits = '10' + b + bin(${n} % 4)[2:]`;out=`Единиц ${t.ones}: выполняется ${t.even?'if':'else'}. Новая запись: ${t.bits}.`;break;
-case 8:code=`int('${b}', 2)\nint('${b}')`;out=`С основанием 2: ${n}. Без указания основания: ${Number(b)}.`;break;
-case 9:code=`r = transform(${n})\nprint(r)`;out=`Функция вернула число ${t.r}. Его можно сравнивать с порогом или добавить в список.`;break;
-case 10:{const end=n+4;code=`for n in range(${n}, ${end}):\n    print(n, transform(n))`;out=Array.from({length:4},(_,i)=>`${n+i} → ${calculate(n+i).r}`).join('; ')+`. Число ${end} не включено.`;break;}
-case 11:code=`results = [transform(n) for n in range(${n}, ${n+4})]\nprint(min(results))`;const rs=Array.from({length:4},(_,i)=>calculate(n+i).r);out=`Результаты: [${rs.join(', ')}]. Минимум: ${Math.min(...rs)}. Здесь пока без отбора по порогу.`;break;
-}$('#labCode').textContent=code;$('#labOutput').textContent=out}
-function lesson(i){selected=Math.max(0,Math.min(lessons.length-1,i));const l=lessons[selected];$('#lessonNumber').textContent=`Блок ${selected+1} из ${lessons.length}`;$('#lessonTitle').textContent=l.title;$('#lessonReading').innerHTML=l.html;$('#lessonPrev').disabled=selected===0;$('#lessonNext').textContent=selected===lessons.length-1?'К задаче →':'Следующий →';const q=quizzes[selected];$('#quizQuestion').textContent=q[0];$('#quizOptions').innerHTML=q[1].map((s,j)=>`<button data-choice="${j}" class="answer${j===q[2]?' correct':''}" aria-pressed="false">${esc(s)}</button>`).join('');$('#quizFeedback').textContent='';menu();demo()}
-$('#lessonMenu').onclick=e=>{const b=e.target.closest('[data-lesson]');if(b)lesson(+b.dataset.lesson)};
-$('#quizOptions').onclick=e=>{const b=e.target.closest('[data-choice]');if(!b)return;const q=quizzes[selected],correct=+b.dataset.choice===q[2];$('#quizOptions').querySelectorAll('button').forEach(el=>el.setAttribute('aria-pressed',String(el===b)));$('#quizFeedback').className='feedback'+(correct?' good':'');$('#quizFeedback').textContent=(correct?'Верно. ':'Попробуй ещё. ')+q[3];if(correct){completed.add(selected);menu()}};
-$('#lessonPrev').onclick=()=>lesson(selected-1);$('#lessonNext').onclick=()=>{if(selected===lessons.length-1){location.hash='task'}else lesson(selected+1)};$('#labN').oninput=demo;
-function example(){const t=calculate(number($('#exampleN'),4,1000));$('#exampleVars').innerHTML=variables({'N':t.n,'Исходная запись':t.b,'Единиц':t.ones,'Ветвь':t.even?'чётная':'нечётная','N % 4':t.rem,'R':t.r});$('#exampleBits').innerHTML=[...t.prefix].map(x=>`<span class="bit prefix">${x}</span>`).join('')+[...t.b].map(x=>`<span class="bit">${x}</span>`).join('')+[...t.suffix].map(x=>`<span class="bit suffix">${x}</span>`).join('');$('#exampleExplain').textContent=t.even?`Единиц ${t.ones}: справа копируем две последние цифры «${t.suffix}». Получаем ${t.bits}₂ = ${t.r}.`:`Единиц ${t.ones}: слева добавляем 10, справа — запись остатка ${t.rem}, то есть «${t.suffix}». Получаем ${t.bits}₂ = ${t.r}.`}
-$('#exampleN').oninput=example;$('#presets').onclick=e=>{const b=e.target.closest('[data-n]');if(b){$('#exampleN').value=b.dataset.n;example()}};
-quiz($('#taskQuiz'),['Что записать справа при нечётной ветви, если N % 4 = 2?',['2','10','01'],1,'Остаток равен двум, а его двоичная запись — 10. Нужна запись числа, а не десятичный символ.'],'task');
-const lines=['def transform(n):',"    b = bin(n)[2:]","    if b.count('1') % 2 == 0:","        result_bits = b + b[-2:]",'    else:',"        remainder_bits = bin(n % 4)[2:]","        result_bits = '10' + b + remainder_bits",'    return int(result_bits, 2)'];
-const titles=['Вход функции','Строим исходную запись','Выбираем ветвь','Копируем две последние цифры','Переходим в нечётную ветвь','Переводим остаток в двоичную запись','Соединяем три фрагмента','Возвращаем число'];let line=0;
-function trace(){const t=calculate(number($('#traceN'),4,1000)),inactive=(line===3&&!t.even)||(line>=4&&line<=6&&t.even);$('#codeLines').innerHTML=lines.map((s,i)=>`<button class="code-line" role="tab" id="traceLine${i}" aria-controls="tracePanel" aria-selected="${line===i}" data-line="${i}"><span class="line-number">${i+1}</span>${esc(s)}</button>`).join('');$('#tracePanel').setAttribute('aria-labelledby',`traceLine${line}`);$('#traceCount').textContent=`Строка ${line+1} из ${lines.length}${inactive?' · пропускается':''}`;$('#traceTitle').textContent=titles[line];const explain=[`Функция получила N = ${t.n}. Она должна вернуть результат для одного входного числа.`,`bin(${t.n}) даёт «0b${t.b}». Срез [2:] оставляет «${t.b}».`,`В исходной записи ${t.ones} единиц. Остаток ${t.ones} % 2 = ${t.ones%2}. Условие ${t.even?'истинно: выполняем if':'ложно: переходим к else'}.`,t.even?`Последние два символа «${t.b}» — «${t.suffix}». Приписываем их справа: ${t.bits}.`:'Эта строка не выполняется: количество единиц нечётное.',t.even?'Блок else пропускается: уже выполнена ветвь if.':'Количество единиц нечётное, поэтому выполняем блок else.',t.even?'Не выполняется для этого N.':`Остаток ${t.n} % 4 = ${t.rem}. Его двоичная запись — «${binary(t.rem)}». Ноль записывается одной цифрой.`,t.even?'Не выполняется для этого N.':`Склеиваем «10» + «${t.b}» + «${t.suffix}». Получаем «${t.bits}».`,`int('${t.bits}', 2) = ${t.r}. return возвращает это число в место вызова функции.`];$('#traceExplain').textContent=explain[line];const values={'n':t.n};if(line>=1)values.b=t.b;if(line>=2)values["b.count('1')"]=t.ones;if(line>=5&&!t.even)values.remainder_bits=binary(t.rem);if((line>=3&&t.even)||(line>=6&&!t.even))values.result_bits=t.bits;if(line===7)values['возвращено']=t.r;$('#traceVars').innerHTML=variables(values);$('#tracePrev').disabled=line===0;$('#traceNext').disabled=line===7}
-$('#traceN').oninput=trace;$('#codeLines').onclick=e=>{const b=e.target.closest('[data-line]');if(b){line=+b.dataset.line;trace()}};$('#tracePrev').onclick=()=>{line=Math.max(0,line-1);trace()};$('#traceNext').onclick=()=>{line=Math.min(7,line+1);trace()};
-let scanN=3,best=null,bestN=null,first=null,hits=0,timer=null;
+
+let done=new Set(),cur=0;
+try{const v=JSON.parse(load('infoshag-ege5-v2')||'[]');if(Array.isArray(v))done=new Set(v.filter(x=>Number.isInteger(x)&&x>=0&&x<L.length))}catch{}
+function progress(){$('#progressText').textContent=`Пройдено ${done.size} из ${L.length} блоков`;$('#progressBar').style.width=`${100*done.size/L.length}%`;store('infoshag-ege5-v2',JSON.stringify([...done]))}
+function menu(){let g='',h='';L.forEach((l,i)=>{if(l.g!==g){g=l.g;h+=`<div class="group">${esc(g)}</div>`}h+=`<button data-lesson="${i}" aria-current="${cur===i?'step':'false'}"><span class="num${done.has(i)?' done':''}">${done.has(i)?'✓':String(i+1).padStart(2,'0')}</span>${esc(l.t)}</button>`});$('#lessonMenu').innerHTML=h;progress()}
+function demo(){const l=L[cur],inp=$('#labN');if(l.x){inp.max=2000;$('#labLabel').textContent='Порог X от 1 до 2000'}else{inp.max=255;$('#labLabel').textContent='N от 1 до 255'}const v=clampInput(inp,1,l.x?2000:255);const[c,o]=l.d(v);$('#labCode').textContent=c;$('#labOutput').innerHTML=`<span class="cap">Вывод</span>${esc(o)}`}
+function lesson(i){cur=Math.max(0,Math.min(L.length-1,i));const l=L[cur];$('#lessonNumber').textContent=`${l.g} · блок ${cur+1} из ${L.length}`;$('#lessonTitle').textContent=l.t;$('#lessonReading').innerHTML=l.h;$('#lessonPrev').disabled=cur===0;$('#lessonNext').textContent=cur===L.length-1?'К задаче →':'Следующий →';const q=l.q;$('#quizQuestion').textContent=q[0];$('#quizOptions').innerHTML=q[1].map((s,j)=>`<button class="answer${j===q[2]?' correct':''}" data-choice="${j}" aria-pressed="false">${esc(s)}</button>`).join('');$('#quizFeedback').textContent='';if(l.x&&+$('#labN').value<2)$('#labN').value=150;if(!l.x&&+$('#labN').value>255)$('#labN').value=19;menu();demo()}
+$('#lessonMenu').onclick=e=>{const b=e.target.closest('[data-lesson]');if(b){lesson(+b.dataset.lesson);if(innerWidth<=860)$('#lessonPanel').scrollIntoView({block:'start'})}};
+$('#quizOptions').onclick=e=>{const b=e.target.closest('[data-choice]');if(!b)return;const q=L[cur].q,ok=+b.dataset.choice===q[2];$('#quizOptions').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#quizFeedback').className='feedback'+(ok?' good':'');$('#quizFeedback').textContent=(ok?'Верно. ':'Пока нет. ')+q[3];if(ok){done.add(cur);menu()}};
+$('#lessonPrev').onclick=()=>lesson(cur-1);$('#lessonNext').onclick=()=>{if(cur===L.length-1)location.hash='task';else lesson(cur+1)};
+$('#labN').oninput=demo;$('#labN').onchange=()=>{const l=L[cur];$('#labN').value=clampInput($('#labN'),1,l.x?2000:255);demo()};
+
+function quiz(box,q){box.innerHTML=`<div class="label">Проверь себя</div><p>${esc(q[0])}</p><div class="actions">${q[1].map((v,i)=>`<button class="answer${i===q[2]?' correct':''}" data-answer="${i}" aria-pressed="false">${esc(v)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p>`;box.onclick=e=>{const b=e.target.closest('[data-answer]');if(!b)return;const ok=+b.dataset.answer===q[2];box.querySelectorAll('[data-answer]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const f=box.querySelector('.feedback');f.className='feedback'+(ok?' good':'');f.textContent=(ok?'Верно. ':'Пока нет. ')+q[3]}}
+
+function example(){const t=T(clampInput($('#exampleN'),1,999));$('#exampleVars').innerHTML=variables({'N':t.n,'Двоичная запись N':t.s,'N % 3':t.rem,'Ветвь':t.div?'а) делится на 3':'б) не делится','Дописываем':t.tail,'R':t.r});$('#exampleBits').innerHTML=[...t.s].map(x=>`<span class="bit">${x}</span>`).join('')+[...t.tail].map(x=>`<span class="bit suffix">${x}</span>`).join('');$('#exampleExplain').textContent=t.div?`${t.n} делится на 3. Две последние цифры записи ${t.s} — «${t.tail}». Дописываем их: ${t.bits}₂ = ${t.r}.`:`${t.n} % 3 = ${t.rem}. ${t.rem} · 5 = ${t.rem*5} = ${t.tail}₂. Дописываем: ${t.bits}₂ = ${t.r}.`}
+$('#exampleN').oninput=example;$('#exampleN').onchange=()=>{$('#exampleN').value=clampInput($('#exampleN'),1,999);example()};
+$('#presets').onclick=e=>{const b=e.target.closest('[data-n]');if(b){$('#exampleN').value=b.dataset.n;example()}};
+quiz($('#taskQuiz'),['N = 8. Что допишется справа?',['10','1010','00'],1,'8 % 3 = 2, 2 · 5 = 10, а двоичная запись десяти — 1010. Писать «10» как символы нельзя: нужна запись числа.']);
+
+const lines=["a = []", "for n in range(1, 1000):", "    b = bin(n)[2:]", "    if n % 3 == 0:", "        b += b[-2:]", "    else:", "        b += bin((n % 3) * 5)[2:]", "    r = int(b, 2)", "    if r > 150:", "        a.append(r)", "print(min(a))"];
+const titles=['Создаём список','Перебираем N','Строим новую запись b','Проверяем делимость на 3','Дописываем две последние цифры','Ветка иначе','Дописываем запись остатка × 5','Получаем число r','Отбираем результат','Добавляем r в a','Выводим минимум после цикла'];
+let line=0;
+function trace(){const t=T(clampInput($('#traceN'),1,999));const before=[];for(let n=1;n<t.n;n++){const r=T(n).r;if(r>150)before.push(r)}const all=[];for(let n=1;n<1000;n++){const r=T(n).r;if(r>150)all.push(r)}
+const skip=i=>(t.div&&(i===5||i===6))||(!t.div&&i===4)||(i===9&&t.r<=150);
+$('#codeLines').innerHTML=lines.map((s,i)=>`<button class="code-line${skip(i)?' skip':''}" role="tab" id="traceLine${i}" aria-controls="tracePanel" aria-selected="${line===i}" data-line="${i}"><span class="line-number">${i+1}</span>${esc(s)}</button>`).join('');
+$('#tracePanel').setAttribute('aria-labelledby','traceLine'+line);$('#traceCount').textContent=`Строка ${line+1} из ${lines.length}${skip(line)?' · не выполняется':''}`;$('#traceTitle').textContent=titles[line];
+const ex=['Один раз перед циклом создаём пустой список a. Здесь будем хранить подходящие R.',`range(1, 1000) перебирает N от 1 до 999. Показываем итерацию n = ${t.n}; до неё в списке уже ${before.length} результатов.`,`Заново получаем bin(${t.n})[2:] = '${t.s}'. Запись предыдущего N не используется.`,`${t.n} % 3 = ${t.rem}. Условие ${t.div?'истинно: выполняем строку 5':'ложно: идём к else'}.`,t.div?`b[-2:] = '${t.tail}'. b += b[-2:] сохраняет '${t.bits}'.`:'Эта ветвь пропускается.',t.div?'else пропускается.':'Выполняем ветвь для N, не делящегося на 3.',t.div?'Не выполняется для этого N.':`(${t.n} % 3) * 5 = ${t.rem*5}. Его двоичная запись '${t.tail}' дописывается справа: b = '${t.bits}'.`,`int('${t.bits}', 2) = ${t.r}. Целое число сохраняем в r.`,`Проверяем ${t.r} > 150: ${t.r>150?'истина, добавим r в список':'ложь, ничего не добавляем'}.`,t.r>150?`a.append(r) добавляет число ${t.r}. Ранее накопленные значения сохраняются.`:'Эта строка пропускается, потому что r не больше 150.',`Эта строка выполняется один раз после всех 999 итераций. В списке ${all.length} значений, min(a) = ${Math.min(...all)}.`];
+$('#traceExplain').textContent=ex[line];const v={};if(line===0){v.a='[]'}else if(line===10){v['len(a)']=all.length;v['min(a)']=Math.min(...all)}else{v.n=t.n;v['len(a) до шага']=before.length;if(line>=2)v.b=t.s;if(line>=3)v['n % 3']=t.rem;if((t.div&&line>=4)||(!t.div&&line>=6))v.b=t.bits;if(line>=7)v.r=t.r;if(line>=9){v['len(a) после шага']=before.length+(t.r>150?1:0);v['добавлено']=t.r>150?t.r:'ничего'}}$('#traceVars').innerHTML=variables(v);$('#tracePrev').disabled=line===0;$('#traceNext').disabled=line===lines.length-1}
+$('#traceN').oninput=trace;$('#traceN').onchange=()=>{$('#traceN').value=clampInput($('#traceN'),1,999);trace()};
+$('#codeLines').onclick=e=>{const b=e.target.closest('[data-line]');if(b){line=+b.dataset.line;trace()}};
+$('#codeLines').addEventListener('keydown',e=>{if(!['ArrowUp','ArrowDown','Home','End'].includes(e.key))return;e.preventDefault();line=e.key==='Home'?0:e.key==='End'?lines.length-1:Math.max(0,Math.min(lines.length-1,line+(e.key==='ArrowDown'?1:-1)));trace();$('#traceLine'+line).focus()});
+$('#tracePrev').onclick=()=>{line=Math.max(0,line-1);trace()};$('#traceNext').onclick=()=>{line=Math.min(lines.length-1,line+1);trace()};
+
+const LIMIT=150,LAST=999;let sn=0,best=null,bestN=null,first=null,hits=0,timer=null;
 function pause(){if(timer!==null)clearInterval(timer);timer=null;$('#scanPlay').textContent='▶ Автоматически'}
-function scanReset(){pause();scanN=3;best=bestN=first=null;hits=0;$('#scanRows').innerHTML='';$('#scanConclusion').hidden=true;scanRender()}
-function scanRender(){$('#scanStats').innerHTML=`<div class="stat"><span>Проверено N</span><strong>${scanN-3} / 237</strong></div><div class="stat"><span>Подходящих</span><strong>${hits}</strong></div><div class="stat"><span>Лучший R</span><strong>${best??'—'}</strong></div>`;$('#scanExplain').textContent=first?`Первое подходящее N = ${first.n} даёт R = ${first.r}. ${best<first.r?'Уже найден результат меньше первого.':'Продолжаем: первый результат ещё не доказывает минимум.'}`:'Пока не встретилось R > 230. Продолжай проверку.';const end=scanN>=240;for(const id of ['scanNext','scanTen','scanPlay','scanEnd'])$('#'+id).disabled=end;if(end){pause();$('#scanConclusion').hidden=false;$('#searchAnswer').textContent=`Минимум R = ${best}, он получается при N = ${bestN}. Первое подходящее N = ${first.n} давало R = ${first.r}.`}}
-function scanStep(amount=1){for(let i=0;i<amount&&scanN<240;i++){const t=calculate(++scanN);if(t.r>230){hits++;if(!first)first=t;const improved=best===null||t.r<best;if(improved){best=t.r;bestN=t.n}$('#scanRows').insertAdjacentHTML('beforeend',`<tr class="${improved?'best':''}"><td>${t.n}</td><td><code>${t.b}</code></td><td>${t.r}</td><td>${best}${improved?' ← новый минимум':''}</td></tr>`)}}scanRender()}
-$('#scanReset').onclick=scanReset;$('#scanNext').onclick=()=>{pause();scanStep()};$('#scanTen').onclick=()=>{pause();scanStep(10)};$('#scanEnd').onclick=()=>{pause();scanStep(237)};$('#scanPlay').onclick=()=>{if(timer!==null){pause();return}$('#scanPlay').textContent='Ⅱ Пауза';timer=setInterval(()=>scanStep(1),80)};document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
-quiz($('#searchQuiz'),['Первое подходящее N дало R = 335. Можно завершить поиск минимального R?',['Да, потому что N перебираются по порядку','Нет, последующие N могут дать меньший R'],1,'Возрастание N не гарантирует возрастания R. Здесь позже находится R = 234 при N = 58.'],'search');
-const FULL=lines.join('\n')+`\n\n\nresults = []\nfor n in range(4, 241):\n    r = transform(n)\n    if r > 230:\n        results.append(r)\n\nprint(min(results))\n`;
-$('#fullCode').textContent=FULL;$('#copyCode').onclick=async()=>{try{await navigator.clipboard.writeText(FULL);$('#copyCode').textContent='Скопировано ✓'}catch{$('#copyCode').textContent='Выдели код и нажми Ctrl+C'}};
-$('#downloadCode').onclick=()=>{const url=URL.createObjectURL(new Blob([FULL],{type:'text/x-python;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='ege-5-poshagovo.py';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
-$('#showAnswer').onclick=()=>{const el=$('#finalAnswer');el.hidden=!el.hidden;$('#showAnswer').textContent=el.hidden?'Показать ответ и проверку':'Скрыть ответ';const t=calculate(58);el.innerHTML=`<p class="result">${t.r}</p><p>При N = ${t.n}: ${t.b} → ${t.bits}₂ = ${t.r}. Единиц ${t.ones}, поэтому приписали «${t.suffix}». Результат больше 230.</p>`};
-function solve(threshold){let witness=4;while(calculate(witness).r<=threshold)witness++;const upper=calculate(witness).r;let result=null,input=null;for(let n=4;n<=upper;n++){const r=calculate(n).r;if(r>threshold&&(result===null||r<result)){result=r;input=n}}return{threshold,witness,upper,result,input}}
-$('#threshold').oninput=()=>{$('#practiceResult').hidden=true};$('#checkThreshold').onclick=()=>{const threshold=number($('#threshold'),0,2000);$('#threshold').value=threshold;const s=solve(threshold);$('#practiceResult').hidden=false;$('#practiceResult').innerHTML=`<p class="result">R = ${s.result}</p><p>Получается при N = ${s.input}. Для ограничения перебора сначала найдено N = ${s.witness}, дающее R = ${s.upper}. Поскольку R ≥ N, достаточно перебрать N от 4 до ${s.upper} включительно.</p>`};
-for(const [id,min,max,render] of [['labN',4,255,demo],['exampleN',4,1000,example],['traceN',4,1000,trace]]){
-  $('#'+id).addEventListener('change',()=>{const input=$('#'+id);input.value=number(input,min,max);render()});
-}
-$('#codeLines').addEventListener('keydown',e=>{if(!['ArrowUp','ArrowDown','Home','End'].includes(e.key))return;e.preventDefault();line=e.key==='Home'?0:e.key==='End'?7:Math.max(0,Math.min(7,line+(e.key==='ArrowDown'?1:-1)));trace();$('#traceLine'+line).focus()});
-lesson(0);example();trace();scanReset();
+function scanReset(){pause();sn=0;best=bestN=first=null;hits=0;$('#scanRows').innerHTML='';$('#scanConclusion').hidden=true;scanRender()}
+function scanRender(){$('#scanStats').innerHTML=`<div class="stat"><span>Проверено N</span><strong>${sn} / ${LAST}</strong></div><div class="stat"><span>R &gt; ${LIMIT}</span><strong>${hits}</strong></div><div class="stat"><span>Первое подходящее N</span><strong>${first?first.n:'—'}</strong></div><div class="stat"><span>Лучший R</span><strong>${best??'—'}</strong></div>`;
+$('#scanExplain').textContent=first?(best<first.r?`Первое подходящее N = ${first.n} дало R = ${first.r}. Но позже нашёлся R = ${best} — меньше. Поэтому перебор доводим до конца.`:`Первое подходящее N = ${first.n} дало R = ${first.r}. Это ещё не ответ: следующие N могут дать меньший R.`):`Пока ни одно N не дало R > ${LIMIT}. Нажимай дальше.`;
+const end=sn>=LAST;['scanNext','scanTen','scanPlay','scanEnd'].forEach(id=>$('#'+id).disabled=end);if(end){pause();$('#scanConclusion').hidden=false;$('#searchAnswer').innerHTML=`<b>Перебор закончен.</b> Минимальное R = <b>${best}</b>, его даёт N = ${bestN}. Если бы мы остановились на первом подходящем N = ${first.n}, получили бы неверный ответ ${first.r}.`}}
+function scanStep(k=1){for(let i=0;i<k&&sn<LAST;i++){const t=T(++sn);if(t.r>LIMIT){hits++;const isFirst=!first;if(isFirst)first=t;const imp=best===null||t.r<best;if(imp){best=t.r;bestN=t.n}$('#scanRows').insertAdjacentHTML('beforeend',`<tr class="${imp?'best':''}${isFirst?' first':''}"><td>${t.n}</td><td><code>${t.s}</code></td><td><code>${t.bits}</code></td><td>${t.r}</td><td>${best}${imp?' ← новый минимум':''}</td></tr>`)}}scanRender()}
+$('#scanReset').onclick=scanReset;$('#scanNext').onclick=()=>{pause();scanStep()};$('#scanTen').onclick=()=>{pause();scanStep(10)};$('#scanEnd').onclick=()=>{pause();scanStep(LAST)};
+$('#scanPlay').onclick=()=>{if(timer!==null){pause();return}$('#scanPlay').textContent='Ⅱ Пауза';timer=setInterval(()=>scanStep(1),220)};document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
+quiz($('#searchQuiz'),['Первое N с R > 150 — это 11, у него R = 186. Можно ли записать 186 в ответ?',['Да, N перебирались по порядку','Нет, другое N может дать меньший R'],1,'Рост N не гарантирует рост R. N = 19 даёт R = 157, а это меньше 186.']);
+
+const FULL=lines.join('\n')+'\n';
+$('#fullCode').textContent=FULL;
+$('#copyCode').onclick=async()=>{try{await navigator.clipboard.writeText(FULL);$('#copyCode').textContent='Скопировано ✓'}catch{const r=document.createRange();r.selectNodeContents($('#fullCode'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('#copyCode').textContent='Код выделен — нажми Ctrl+C'}};
+$('#showAnswer').onclick=()=>{const el=$('#finalAnswer');el.hidden=!el.hidden;$('#showAnswer').textContent=el.hidden?'Показать ответ':'Скрыть ответ';const t=T(19);el.innerHTML=`<p class="result">157</p><p>Программа выводит <code>157</code>. Число 157 получается при N = 19: ${t.s} → ${t.bits}₂ = ${t.r}.</p>`};
+
+const PREFIX="a = []\nfor n in range(1, 1000):\n    b = bin(n)[2:]\n    if n % 3 == 0:\n        b += b[-2:]\n    else:\n        b += bin((n % 3) * 5)[2:]\n    r = int(b, 2)";
+const QT=[
+{id:'minN',name:'Минимальное N',text:X=>`Укажите минимальное N, для которого R больше ${X}.`,code:X=>PREFIX+`\n    if r > ${X}:\n        a.append(n)\nprint(min(a))`,solve:X=>{for(let n=1;n<1000;n++)if(T(n).r>X)return{a:n,why:`Сохраняем n. Первое подходящее N = ${n}, его R = ${T(n).r}. При возрастающем переборе можно также вывести n и поставить break.`}}},
+{id:'minR',name:'Минимальное R',text:X=>`Укажите минимальное R, большее ${X}.`,code:X=>PREFIX+`\n    if r > ${X}:\n        a.append(r)\nprint(min(a))`,solve:X=>{let b=null;for(let n=1;n<1000;n++){const r=T(n).r;if(r>X&&(!b||r<b.r))b={r,n}}return{a:b.r,why:`Его даёт N = ${b.n}. Сохраняем r, а min(a) выполняем после всего цикла.`}}},
+{id:'maxR',name:'Максимальное R',text:X=>`Укажите максимальное R, не превышающее ${X}.`,code:X=>PREFIX+`\n    if r <= ${X}:\n        a.append(r)\nif a:\n    print(max(a))\nelse:\n    print('Нет подходящих значений')`,solve:X=>{let b=null;for(let n=1;n<1000;n++){const r=T(n).r;if(r<=X&&(!b||r>b.r))b={r,n}}return b?{a:b.r,why:`Его даёт N = ${b.n}. «Не превышает» означает <=.`}:{a:'нет',why:'Список пуст. Проверка if a не позволяет вызвать max от пустого списка.'}}},
+{id:'maxN',name:'Максимальное N',text:X=>`Укажите максимальное N, для которого R меньше ${X}.`,code:X=>PREFIX+`\n    if r < ${X}:\n        a.append(n)\nif a:\n    print(max(a))\nelse:\n    print('Нет подходящих значений')`,solve:X=>{let b=null;for(let n=1;n<1000;n++)if(T(n).r<X)b=n;return b?{a:b,why:`При N = ${b} получается R = ${T(b).r}. Сохраняем n, а не r. Так как R ≥ 4N, запаса до 1000 хватает при X ≤ 2000.`}:{a:'нет',why:'Подходящих входов нет; список a пуст.'}}},
+{id:'count',name:'Сколько N',text:X=>`Сколько существует чисел N от 1 до 100, для которых R меньше ${X}?`,code:X=>PREFIX.replace('range(1, 1000)','range(1, 101)')+`\n    if r < ${X}:\n        a.append(n)\nprint(len(a))`,solve:X=>{let c=0;for(let n=1;n<=100;n++)if(T(n).r<X)c++;return{a:c,why:'Сохраняем каждое подходящее n. len(a) — количество найденных входов. Правая граница 101 не входит.'}}},
+{id:'near',name:'Ближайшее R',text:X=>`Укажите R, ближайшее к ${X}. Если таких два, берите меньшее.`,code:X=>PREFIX+`\n    a.append(r)\na.sort()\nbest = a[0]\nfor r in a:\n    if abs(r - ${X}) < abs(best - ${X}):\n        best = r\nprint(best)`,solve:X=>{const a=[];for(let n=1;n<1000;n++)a.push(T(n).r);a.sort((x,y)=>x-y);let b=a[0];for(const r of a)if(Math.abs(r-X)<Math.abs(b-X))b=r;return{a:b,why:`Разница |${b} − ${X}| = ${Math.abs(b-X)}. Сортируем a; заменяем best только при строго меньшей разнице. При равенстве остаётся меньшее R.`}}}
+];
+let qi=1;
+function qRender(){const X=clampInput($('#qX'),1,2000),q=QT[qi];$('#qtabs').innerHTML=QT.map((t,i)=>`<button role="tab" aria-selected="${i===qi}" data-q="${i}">${esc(t.name)}</button>`).join('');$('#qText').innerHTML=`<b>Вопрос:</b> ${esc(q.text(X))}`;$('#qCode').textContent=q.code(X);$('#qAnswer').hidden=true;$('#qShow').textContent='Показать ответ'}
+$('#qtabs').onclick=e=>{const b=e.target.closest('[data-q]');if(b){qi=+b.dataset.q;qRender()}};$('#qX').oninput=qRender;$('#qX').onchange=()=>{$('#qX').value=clampInput($('#qX'),1,2000);qRender()};
+$('#qShow').onclick=()=>{const el=$('#qAnswer');if(!el.hidden){el.hidden=true;$('#qShow').textContent='Показать ответ';return}const s=QT[qi].solve(clampInput($('#qX'),1,2000));el.innerHTML=`<p class="result">${esc(s.a)}</p><p class="muted">${esc(s.why)}</p>`;el.hidden=false;$('#qShow').textContent='Скрыть ответ'};
+
+$('#terShow').onclick=()=>{const el=$('#terAnswer');el.hidden=!el.hidden;$('#terShow').textContent=el.hidden?'Показать ответ':'Скрыть ответ';let b=null,f=null;for(let n=1;n<1000;n++){const t=T3(n);if(t.r>150){if(!f)f=t;if(!b||t.r<b.r)b=t}}el.innerHTML=`<p class="result">${b.r}</p><p>Программа выводит <code>${b.r}</code>. Ответ даёт N = ${b.n}: ${b.s}₃ → ${b.bits}₃ = ${b.r}. Первое подходящее N = ${f.n} давало ${f.r} — снова ловушка «первое не значит минимальное».</p><p class="muted">Граница: в троичной системе каждая дописанная цифра умножает число на 3, а дописываем не меньше двух цифр. Значит, R ≥ 9 · N.</p>`};
+
+const P=[
+{lv:'Разминка',t:'Две ветви по чётности',c:`<p>Строится двоичная запись N. Если N <b>чётное</b>, слева дописывается <code>1</code>, а справа <code>0</code>. Если N <b>нечётное</b>, слева дописывается <code>11</code>, а справа <code>1</code>. Полученная запись — двоичная запись R.</p><p>Пример: 4 = 100₂ → 11000₂ = 24.</p><p><b>Укажите минимальное N, для которого R &gt; 100.</b></p>`,a:'9',code:"for n in range(1, 1000):\n    b = bin(n)[2:]\n    if n % 2 == 0:\n        b = '1' + b + '0'\n    else:\n        b = '11' + b + '1'\n    r = int(b, 2)\n    if r > 100:\n        print(n)\n        break",why:'N = 9: 1001₂ → 1110011₂ = 115. Вопрос про минимальное N, поэтому break.'},
+{lv:'Средний уровень',t:'Замена разрядов',c:`<p>Строится двоичная запись N (N ≥ 2). Если количество единиц в ней <b>чётное</b>, два левых разряда заменяются на <code>11</code>, а справа дописывается <code>00</code>. Если <b>нечётное</b>, слева дописывается <code>10</code>, а справа — последняя цифра исходной записи.</p><p>Пример: 5 = 101₂ → 11100₂ = 28.</p><p><b>Укажите максимальное R, меньшее 120.</b></p>`,a:'116',code:"a = []\nfor n in range(2, 1000):\n    b = bin(n)[2:]\n    if b.count('1') % 2 == 0:\n        b = '11' + b[2:] + '00'\n    else:\n        b = '10' + b + b[-1]\n    r = int(b, 2)\n    if r < 120:\n        a.append(r)\nprint(max(a))",why:'R = 116 даёт N = 29: 11101₂, единиц четыре → 11 + 101 + 00 = 1110100₂ = 116. Здесь «заменить» — это срез s[2:], а не дописывание.'},
+{lv:'Троичная система',t:'Сумма троичных цифр',c:`<p>Строится троичная запись N. Если N <b>делится на 3</b>, справа дописывается <code>12</code>. Иначе справа дописывается <b>троичная запись суммы цифр</b> троичной записи N. Полученная запись — троичная запись R.</p><p>Пример: 5 = 12₃, сумма цифр 3 = 10₃ → 1210₃ = 48.</p><p><b>Укажите минимальное N, для которого R &gt; 200.</b></p>`,a:'22',code:"def f(x, base):\n    if x == 0:\n        return '0'\n    s = ''\n    while x > 0:\n        s += str(x % base)\n        x //= base\n    return s[::-1]\n\nfor n in range(1, 1000):\n    b = f(n, 3)\n    if n % 3 == 0:\n        b += '12'\n    else:\n        b += f(sum(map(int, b)), 3)\n    r = int(b, 3)\n    if r > 200:\n        print(n)\n        break",why:'N = 22: 211₃, сумма цифр 4 = 11₃ → 21111₃ = 202. N = 21 даёт 21012₃ = 194 — мало.'}
+];
+$('#practiceCards').innerHTML=P.map((p,i)=>`<article class="panel"><div class="level">${esc(p.lv)}</div><h3>${esc(p.t)}</h3><div class="reading">${p.c}</div><div class="actions"><button data-p="${i}">Показать ответ</button></div><div id="pa${i}" hidden><p class="result">${esc(p.a)}</p><p class="muted">${esc(p.why)}</p><details><summary>Код решения</summary><pre><code>${esc(p.code)}</code></pre></details></div></article>`).join('');
+$('#practiceCards').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;const el=$('#pa'+b.dataset.p);el.hidden=!el.hidden;b.textContent=el.hidden?'Показать ответ':'Скрыть ответ'};
+
+lesson(0);example();trace();scanReset();qRender();
 })();
-</script></body></html>
+</script>
+</body></html>

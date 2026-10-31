@@ -1,0 +1,9 @@
+Нарисовано HTML/SVG, а не генератором картинок: design/site/ege-27-chasticy-cover.html.
+Стиль как у обложки задания 5: тёмно-синий фон, белый «Задание 27», голубой «по шагам», надпись «ЕГЭ-2027 · PYTHON».
+Рисунок: ось энергии, три светящихся облака частиц (синее, бирюзовое, фиолетовое) с кольцами центров,
+пунктирные границы E < 4 и E < 7.5, жёлтая ближайшая пара, стеклянные плашки combinations(IV, 2) и q2 = sum(c) / 3.
+
+Перерисовать:
+node scripts/render-cover.mjs design/site/ege-27-chasticy-cover.html design/site/ege-27-chasticy.png 1600 1000 f=wide
+node scripts/render-cover.mjs design/site/ege-27-chasticy-cover.html design/vk/ege-27-chasticy.png 1200 1200 f=square
+Обложка сайта public/posts/ege-27-chasticy-site.jpg — это design/site/ege-27-chasticy.png, сжатый до 1280×800.

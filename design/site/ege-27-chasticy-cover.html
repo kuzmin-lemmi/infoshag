@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<!-- Обложка разбора «Кластеры частиц». ?f=wide — сайт 16:10, ?f=square — пост ВК 1:1. Рисует scripts/render-cover.mjs -->
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@600;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:#050b24;font-family:'Golos Text','Segoe UI',sans-serif;color:#fff;position:relative}
+.bg{position:absolute;inset:0;background:
+  radial-gradient(60% 55% at 78% 62%,#1b3fb0 0,#0d2170 32%,transparent 70%),
+  radial-gradient(40% 40% at 95% 10%,#4a2bb0aa 0,transparent 70%),
+  radial-gradient(50% 50% at 0% 100%,#0b2f8f88 0,transparent 70%),
+  linear-gradient(160deg,#060d2b,#040820)}
+svg.art{position:absolute;inset:0;width:100%;height:100%}
+.txt{position:absolute;display:flex;flex-direction:column}
+.kicker{font-weight:600;letter-spacing:.32em;color:#c9d6ff;text-transform:uppercase}
+h1{font-weight:900;line-height:.98;letter-spacing:-.035em}
+h1 span{display:block}
+h1 .c{color:#3fc8ff;text-shadow:0 0 40px #2a9dff66}
+.sub{font-weight:800;color:#eef3ff;letter-spacing:-.01em}
+.site{position:absolute;font-family:'JetBrains Mono',monospace;font-weight:500;color:#dfe8ff}
+.chip{position:absolute;font-family:'JetBrains Mono',monospace;font-weight:700;color:#f2f6ff;white-space:nowrap;
+  background:linear-gradient(180deg,#2a4fd955,#1530a044);border:2px solid #7fb4ffcc;border-radius:18px;
+  box-shadow:0 0 28px #3d8bff99,inset 0 0 18px #6fa8ff44;backdrop-filter:blur(4px)}
+.chip b{color:#4fe3ff;font-weight:700}
+
+/* 16:10 */
+.wide .txt{left:80px;top:150px;gap:22px}
+.wide .kicker{font-size:24px}
+.wide h1{font-size:132px}
+.wide .sub{font-size:40px;margin-top:6px}
+.wide .site{left:80px;bottom:56px;font-size:24px}
+/* 1:1 */
+.square .txt{left:84px;top:96px;gap:20px}
+.square .kicker{font-size:28px}
+.square h1{font-size:150px}
+.square .sub{font-size:52px;margin-top:4px}
+.square .site{left:84px;bottom:66px;font-size:30px}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<svg class="art" id="art" xmlns="http://www.w3.org/2000/svg"></svg>
+<div class="txt">
+  <span class="kicker">ЕГЭ-2027 · Python</span>
+  <h1><span>Задание 27</span><span class="c">по шагам</span></h1>
+  <span class="sub">Кластеры частиц</span>
+</div>
+<div id="chips"></div>
+<span class="site">infoshag.ru</span>
+<script>
+const f=new URLSearchParams(location.search).get('f')||'wide';
+document.body.className=f;
+const W=innerWidth,H=innerHeight,svg=document.getElementById('art'),NS='http://www.w3.org/2000/svg';
+const el=(t,a,p=svg)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+// детерминированный генератор, чтобы обложка не менялась от запуска к запуску
+let seed=27;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const gauss=()=>{let s=0;for(let i=0;i<6;i++)s+=rnd();return (s-3)/1.2};
+
+// область рисунка: справа на широкой, снизу на квадратной
+const A=f==='wide'?{x0:700,x1:1540,y0:250,y1:690,axis:740}:{x0:110,x1:1110,y0:670,y1:940,axis:985};
+const defs=el('defs',{});
+const glow=el('filter',{id:'g',x:'-50%',y:'-50%',width:'200%',height:'200%'},defs);
+el('feGaussianBlur',{stdDeviation:6,result:'b'},glow);const m=el('feMerge',{},glow);el('feMergeNode',{in:'b'},m);el('feMergeNode',{in:'SourceGraphic'},m);
+const soft=el('filter',{id:'s',x:'-50%',y:'-50%',width:'200%',height:'200%'},defs);el('feGaussianBlur',{stdDeviation:28},soft);
+
+// пол из сетки с перспективой
+const floor=el('g',{opacity:.55});
+const vy=A.y0-120,cx=(A.x0+A.x1)/2;
+for(let i=-10;i<=10;i++){const xb=cx+i*120;el('line',{x1:cx+i*18,y1:vy+80,x2:xb,y2:H+40,stroke:'#2d5bd6',"stroke-width":1,opacity:.35},floor)}
+for(let k=1;k<9;k++){const t=k/9,y=vy+80+(H+40-vy-80)*t*t;el('line',{x1:0,x2:W,y1:y,y2:y,stroke:'#2d5bd6',"stroke-width":1,opacity:.12+.3*t},floor)}
+
+// ось энергии
+const ex=e=>A.x0+(e-0.6)/(10.6-0.6)*(A.x1-A.x0);
+el('line',{x1:A.x0-20,x2:A.x1+20,y1:A.axis,y2:A.axis,stroke:'#8fb6ff',"stroke-width":2.5,opacity:.8});
+el('path',{d:`M${A.x1+20} ${A.axis-8}L${A.x1+36} ${A.axis}L${A.x1+20} ${A.axis+8}z`,fill:'#8fb6ff',opacity:.8});
+const lab=(x,y,s,sz,fill,anchor='middle',w=500)=>{const t=el('text',{x,y,fill,"font-size":sz,"font-family":'JetBrains Mono, monospace',"font-weight":w,"text-anchor":anchor});t.textContent=s;return t};
+lab(A.x1+44,A.axis+9,'E',f==='wide'?26:30,'#cfe0ff','start',700);
+for(let e=1;e<=10;e++){el('line',{x1:ex(e),x2:ex(e),y1:A.axis-6,y2:A.axis+6,stroke:'#8fb6ff',"stroke-width":2,opacity:.7})}
+
+// три облака частиц и их центры
+const CL=[[2.15,.42,'#3da2ff'],[5.55,.42,'#2fe0cf'],[9.2,.42,'#b49bff']];
+const yMid=(A.y0+A.y1)/2,ySpan=(A.y1-A.y0)/2;
+const pts=[];
+CL.forEach(([mu,sd,col],k)=>{
+  el('ellipse',{cx:ex(mu),cy:yMid,rx:(ex(mu+1)-ex(mu)),ry:ySpan*.9,fill:col,opacity:.22,filter:'url(#s)'});
+  const g=el('g',{filter:'url(#g)'});
+  for(let i=0;i<150;i++){
+    let e=mu+gauss()*sd;e=Math.max(mu-.95,Math.min(mu+.95,e));
+    const y=yMid+gauss()*ySpan*.42,r=1.6+rnd()*2.6;
+    el('circle',{cx:ex(e),cy:y,r,fill:col,opacity:.55+rnd()*.45},g);pts.push({x:ex(e),y,k});
+  }
+  // центр кластера: кольцо и проекция на ось
+  el('line',{x1:ex(mu),x2:ex(mu),y1:yMid+26,y2:A.axis,stroke:col,"stroke-width":2,"stroke-dasharray":'4 7',opacity:.8});
+  el('circle',{cx:ex(mu),cy:yMid,r:20,fill:'none',stroke:'#fff',"stroke-width":3.5,filter:'url(#g)'});
+  el('circle',{cx:ex(mu),cy:yMid,r:7,fill:'#fff',filter:'url(#g)'});
+});
+// границы между кластерами
+for(const [b,s] of [[3.85,'E < 4'],[7.4,'E < 7.5']]){
+  el('line',{x1:ex(b),x2:ex(b),y1:A.y0-30,y2:A.axis,stroke:'#ff7a97',"stroke-width":2.5,"stroke-dasharray":'9 8',opacity:.9});
+  lab(ex(b),A.y0-44,s,f==='wide'?20:24,'#ff9fb3','middle',700);
+}
+// самая близкая пара во втором кластере
+const p1={x:ex(5.25),y:yMid-ySpan*.55},p2={x:p1.x+(f==='wide'?26:30),y:p1.y+(f==='wide'?14:16)};
+el('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:'#fff36b',"stroke-width":4,filter:'url(#g)'});
+for(const p of [p1,p2])el('circle',{cx:p.x,cy:p.y,r:7,fill:'#fff36b',filter:'url(#g)'});
+
+// стеклянные плашки с кодом
+const chips=document.getElementById('chips');
+const C=f==='wide'
+  ?[[1100,60,'combinations(<b>IV</b>, 2)',30],[1120,770,'q2 = sum(<b>c</b>) / 3',28]]
+  :[[640,505,'combinations(<b>IV</b>, 2)',34],[560,1045,'q2 = sum(<b>c</b>) / 3',30]];
+const boxes=C.map(([x,y,html,sz])=>{const d=document.createElement('div');d.className='chip';d.innerHTML=html;Object.assign(d.style,{left:x+'px',top:y+'px',fontSize:sz+'px',padding:`${sz*.5}px ${sz*.8}px`});chips.appendChild(d);return d});
+// светящиеся связи плашек с рисунком
+requestAnimationFrame(()=>{
+  const r0=boxes[0].getBoundingClientRect(),r1=boxes[1].getBoundingClientRect();
+  const link=(x1,y1,x2,y2)=>{el('path',{d:`M${x1} ${y1}C${x1} ${(y1+y2)/2} ${x2} ${(y1+y2)/2} ${x2} ${y2}`,fill:'none',stroke:'#5fd0ff',"stroke-width":3,filter:'url(#g)',opacity:.9});el('circle',{cx:x2,cy:y2,r:5,fill:'#9ff0ff',filter:'url(#g)'})};
+  link(r0.left+r0.width*.3,r0.bottom,p1.x,p1.y-12);
+  if(f==='wide')link(r1.left+r1.width*.2,r1.top,ex(5.55),A.axis+8);
+  else link(r1.left+r1.width*.5,r1.top,ex(5.55),A.axis+8);
+  document.body.dataset.ready='1';
+});
+</script>
+</body>
+</html>

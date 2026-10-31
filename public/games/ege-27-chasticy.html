@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кластеры частиц — задание 27 ЕГЭ-2027 по шагам</title>
+<meta name="description" content="Пошаговый разбор задания 27 ЕГЭ-2027 на Python: энергия частиц, кластеры по энергии, центр кластера, itertools.combinations, Q1 и Q2. Свои данные, проверка на своём файле.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+/* Тот же каркас, что у разбора «Кластеры звёзд»: шаг → код по строкам → живой пример → «Проверь себя». Цвет приносят кластеры */
+:root{
+  --bg:#F2F7FD; --surface:#FFFFFF; --ink:#0B1F4D; --soft:#4E5F85; --line:#D6E3F3; --tint:#E3F0FD; --grid:#E6EEF8;
+  --accent:#0A68D6; --accent-ink:#FFFFFF;
+  --c1:#C2610C; --c2:#0B857A; --c3:#6E50C8; --hot:#CF2F57; --ok:#16804F; --idle:#9AA8C4;
+  --code-bg:#EAF1FB; --kw:#6E3FC6; --str:#0B7A4A; --num:#B04A07; --cmt:#6A7896; --fn:#0A5FC4;
+  --display:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,'Courier New',monospace;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#081430; --surface:#0F2147; --ink:#EAF2FF; --soft:#9DB0D6; --line:#22386A; --tint:#0D1C40; --grid:#15295A;
+  --accent:#3DA2FF; --accent-ink:#06122B;
+  --c1:#FFA552; --c2:#2FE0CF; --c3:#B49BFF; --hot:#FF7A97; --ok:#5FD69B; --idle:#4A5F8F;
+  --code-bg:#0A1A3D; --kw:#C3A6FF; --str:#7FE3AE; --num:#FFB870; --cmt:#8094BE; --fn:#7CC0FF;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#081430; --surface:#0F2147; --ink:#EAF2FF; --soft:#9DB0D6; --line:#22386A; --tint:#0D1C40; --grid:#15295A;
+  --accent:#3DA2FF; --accent-ink:#06122B;
+  --c1:#FFA552; --c2:#2FE0CF; --c3:#B49BFF; --hot:#FF7A97; --ok:#5FD69B; --idle:#4A5F8F;
+  --code-bg:#0A1A3D; --kw:#C3A6FF; --str:#7FE3AE; --num:#FFB870; --cmt:#8094BE; --fn:#7CC0FF;
+  color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(clamp(16px,4vw,40px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,4vw,40px),env(safe-area-inset-right,0px))}
+.skip{position:absolute;left:12px;top:-60px;z-index:20;background:var(--accent);color:var(--accent-ink);padding:10px 16px;border-radius:12px;font-weight:700;text-decoration:none}
+.skip:focus{top:calc(10px + env(safe-area-inset-top,0px))}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.02em;line-height:1.12;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,5.4vw,60px);letter-spacing:-.035em}
+h2{font-size:clamp(24px,3.2vw,36px)}
+h3{font-size:clamp(18px,1.8vw,21px)}
+p{margin:0;max-width:68ch}
+code,.mono{font-family:var(--mono);font-size:.9em}
+p code,li code,td code,.note code,.why code,.say code,dd code{background:var(--code-bg);padding:.08em .35em;border-radius:6px;white-space:nowrap}
+.muted{color:var(--soft)}
+.label{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+button,select{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45em;min-height:44px;border-radius:12px;padding:.55em 1.05em;font-weight:700;font-size:15.5px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);transition:filter 160ms var(--ease-out),transform 160ms var(--ease-out)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+@media (hover:hover) and (pointer:fine){.btn:hover{filter:brightness(1.05);border-color:var(--accent)}}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* шапка-навигация */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1.5px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;padding-block:10px}
+.brand{font-weight:800;letter-spacing:-.02em;white-space:nowrap;font-size:17px}
+.brand span{color:var(--accent)}
+.steps-nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.steps-nav::-webkit-scrollbar{display:none}
+.steps-nav a{flex:none;text-decoration:none;color:var(--soft);font-weight:600;font-size:14.5px;padding:.4em .8em;border-radius:10px;white-space:nowrap}
+.steps-nav a b{color:var(--ink);margin-right:.3em}
+.steps-nav a.on{background:var(--tint);color:var(--accent)}
+.steps-nav a.on b{color:var(--accent)}
+.theme{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;padding:0}
+.theme svg{width:20px;height:20px}
+
+/* разделы */
+main{display:flex;flex-direction:column}
+.sec{padding-block:clamp(36px,5vw,60px);border-bottom:1.5px solid var(--line);display:flex;flex-direction:column;gap:20px}
+.sec:last-child{border-bottom:0}
+.sec-head{display:flex;gap:16px;align-items:flex-start}
+.badge{flex:none;width:52px;height:52px;border-radius:14px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:800;font-size:26px;letter-spacing:-.02em}
+.sec-head>div{display:flex;flex-direction:column;gap:8px;min-width:0}
+.lead{font-size:19px;color:var(--soft)}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+/* герой */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(20px,4vw,48px);align-items:start;padding-block:clamp(28px,5vw,56px)}
+.hero>div{display:flex;flex-direction:column;gap:16px;min-width:0}
+.hero figure{margin:0;display:flex;flex-direction:column;gap:8px;padding-top:clamp(0px,6vw,64px)}
+@media (max-width:860px){.hero figure{padding-top:0}}
+.cond{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;font-size:16px}
+.plan{margin:0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:pl}
+.plan li{counter-increment:pl;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:baseline}
+.plan li::before{content:counter(pl);font-weight:800;color:var(--accent);font-size:18px}
+.plan a{color:inherit}
+.goal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.goal>div{background:var(--bg);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.goal b{font-size:18px}
+@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:480px){.goal{grid-template-columns:minmax(0,1fr)}}
+
+/* код по строкам */
+.anno{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:16px;align-items:start}
+@media (max-width:860px){.anno{grid-template-columns:minmax(0,1fr)}}
+.code{list-style:none;margin:0;padding:10px 0;background:var(--code-bg);border-radius:14px;overflow-x:auto;font-family:var(--mono);font-size:15px;line-height:1.5}
+.code li{min-width:max-content}
+.code button{display:grid;grid-template-columns:2.6em auto;width:100%;text-align:left;border:0;background:none;padding:3px 16px 3px 0;white-space:pre;font:inherit;color:var(--ink);border-left:4px solid transparent}
+.code button .ln{color:var(--cmt);text-align:right;padding-right:1em;user-select:none}
+.code button[aria-selected="true"]{background:var(--tint);border-left-color:var(--accent)}
+@media (hover:hover) and (pointer:fine){.code button:hover{background:var(--tint)}}
+.code.static{padding:14px 18px;white-space:pre}
+.tk-kw{color:var(--kw);font-weight:700}.tk-str{color:var(--str)}.tk-num{color:var(--num)}.tk-cmt{color:var(--cmt);font-style:italic}.tk-fn{color:var(--fn)}
+.note{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;position:sticky;top:calc(80px + env(safe-area-inset-top,0px))}
+@media (max-width:860px){.note{position:static}}
+.note h3{font-size:17px}
+.note pre,.why pre,.say pre{margin:0;background:var(--code-bg);border-radius:10px;padding:10px 12px;overflow-x:auto;font-family:var(--mono);font-size:14px;line-height:1.5}
+.note .nav{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:4px;flex-wrap:wrap}
+.note table,.tbl{border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+.note td,.note th,.tbl td,.tbl th{padding:5px 10px;border-bottom:1.5px solid var(--line);text-align:left}
+.note th,.tbl th{font-size:13px;color:var(--soft);font-weight:600}
+.tbl-wrap{overflow-x:auto}
+.tbl caption{text-align:left;font-size:14px;color:var(--soft);padding-bottom:6px}
+.tbl tr.win td{color:var(--ok);font-weight:700}
+.tbl td.bad{color:var(--hot);font-weight:700}
+.tbl td.good{color:var(--ok);font-weight:700}
+
+/* живые примеры */
+.plate{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:18px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:20px;align-items:start}
+.plate>*{min-width:0}
+.plate.one{grid-template-columns:minmax(0,1fr)}
+@media (max-width:860px){.plate{grid-template-columns:minmax(0,1fr)}}
+.plate-title{display:flex;flex-direction:column;gap:4px;grid-column:1/-1}
+svg.chart{width:100%;height:auto;display:block;max-width:100%;border-radius:12px;background:var(--bg)}
+.side{display:flex;flex-direction:column;gap:12px;font-size:16px}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px}
+.say{background:var(--tint);border-radius:12px;padding:12px 14px;font-size:16px;min-height:5.4em;display:flex;flex-direction:column;gap:6px}
+.say b{font-weight:700}
+.stat{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:15px;margin:0}
+.stat dt{color:var(--soft)}.stat dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--soft)}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.kbd{font-family:var(--mono);font-size:12.5px;border:1.5px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 5px}
+.slider{display:flex;flex-direction:column;gap:4px}
+.slider label{font-family:var(--mono);font-size:15px}
+.slider input{width:100%;accent-color:var(--accent);min-height:32px}
+.formula{font-family:var(--mono);font-size:clamp(17px,2.2vw,22px);background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px 18px;overflow-x:auto;white-space:nowrap}
+.formula sup{font-size:.65em}.formula sub{font-size:.65em}
+.idx{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.idx div{background:var(--bg);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.idx b{font-family:var(--mono);color:var(--accent);font-size:17px}
+.idx span{font-size:14px;color:var(--soft)}
+@media (max-width:560px){.idx{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pairs{display:flex;flex-wrap:wrap;gap:6px}
+.pairs .btn{min-width:72px;font-family:var(--mono)}
+.pairs .btn.seen:not([aria-pressed="true"]){color:var(--soft);border-style:dashed}
+
+/* конвейер строки */
+.pipe{display:flex;flex-direction:column;gap:10px}
+.pipe-row{display:grid;grid-template-columns:minmax(0,17em) minmax(0,1fr);gap:4px 14px;align-items:baseline;padding:10px 12px;border-radius:12px;background:var(--bg)}
+.pipe-row .what{font-family:var(--mono);font-size:14px;color:var(--soft)}
+.pipe-row .val{font-family:var(--mono);font-size:15px;overflow-x:auto;white-space:pre}
+.pipe-row .val i{font-style:normal;color:var(--hot);font-weight:700}
+.pipe-row .val em{font-style:normal;color:var(--str)}
+@media (max-width:620px){.pipe-row{grid-template-columns:1fr}}
+.stepper{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stepper input[type=number]{width:5.5em;min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 16px var(--mono);padding:0 10px}
+
+/* проверь себя */
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.q{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.q h3{font-size:17px;line-height:1.35;letter-spacing:-.01em}
+.q .opts{display:flex;flex-direction:column;gap:8px}
+.q .opt{text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:.6em .9em;min-height:44px;font-size:15.5px;transition:transform 160ms var(--ease-out)}
+.q .opt:active{transform:scale(.98)}
+.q .opt.right{border-color:var(--ok);color:var(--ok);font-weight:700}
+.q .opt.right::before{content:"✓ "}
+.q .opt.wrong{border-color:var(--hot);color:var(--hot)}
+.q .opt.wrong::before{content:"✗ "}
+.why{font-size:15.5px;border-left:4px solid var(--line);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
+.why.good{border-color:var(--ok)}.why.bad{border-color:var(--hot)}
+.why strong{font-weight:700}
+
+.warn{border-left:4px solid var(--hot);padding:6px 0 6px 14px;max-width:68ch}
+.tip{border-left:4px solid var(--ok);padding:6px 0 6px 14px;max-width:68ch}
+.big{font-weight:800;font-size:clamp(36px,6vw,64px);letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.answer{display:flex;flex-wrap:wrap;gap:18px 48px;align-items:flex-end}
+.answer small{display:block;font-size:14px;color:var(--soft);font-family:var(--mono);margin-bottom:6px}
+.calc{display:grid;gap:6px;font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;overflow-x:auto;white-space:nowrap}
+.codebox{position:relative}
+.codebox .btn{position:absolute;top:10px;right:10px}
+details.more{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px 18px}
+details.more summary{cursor:pointer;font-weight:700;font-size:17px;min-height:30px}
+details.more[open] summary{margin-bottom:12px}
+details.more>div{display:flex;flex-direction:column;gap:12px}
+
+/* свой файл */
+.drop{border:2px dashed var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;background:var(--surface)}
+.drop.over{border-color:var(--accent);background:var(--tint)}
+.fields{display:flex;flex-wrap:wrap;gap:10px 18px}
+.field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15.5px}
+.field input,.field select{min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 16px var(--mono);padding:0 10px}
+.field input{width:5.5em}
+.ok-msg{color:var(--ok);font-weight:700}.bad-msg{color:var(--hot);font-weight:700}
+
+footer{padding-block:28px 48px;color:var(--soft);font-size:15px}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}.btn:active,.q .opt:active{transform:none}}
+@media print{.top,.theme,.ctrls,.drop,.quiz,.codebox .btn,.skip{display:none!important}body{background:#fff;font-size:12pt}.plate,.note,.q,.cond{break-inside:avoid}.note{position:static}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">К разбору</a>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">Инфо<span>шаг</span></div>
+    <nav class="steps-nav" id="stepsNav" aria-label="Шаги разбора">
+      <a href="#uslovie"><b>0</b>Условие</a>
+      <a href="#fail"><b>1</b>Файл</a>
+      <a href="#klastery"><b>2</b>Кластеры</a>
+      <a href="#centr"><b>3</b>Центр</a>
+      <a href="#pary"><b>4</b>Пары</a>
+      <a href="#q1"><b>5</b>Q1</a>
+      <a href="#q2"><b>6</b>Q2</a>
+      <a href="#kod">Весь код</a>
+      <a href="#svoy-fail">Свой файл</a>
+    </nav>
+    <button class="theme" id="themeBtn" type="button" aria-label="Тёмная тема" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+
+<section class="hero" id="uslovie">
+  <div>
+    <span class="label">ЕГЭ-2027 · Информатика · Задание 27 · Кластеры частиц</span>
+    <h1>Задание 27 по шагам</h1>
+    <p class="lead">Разберём задачу про частицы медленно: по одному блоку кода и по одной строке. Нажми строку кода — справа появится пояснение. Рядом с каждым блоком живой пример на файле разбора.</p>
+    <div class="cond">
+      <span class="label">Условие · по мотивам задания 27 ЕГЭ-2027</span>
+      <p>Физик записал в файл результаты опыта. В каждой строке одна частица: координаты <i>x</i> и <i>y</i>, проекции скорости <i>v<sub>x</sub></i> и <i>v<sub>y</sub></i>, масса <i>m</i> и признак — римская цифра от I до VI. Дробные числа записаны с запятой.</p>
+      <p>Энергия частицы <b>E = m · (v<sub>x</sub>² + v<sub>y</sub>²) / 2</b>. По энергии частицы делятся на <b>кластеры</b>: каждая частица входит ровно в один кластер, а энергии любых двух частиц одного кластера отличаются не больше чем на <b>R = 2</b>.</p>
+      <p><b>Центр кластера</b> — та его частица, у которой сумма модулей разностей её энергии и энергий всех частиц кластера наименьшая.</p>
+      <div class="goal">
+        <div><span class="label">Q1</span><b>наименьшее расстояние</b><span class="muted">между двумя частицами <b>одного</b> кластера с признаком IV</span></div>
+        <div><span class="label">Q2</span><b>среднее арифметическое</b><span class="muted">энергий центров всех кластеров</span></div>
+      </div>
+      <p>В ответ запиши два числа: целую часть <code>Q1 × 10000</code> и целую часть <code>Q2 × 10000</code>.</p>
+    </div>
+    <div class="stack">
+      <span class="label">План решения</span>
+      <ol class="plan">
+        <li><a href="#fail">Прочитать файл и посчитать энергию каждой частицы.</a></li>
+        <li><a href="#klastery">Разложить частицы по кластерам по энергии.</a></li>
+        <li><a href="#centr">Найти центр каждого кластера.</a></li>
+        <li><a href="#pary">Разобраться, как перебрать все пары.</a></li>
+        <li><a href="#q1">Найти Q1 — самую близкую пару частиц IV.</a></li>
+        <li><a href="#q2">Найти Q2 и записать ответ.</a></li>
+      </ol>
+    </div>
+  </div>
+  <figure>
+    <svg class="chart" id="plotHero" viewBox="0 0 600 270" role="img" aria-labelledby="heroCap"></svg>
+    <figcaption class="muted" id="heroCap" style="font-size:15px">Энергии всех <span data-v="n"></span> частиц файла: одна точка — одна частица, по горизонтали энергия. Глазами видно три группы. Программа картинку не видит, ей нужно правило.</figcaption>
+  </figure>
+</section>
+
+<section class="sec" id="fail">
+  <div class="sec-head"><span class="badge">1</span><div>
+    <h2>Читаем файл и считаем энергию</h2>
+    <p class="lead">Файл — это текст. Каждую строку превращаем в числа и сразу считаем энергию частицы: именно по энергии частицы делятся на кластеры.</p>
+  </div></div>
+  <div class="anno" data-anno="read"></div>
+
+  <div class="plate one">
+    <div class="plate-title"><h3>Что происходит с одной строкой</h3><p class="muted">Выбери номер строки файла и посмотри, как текст по шагам становится числами, а числа — энергией.</p></div>
+    <div class="stepper">
+      <button class="btn" type="button" id="lnMinus" aria-label="Предыдущая строка">−</button>
+      <label for="lnInput" class="label">Строка</label>
+      <input type="number" id="lnInput" min="1" value="1">
+      <button class="btn" type="button" id="lnPlus" aria-label="Следующая строка">+</button>
+    </div>
+    <div class="pipe" id="pipe"></div>
+    <div class="say" id="pipeSay" aria-live="polite" style="min-height:0"></div>
+  </div>
+  <div class="formula" aria-label="E равно m умножить на сумму квадратов vx и vy, делённую на 2">E = m · (v<sub>x</sub><sup>2</sup> + v<sub>y</sub><sup>2</sup>) / 2 &nbsp;⟶&nbsp; <span class="tk-fn">0.5</span> * m * (vx ** <span class="tk-num">2</span> + vy ** <span class="tk-num">2</span>)</div>
+  <div class="quiz" data-quiz="read"></div>
+</section>
+
+<section class="sec" id="klastery">
+  <div class="sec-head"><span class="badge">2</span><div>
+    <h2>Раскладываем частицы по кластерам</h2>
+    <p class="lead">Координаты здесь не нужны: кластеры строятся по <b>энергии</b>. На графике энергии лежат тремя группами с пустыми промежутками между ними. Ставим по одной границе в каждый промежуток — и сравниваем с ними энергию каждой частицы.</p>
+  </div></div>
+  <div class="anno" data-anno="split"></div>
+  <p>Каждую частицу запоминаем как список из четырёх значений. Скорость и масса дальше не понадобятся: из них уже получилась энергия.</p>
+  <div class="idx" role="list">
+    <div role="listitem"><b>p[0]</b><span>координата x</span></div>
+    <div role="listitem"><b>p[1]</b><span>координата y</span></div>
+    <div role="listitem"><b>p[2]</b><span>энергия E</span></div>
+    <div role="listitem"><b>p[3]</b><span>признак, текст 'IV'</span></div>
+  </div>
+
+  <div class="plate">
+    <div class="plate-title"><h3>Двигай границы</h3><p class="muted">Красные пунктиры — границы из программы. Сдвинь их и посмотри, когда кластер перестаёт подходить под условие «разница энергий не больше R = 2».</p></div>
+    <svg class="chart" id="plotSplit" viewBox="0 0 600 270" role="img" aria-label="Энергии частиц и две границы между кластерами"></svg>
+    <div class="side">
+      <div class="slider"><label for="b1">первая граница: E &lt; <b id="b1Val"></b></label><input type="range" id="b1" min="0" max="11" step="0.1" value="4"></div>
+      <div class="slider"><label for="b2">вторая граница: E &lt; <b id="b2Val"></b></label><input type="range" id="b2" min="0" max="11" step="0.1" value="7.5"></div>
+      <div class="say" id="splitSay" aria-live="polite"></div>
+      <button class="btn" type="button" id="bReset">Вернуть 4 и 7,5</button>
+    </div>
+    <div class="tbl-wrap" style="grid-column:1/-1">
+      <table class="tbl">
+        <caption>Кластеры при выбранных границах — посчитано из файла</caption>
+        <thead><tr><th scope="col">кластер</th><th scope="col">частиц</th><th scope="col">E от</th><th scope="col">E до</th><th scope="col">разница</th><th scope="col">не больше 2?</th></tr></thead>
+        <tbody class="mono" id="splitTbl"></tbody>
+      </table>
+    </div>
+  </div>
+  <p class="warn">Чисел 4 и 7,5 в условии нет. Условие обещает только, что кластеры узкие (разница энергий не больше 2) и не пересекаются. Границы мы подобрали по графику: подходит любое число из пустого промежутка между группами.</p>
+  <details class="more">
+    <summary>Как найти промежутки программой, без графика</summary>
+    <div>
+      <pre class="code static" id="gapCode"></pre>
+      <p>Сортируем все энергии и смотрим на соседние значения. Внутри группы соседние энергии почти вплотную, а на стыке групп — большой скачок. Для файла разбора программа напечатает:</p>
+      <pre class="code static" id="gapOut"></pre>
+      <p>Значит, первая граница — любое число между первой парой, вторая — между второй. Мы взяли круглые 4 и 7,5.</p>
+    </div>
+  </details>
+  <div class="quiz" data-quiz="split"></div>
+</section>
+
+<section class="sec" id="centr">
+  <div class="sec-head"><span class="badge">3</span><div>
+    <h2>Ищем центр кластера</h2>
+    <p class="lead">Центр — это <b>одна из частиц</b> кластера, а не среднее значение. Для каждой частицы-кандидата складываем, насколько её энергия отличается от энергий всех остальных. У кого сумма меньше всего, тот и центр.</p>
+  </div></div>
+  <div class="anno" data-anno="center"></div>
+
+  <div class="plate one">
+    <div class="plate-title"><h3>Пример на пяти частицах</h3><p class="muted">Кластер с энергиями <code>1, 2, 3, 7, 9</code>. В каждой строке — один кандидат и модули разностей его энергии с каждой частицей.</p></div>
+    <div class="tbl-wrap"><table class="tbl" id="miniTbl"></table></div>
+    <p id="miniSay"></p>
+  </div>
+
+  <div class="plate">
+    <div class="plate-title"><h3>Центр на файле разбора</h3><p class="muted">Каждая точка — частица-кандидат: по горизонтали её энергия, по вертикали сумма <code>s</code>. Двигай ползунок по кандидатам и смотри, где сумма меньше всего.</p></div>
+    <svg class="chart" id="plotCenter" viewBox="0 0 600 380" role="img" aria-label="Сумма модулей разностей для каждой частицы кластера"></svg>
+    <div class="side">
+      <div class="ctrls" role="group" aria-label="Кластер">
+        <button class="btn" type="button" data-cl="0" aria-pressed="true">Кластер 1</button>
+        <button class="btn" type="button" data-cl="1" aria-pressed="false">Кластер 2</button>
+        <button class="btn" type="button" data-cl="2" aria-pressed="false">Кластер 3</button>
+      </div>
+      <div class="slider"><label for="cand">кандидат: <b id="candVal"></b></label><input type="range" id="cand" min="0" max="1" step="1" value="0"></div>
+      <div class="say" id="cSay" aria-live="polite"></div>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--ok)"></i>центр — минимум суммы</span>
+        <span><i class="dot" style="background:var(--hot)"></i>выбранный кандидат</span>
+      </div>
+    </div>
+  </div>
+  <p class="tip"><b>Наблюдение.</b> График похож на букву V, а дно — ровно посередине: слева и справа от центра одинаковое число частиц. Центр по такому правилу — это частица со <b>средней по порядку</b> энергией (медиана). Программе это знать не обязательно, но так легко проверить себя.</p>
+  <div class="quiz" data-quiz="center"></div>
+</section>
+
+<section class="sec" id="pary">
+  <div class="sec-head"><span class="badge">4</span><div>
+    <h2>Перебираем пары: combinations</h2>
+    <p class="lead">Для Q1 нужно сравнить расстояния у <b>всех пар</b> частиц. Функция <code>combinations(список, 2)</code> из модуля <code>itertools</code> выдаёт каждую пару ровно один раз: A–B есть, а B–A и A–A нет.</p>
+  </div></div>
+  <div class="anno" data-anno="pairs"></div>
+  <div class="plate">
+    <div class="plate-title"><h3>Пары на четырёх точках</h3><p class="muted">Учебный пример, не из файла. Нажимай «Следующая пара»: так же, как цикл, программа берёт пары по очереди и запоминает самое маленькое расстояние.</p></div>
+    <svg class="chart" id="plotPairs" viewBox="0 0 600 380" role="img" aria-label="Четыре точки и текущая пара"></svg>
+    <div class="side">
+      <div class="pairs" id="pairBtns" role="group" aria-label="Пары"></div>
+      <div class="ctrls">
+        <button class="btn primary" type="button" id="pairNext">Следующая пара →</button>
+        <button class="btn" type="button" id="pairReset">Сначала</button>
+      </div>
+      <div class="say" id="pairSay" aria-live="polite"></div>
+    </div>
+  </div>
+  <details class="more">
+    <summary>То же самое двумя обычными циклами</summary>
+    <div>
+      <pre class="code static" id="loopCode"></pre>
+      <p>Внутренний цикл начинается с <code>i + 1</code>. Так не получится пара частицы с самой собой (её расстояние 0 испортило бы минимум) и не будет повторов B–A после A–B.</p>
+    </div>
+  </details>
+  <div class="quiz" data-quiz="pairs"></div>
+</section>
+
+<section class="sec" id="q1">
+  <div class="sec-head"><span class="badge">5</span><div>
+    <h2>Q1: самая близкая пара частиц IV</h2>
+    <p class="lead">В каждом кластере отбираем частицы с признаком IV и перебираем их пары. Расстояние считаем по координатам на плоскости — энергия тут уже не участвует. Пары из разных кластеров не сравниваем.</p>
+  </div></div>
+  <div class="anno" data-anno="q1"></div>
+  <div class="plate">
+    <div class="plate-title"><h3>Частицы IV на плоскости</h3><p class="muted">Выбери кластер. Цветные точки — частицы IV этого кластера, серые — остальные его частицы. Линия соединяет самую близкую пару. Нажми на цветную точку — увидишь её ближайшую соседку.</p></div>
+    <svg class="chart" id="plotQ1" viewBox="0 0 600 600" role="img" aria-label="Частицы признака IV выбранного кластера на плоскости"></svg>
+    <div class="side">
+      <div class="ctrls" role="group" aria-label="Кластер">
+        <button class="btn" type="button" data-q="0" aria-pressed="true">Кластер 1</button>
+        <button class="btn" type="button" data-q="1" aria-pressed="false">Кластер 2</button>
+        <button class="btn" type="button" data-q="2" aria-pressed="false">Кластер 3</button>
+      </div>
+      <div class="say" id="q1Say" aria-live="polite"></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th scope="col">кластер</th><th scope="col">частиц IV</th><th scope="col">пар</th><th scope="col">самая близкая пара</th></tr></thead>
+        <tbody class="mono" id="q1Tbl"></tbody>
+      </table></div>
+    </div>
+  </div>
+  <div class="plate">
+    <div class="plate-title"><h3>Ловушка: с чего начинать минимум</h3><p class="muted">Переключи начальное значение <code>q1</code> и посмотри, что напечатает программа.</p></div>
+    <div class="side">
+      <div class="ctrls" role="group" aria-label="Начальное значение q1">
+        <button class="btn mono" type="button" data-init="inf" aria-pressed="true">q1 = float('inf')</button>
+        <button class="btn mono" type="button" data-init="zero" aria-pressed="false">q1 = 0</button>
+      </div>
+    </div>
+    <div class="say" id="initSay" aria-live="polite"></div>
+  </div>
+  <div class="quiz" data-quiz="q1"></div>
+</section>
+
+<section class="sec" id="q2">
+  <div class="sec-head"><span class="badge">6</span><div>
+    <h2>Q2 и ответ</h2>
+    <p class="lead">Q2 — среднее арифметическое энергий трёх центров. Не всех частиц файла, а только центров. Потом обе величины умножаем на 10 000 и отбрасываем дробную часть.</p>
+  </div></div>
+  <div class="anno" data-anno="q2"></div>
+  <div class="plate one">
+    <div class="plate-title"><h3>Расчёт для файла разбора</h3><p class="muted">Все числа ниже посчитаны прямо на этой странице из данных файла.</p></div>
+    <div class="calc" id="calc"></div>
+    <div class="answer">
+      <div><small>int(q1 * 10000)</small><span class="big" id="ans1"></span></div>
+      <div><small>int(q2 * 10000)</small><span class="big" id="ans2"></span></div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <caption>Почему <code>int</code>, а не <code>round</code></caption>
+      <thead><tr><th scope="col">число</th><th scope="col"><code>int</code> — целая часть</th><th scope="col"><code>round</code> — округление</th></tr></thead>
+      <tbody class="mono" id="intRound"></tbody>
+    </table>
+  </div>
+  <div class="quiz" data-quiz="q2"></div>
+</section>
+
+<section class="sec" id="kod">
+  <div class="sec-head"><span class="badge" style="font-size:20px">{ }</span><div>
+    <h2>Вся программа</h2>
+    <p class="lead">Положи файл <code>27.txt</code> в одну папку с программой. Для файла разбора она напечатает <code data-v="ans"></code>.</p>
+  </div></div>
+  <div class="codebox">
+    <pre class="code static" id="fullCode"></pre>
+    <button class="btn" type="button" id="copyBtn">Копировать</button>
+  </div>
+  <div class="ctrls">
+    <button class="btn primary" type="button" id="dlBtn">Скачать файл 27.txt</button>
+  </div>
+  <p class="muted">Файл: <span data-v="n"></span> строк, по шесть значений в строке, числа через запятую. Данные составлены для этого разбора.</p>
+</section>
+
+<section class="sec" id="svoy-fail">
+  <div class="sec-head"><span class="badge" style="font-size:22px">✓</span><div>
+    <h2>Проверь на своём файле</h2>
+    <p class="lead">Загрузи файл в том же формате. Страница сама найдёт промежутки между кластерами, центры и обе величины. Файл никуда не отправляется: всё считается на твоём компьютере.</p>
+  </div></div>
+  <div class="drop" id="drop">
+    <p>Перетащи сюда .txt файл или выбери его.</p>
+    <div class="ctrls">
+      <label class="btn primary" for="fileInput" style="cursor:pointer">Выбрать файл</label>
+      <input type="file" id="fileInput" accept=".txt,.csv,text/plain" class="sr">
+      <button class="btn" type="button" id="useOwn">Взять файл разбора</button>
+    </div>
+    <div class="fields">
+      <div class="field"><label for="upK">Кластеров:</label><input type="number" id="upK" value="3" min="1" step="1"></div>
+      <div class="field"><label for="upR">R:</label><input type="number" id="upR" value="2" min="0" step="0.1"></div>
+      <div class="field"><label for="upT">Признак:</label><select id="upT"><option>I</option><option>II</option><option>III</option><option selected>IV</option><option>V</option><option>VI</option><option>VII</option></select></div>
+      <div class="field"><label for="upQ1">Q1 —</label><select id="upQ1"><option value="min" selected>наименьшее расстояние</option><option value="max">наибольшее расстояние</option></select></div>
+      <div class="field"><label for="upQ2">Q2 —</label><select id="upQ2"><option value="avg" selected>среднее энергий центров</option><option value="max">наибольшая энергия центра</option><option value="min">наименьшая энергия центра</option></select></div>
+    </div>
+  </div>
+  <div class="plate one" id="upPlate" hidden>
+    <div class="say" id="upSay" aria-live="polite"></div>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th scope="col">кластер</th><th scope="col">частиц</th><th scope="col">E от</th><th scope="col">E до</th><th scope="col">разница ≤ R</th><th scope="col">энергия центра</th><th scope="col">частиц признака</th><th scope="col">Q1 внутри</th></tr></thead>
+      <tbody class="mono" id="upTbl"></tbody>
+    </table></div>
+    <div class="answer">
+      <div><small>int(Q1 * 10000)</small><span class="big" id="up1"></span></div>
+      <div><small>int(Q2 * 10000)</small><span class="big" id="up2"></span></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="wrap">Инфошаг · материалы для уроков информатики · Задание 27 ЕГЭ-2027, кластеры частиц · условие по мотивам проекта демоверсии 2027, вопросы изменены, данные файла составлены для этого разбора</footer>
+
+<script type="text/plain" id="fileData">
+-11,754	14,027	-2,631	0,441	2,58	III
+-19,381	12,235	0,465	3,931	1,21	VI
+19,172	-14,748	0,391	1,538	2,08	VI
+1,165	-16,455	0,271	-1,065	3,79	III
+-6,464	-17,498	0,984	2,103	3,09	II
+2,322	-18,51	-3,351	0,068	0,94	V
+-18,062	10,178	-2,554	0,403	2,57	III
+-10,171	4,157	-1,187	2,163	1,96	I
+8,706	-0,725	2,139	-0,465	3,86	III
+11,823	3,029	-0,576	3,015	1,97	III
+-7,934	1,865	0,186	-1,093	3,39	I
+-11,684	13,925	-1,511	1,45	0,98	VI
+18,301	8,462	-2,501	2,117	0,92	IV
+-18,499	-16,572	-0,938	2,721	1,51	IV
+-4,105	19,101	1,2	1,496	2,87	II
+13,629	-2,533	1,446	-0,031	1,64	V
+14,544	-8,655	-1,152	-1,333	3,85	II
+12,436	-11,029	-2,021	2,437	1,74	III
+-0,803	9,161	0,825	1,828	2,6	V
+-19,627	-14,365	0,063	-3,205	1,82	VI
+8,734	8,472	-1,216	0,24	3,36	III
+9,637	3,432	2,468	-0,069	0,67	I
+4,974	-1,882	-1,567	-0,895	3,52	IV
+12,395	-18,996	2,147	0,161	3,89	II
+-19,382	-17,604	-2,579	-2,989	1,24	III
+14,602	17,752	-0,002	-1,891	2,84	IV
+-14,228	-18,681	0,622	0,776	3,01	III
+-2,617	-0,842	-0,828	1,917	2,36	VI
+-2,153	-6,941	1,574	-1,249	2,98	III
+-7,795	-9,484	-2,56	-0,431	2,74	III
+14,096	-8,503	2,226	-0,763	3,34	I
+19,853	7,553	3,344	-2,402	0,64	III
+6,078	11,035	1,448	1,662	0,78	II
+16,665	-13,886	-1,185	-2,573	2,4	I
+12,257	13,527	-0,877	1,004	2,47	VI
+-16,062	-16,759	5,254	1,425	0,67	V
+17,171	9,964	-1,902	-0,532	3,28	II
+1,36	10,823	-3,262	1,123	0,95	VI
+1,353	-7,54	0,34	-1	3,38	II
+11,381	-13,744	-0,655	-1,529	1,81	II
+-16,509	-10,037	1,946	1,343	3,09	VI
+-10,322	-2,729	-2,122	-0,648	3,76	V
+6,437	7,381	-1,734	-0,588	3,68	III
+-6,857	1,877	-2,522	0,667	2,79	I
+-18,071	-5,223	0,46	-2,434	2	IV
+-4,202	9,697	1,174	-0,634	2,98	I
+19,261	15,912	2,309	0,546	3,34	III
+-14,579	-11,664	1,135	-0,03	2,45	VI
+-2,159	-18,647	-2,12	-1,23	3,1	II
+1,675	-4,479	0,563	1,905	1,1	III
+17,154	1,374	-0,08	-3,65	0,79	II
+7,222	5,953	-1,198	1,988	2,14	V
+-4,747	-1,37	1,831	-1,632	1,84	IV
+3,706	-18,378	0,944	-0,287	3,36	I
+2,563	-0,724	2,612	-2,546	1,46	V
+5,588	-17,304	1,761	-1,943	1,65	V
+3,601	6,797	3,057	0,764	1,86	V
+-18,145	-3,114	-1,944	-0,89	2,28	I
+16,491	-3,503	2,486	-1,68	1,16	VI
+0,228	-8,175	-0,53	1,295	2,38	IV
+-4,871	-12,878	1,01	-1,983	3,75	II
+16,175	19,47	0,439	0,942	3,87	IV
+10,225	19,724	3,933	-0,033	1,21	V
+-5,692	-8,51	1,068	-1,193	1,84	II
+-16,588	13,891	-2,44	4,062	0,85	VI
+13,701	0,213	2,956	-2,663	1,08	I
+-13,905	17,939	-1,408	-1,558	2,48	III
+16,898	-17,539	-0,702	-2,148	3,62	V
+-8,367	5,853	0,179	-3,257	1,04	III
+-8,53	2,739	-1,023	-1,449	3,55	VI
+0,495	-10,977	5,368	-0,788	0,6	IV
+5,865	9,773	-1,553	-1,894	1,86	IV
+-17,49	12,062	1,037	-1,702	0,99	I
+-14,466	-11,86	-1,962	-1,002	2,26	III
+-19,941	-18,237	-0,231	-2,185	3,51	III
+19,868	-0,319	-2,584	-2,592	1,3	II
+17,041	-13,035	0,179	0,974	2,92	II
+-17,503	-9,677	1,373	0,784	3,93	II
+-16,936	1,651	0,488	-2,232	3,58	I
+6,079	6,097	-1,72	-0,735	3,21	II
+11,487	-8,684	0,37	1,901	3,23	III
+-0,256	4,986	-0,776	1,524	3,79	III
+15,306	-2,688	-1,239	-1,56	2,91	IV
+8,359	-11,456	-3,834	0,119	0,81	VI
+8,863	6,56	-1,582	-0,491	3,96	VI
+1,784	7,966	-0,773	-3,306	1,51	VI
+16,712	-13,64	-0,433	1,573	3,91	II
+-19,783	10,705	1,316	0,575	1,37	III
+-2,8	-1,457	-0,128	3,159	1,85	II
+18,331	2,796	1,437	3,434	0,72	II
+-5,368	-5,037	0,893	2,135	2,01	V
+19,385	-8,933	-1,818	0,037	1,38	II
+-5,4	-4,503	-3,676	2,743	0,5	V
+15,058	4,066	0,461	-2,137	3,9	V
+10,798	12,727	-2,657	-0,079	2,62	VI
+10,895	-13,62	-0,566	2,189	3,81	III
+5,673	-6,142	0,937	-1,503	3,72	II
+14,359	14,849	-0,172	2,374	0,76	II
+9,404	-3,114	-0,871	-0,867	3,02	I
+11,022	-0,403	2,513	0,397	0,67	IV
+-9,337	14,9	1,835	-1,594	1,85	I
+-0,584	-12,573	-2,487	1,787	1,1	III
+-13,753	-13,598	-1,311	-0,473	2,16	III
+11,767	-2,156	-0,268	-2,066	3,97	V
+-16,738	4,129	0,994	-2,666	2,24	V
+1,703	-4,545	0,854	-0,378	3,69	III
+-14,76	-0,664	-2,081	0,565	2,08	I
+-13,728	9,075	-1,761	0,111	3,74	II
+-6,8	9,083	-0,502	0,882	3,96	IV
+1,318	-10,684	-2,578	-1,066	1,37	VI
+10,11	-16,491	-2,888	0,991	2,13	I
+-5,707	16,77	1,774	-2,931	1,67	V
+9,872	14,707	1,837	-1,229	2,22	V
+15,485	6,983	-0,496	-2,634	1,47	III
+7,101	-7,308	1,65	1,925	2,91	V
+4,705	6,17	0,901	0,823	2,75	IV
+-4,479	-10,034	-2,065	-1,312	0,77	IV
+-2,326	6,679	-0,641	-1,124	2,43	IV
+-14,162	-1,733	1,838	-2,313	2,02	II
+-18,423	1,938	-2,494	0,565	1,8	I
+12,382	15,808	-0,848	-1,559	3,41	II
+-13,049	-17,472	-3,555	3,433	0,81	III
+8,386	14,56	2,551	-2,408	1,56	I
+13,539	19,102	0,339	2,03	2,37	I
+-6,066	12,939	-2,364	1,889	1,19	IV
+-8,201	12,67	-0,4	-2,299	3,46	IV
+15,858	-4,227	0,462	3,354	1,57	V
+12,64	12,77	-1,857	1,306	3,64	III
+0,601	-8,495	-1,341	-3,174	0,96	III
+15,617	-8,336	-1,106	0,907	2,14	IV
+3,152	-4,582	-0,717	-2,312	3,15	II
+-6,122	16,139	0,482	1,804	3,68	II
+13,198	-14,205	-1,494	-1,795	3,37	VI
+-11,646	-18,835	2,175	0,356	2,44	III
+9,844	-19,948	-1,68	2,39	1,25	VI
+-18,502	2,156	2,756	-0,001	1,44	III
+-12,624	-19,471	2,237	2,064	1,95	IV
+11,83	-7,727	4,602	-0,197	0,6	III
+5,578	-11,611	-3,151	-1,363	0,97	V
+-17,41	2,604	-0,878	1,147	2,34	V
+-16,725	7,471	-1,634	-2,33	1,33	VI
+0,265	19,331	0,777	-0,614	2,74	V
+-5,187	2,4	-2,233	0,626	2,35	II
+18,671	-2,229	2,097	0,586	3,79	IV
+-12,592	1,226	2,33	-0,143	0,84	II
+1,419	6,779	1,41	1,164	3,1	IV
+11,229	-16,909	-1,224	0,795	1,64	VI
+-5,062	-18,877	-2,055	-1,17	1,71	V
+3,95	15,848	0,939	1,67	2,96	V
+-9,277	3,694	-1,465	-1,699	3,45	V
+-0,139	15,393	-0,838	0,737	3,78	IV
+14,139	13,301	-3,198	4,447	0,58	V
+5,557	-7,996	2,231	0,352	0,74	IV
+13,914	18,057	-1,04	4,04	1,13	IV
+18,605	-16,146	-2,658	0,819	2,34	III
+10,362	17,581	-3,517	0,541	0,82	VI
+6,326	15,52	-3,133	-1,022	1,62	III
+17,755	5,736	-2,938	2,276	1,38	VI
+-11,354	-2,4	1,958	1,905	1,46	V
+7,686	13,922	1,092	0,188	3,64	V
+10,513	19,092	-1,412	-2,234	2,61	VI
+3,725	-7,473	-1,892	-0,645	3,02	I
+6,939	-19,515	1,378	-0,94	3,67	III
+8,579	-11,72	2,647	-2,626	1,34	IV
+12,524	4,26	2,362	-0,368	3,25	IV
+-12,614	15,233	2,436	-0,733	2,87	VI
+-19,599	14,565	-2,169	1,69	2,45	IV
+9,88	-16,631	-0,276	-1,005	3,76	III
+15,059	-9,106	2,963	1,036	1,23	II
+9,119	-14,073	2,854	2,621	0,78	II
+-6,941	15,292	-2,013	-1,605	1,85	I
+18,236	-9,444	-1,734	4,355	0,8	II
+-8,905	-13,71	-0,559	-1,189	3,1	V
+-18,6	-12,744	0,981	2,324	1,81	VI
+9,443	5,252	2,402	0,245	3,01	III
+-19,273	16,796	1,539	0,047	2,05	III
+-10,002	-16,851	-1,372	2,171	1,64	V
+-0,715	-13,303	1,044	-0,38	3,36	V
+-1,46	-14,233	0,205	-3,258	1,75	V
+-1,465	14,12	-2,285	0,248	2,16	V
+-7,205	-6,911	1,576	1,674	3,56	II
+14,179	15,79	1,713	0,503	3,68	V
+-13,588	-19,426	1,627	1,04	1,06	II
+-2,313	12,076	-2,315	1,824	0,59	III
+14,939	-9,8	0,16	-1,651	3,78	II
+9,629	10,82	-2,547	1,028	1,56	I
+-18,785	4,937	0,953	0,62	3,01	I
+8,184	11,685	-1,671	-0,761	3,47	IV
+17,75	8,42	1,782	1,092	2,53	VI
+-4,945	-2,222	-0,336	2,198	3,5	I
+18,357	15,85	0,497	-1,879	2,98	IV
+-9,971	-8,259	1,452	-0,565	1,69	VI
+6,263	5,431	0,279	1,412	2,06	V
+14,899	10,738	-3,189	0,916	1,01	II
+-13,908	11,411	-1,829	-1,922	2,71	V
+-17,141	-15,799	-0,892	-3,767	0,67	III
+-10,11	-12,491	-2,811	-1,508	1,68	III
+-4,101	6,136	0,063	3,288	0,99	I
+16,446	-6,256	-1,12	3,159	1,7	V
+11,558	-4,13	-0,825	3,516	0,9	I
+4,409	1,639	-1,498	-1,355	2,73	III
+-7,617	-11,955	2,447	-3,258	1,09	III
+12,007	15,145	1,525	-1,598	3,76	VI
+9,948	-17,388	1,695	-0,161	1,19	II
+-4,465	-11,054	-2,247	-0,636	1,83	VI
+-13,799	9,2	1,775	-0,308	3,88	IV
+5,416	8,462	1,123	1,653	0,82	V
+8,818	7,36	1,006	-1,837	3,97	I
+-2,804	19,277	1,915	1,645	2,99	VI
+16,148	4,422	1,832	1,537	3,29	III
+2,964	13,814	-1,04	-0,663	2,88	VI
+5,512	-6,795	-0,893	-1,668	3,44	IV
+11,614	-4,795	0,788	2,631	1,26	I
+2,516	3,85	1,899	1,786	2,63	IV
+-9,184	-2,087	-0,877	0,715	3	VI
+-11,109	1,992	1,369	-0,315	2,44	I
+-2,787	12,878	1,418	-0,939	3,38	III
+4,595	-14,021	2,709	-3,618	0,96	I
+-14,833	-2,079	-1,101	-0,628	3,17	VI
+17,315	19,63	2,807	-3,143	1,06	II
+5,223	-0,647	-0,805	-1,262	1,86	V
+-1,182	-19,311	0,394	1,285	3,16	III
+19,547	18,732	-0,798	-1,717	2,93	V
+-16,705	-8,595	-2,154	0,646	3,54	V
+6,031	18,434	0,836	-0,785	3,63	III
+18,777	18,956	-0,486	-1,918	1,1	IV
+-12,058	-15,069	4,234	-0,349	0,96	V
+-14,369	-4,709	-1,011	0,374	3,87	IV
+1,368	17,368	-0,214	2,062	1,32	III
+-11,984	-12,336	2,048	-0,824	1,04	V
+8,848	9,909	-0,357	2,392	3,12	I
+-16,452	3,059	1,126	0,636	3,29	VI
+15,287	-5,713	-1,202	2,587	1,42	I
+-14,036	-14,114	0,883	-1,672	3,09	II
+-14,482	-12,491	-1,08	-0,689	2,33	I
+14,257	12,585	-2,448	1,874	2	III
+-15,71	3,918	0,807	-0,638	3,34	V
+18,183	-17,493	-1,288	-2,641	1,27	IV
+7	8,652	1,622	0,851	1,08	VI
+-2,199	9,221	2,189	2,472	1,14	I
+-4,547	1,795	1,437	0,219	1,96	IV
+6,915	-10,734	-0,808	2,505	1,62	II
+-4,517	17,632	-0,631	2,416	3,1	V
+19,281	10,424	-2,341	-1,15	2,69	VI
+15,484	8,663	-3,188	2,239	0,75	I
+-10,621	2,523	0,294	0,996	3,44	III
+-11,071	-18,837	1,93	-1,145	2,54	II
+4,899	17,12	0,917	2,316	1,74	II
+5,686	10,881	2,55	0,193	1,64	I
+-7,406	1,033	-1,437	1,269	3,14	III
+8,209	8,843	-0,078	-2,143	2,32	IV
+-3,897	-1,112	-1,073	-0,147	3,72	VI
+-9,216	-5,152	1,126	1,227	1,53	I
+-2,398	-8,401	-2,344	-0,435	2,01	VI
+19,592	8,322	0,717	-2,679	2,54	II
+12,749	6,838	1,184	1,199	1,47	I
+13,16	14,163	0,554	0,725	3,96	IV
+-12,682	7,87	3,47	0,059	0,94	III
+-19,522	-5,447	-0,825	-4,61	0,8	VI
+3,747	18,335	-2,151	-1,116	3,14	I
+1,174	-15,43	2,346	0,077	3,25	II
+1,479	-9,585	-1,323	-4,328	0,93	III
+3,41	0,152	0,682	-4,142	0,67	IV
+-1,068	12,565	-1,851	1,725	1,84	II
+-11,404	-18,553	-1,206	-0,676	2,8	VI
+-0,566	16,761	-2,222	0,708	2,25	III
+-12,244	0,322	-2,348	0,332	2,12	II
+15,634	12,979	0,473	2,882	2,21	VI
+4,514	6,539	0,587	-4,814	0,76	VI
+-7,644	-1,453	-0,566	4,434	0,56	I
+9,901	-0,762	0,712	2,398	3,06	II
+13,543	11,801	-0,369	1,823	1,33	IV
+-13,706	-14,499	0,487	-1,716	1,25	I
+-3,649	-4,786	0,433	-2,176	2,15	V
+-13,838	-16,366	-0,722	-2,076	3,74	III
+-19,904	8,923	0,731	1,393	3,85	I
+-10,489	6,778	1,241	2,172	2,87	VI
+18,452	-5,033	3,015	-1,745	1,38	I
+0,669	-17,674	1,059	-2,845	1,91	III
+-1,595	-13,757	-2,186	1,181	1,98	III
+14,507	16,8	1,495	0,087	2,14	V
+-18,258	10,423	-2,123	-3,075	1,31	V
+5,201	11,876	-1,691	-2,804	1,79	V
+8,723	0,033	-2,286	0,179	2,11	IV
+6,285	3,665	-1,976	2,465	1,81	VI
+19,289	-19,062	-1,442	-0,175	2,46	V
+-2,445	12,199	-0,434	-2,336	3,29	II
+-11,313	13,83	-0,466	1,596	1,05	I
+16,071	-11,758	2,639	2,159	0,87	V
+0,454	-5,046	1,166	-0,354	3,7	II
+-13,489	17,832	-2,224	-0,338	3,56	VI
+-5,907	7,145	-1,464	1,702	3,86	I
+-18,197	-9,968	-2,442	-0,896	1,54	I
+15,962	-17,552	-1,428	2,14	0,77	I
+-5,191	-17,115	-1,45	-0,766	3,79	III
+10,728	5,948	-0,562	1,281	2,12	III
+3,104	-0,859	-1,201	0,692	2,73	V
+7,898	-8,57	-0,78	-0,821	3,36	V
+10,723	-4,301	0,668	-3,334	1,6	I
+-10,534	-13,345	1,116	3,665	1,25	IV
+-16,523	-9,523	-0,192	1,695	3,66	II
+-14,493	17,69	1,336	-0,355	3,16	III
+9,716	-8,744	0,737	1,53	3,96	IV
+-19,375	-2,353	0,886	-1,935	2,17	II
+-15,356	3,317	-1,28	2,002	3,09	VI
+-17,915	-18,944	-2,592	-0,301	1,77	IV
+12,909	15,442	2,2	3,774	0,9	VI
+-16,971	-12,033	-2,934	-1,47	1,16	IV
+-2,837	-0,58	-0,889	-3,016	1,19	II
+13,603	-15,248	1,387	-3,441	1,23	V
+-19,346	-16,432	1,694	-1,056	2,6	V
+18,323	14,188	1,575	-2,189	2,72	II
+1,592	-1,455	-2,136	0,366	2,55	I
+4,755	-15,692	2,283	0,125	3,63	I
+-9,331	9,592	-0,949	-2,868	1,3	II
+-2,956	19,497	-0,213	-1,028	3,73	VI
+-19,846	0,989	-0,434	1,918	0,79	I
+-2,135	15,244	1,509	-2,33	1,45	VI
+1,988	9,884	-1,446	-1,863	1,85	I
+-3,146	-15,416	-0,98	0,223	3,96	V
+-13,21	12,42	-1,116	-0,857	1,92	I
+14,326	15,256	0,001	-2,187	2,34	VI
+-13,085	-2,168	0,595	-1,775	3,4	II
+6,022	-11,826	-1,032	-1,299	1,55	II
+-15,735	-15,721	-0,429	1,179	2,73	VI
+-11,125	2,204	-2,369	0,048	3,37	VI
+18,106	1,052	3,47	-4,541	0,61	VI
+19,569	14,571	0,589	-1,446	1,4	II
+-11,799	4,949	-2,245	1,268	2,87	III
+16,05	-16,366	1,419	-1,845	3,22	V
+5,175	-19,815	1,417	-1,19	3,19	V
+0,038	19,002	-0,811	-1,513	3,62	IV
+-8,905	-17,106	2,096	0,424	2,58	I
+9,76	-12,043	-2,804	-2,226	0,88	IV
+-15,093	-19,658	-1,319	-0,016	2,77	I
+-1,61	19,732	-1,555	2,499	1,19	III
+-9,729	-4,304	0,047	2,409	1,93	IV
+-7,223	13,845	1,959	-1,516	2,95	I
+-19,045	-19,943	-1,047	-0,471	3,95	VI
+-10,028	-16,91	-0,157	1,196	3,12	V
+-1,349	-11,7	-5,226	1,046	0,69	V
+8,261	-8,754	0,685	1,194	2,8	V
+18,691	4,814	2,652	3,488	0,96	V
+-5,827	15,641	0,751	0,835	3,39	V
+-0,564	-10,604	-2,714	0,162	2,51	V
+-8,83	-0,048	-1,1	0,256	3,74	V
+0,718	-10,306	-1,268	1,867	2,08	III
+-9,266	-8,213	1,756	2,046	1,7	II
+3,35	15,22	1,665	2,828	1,67	III
+17,467	-5,192	0,075	-3,352	1,74	IV
+-12,156	8,578	3,067	-2,136	1,31	III
+-11,125	-19,275	-1,605	-2,632	1,8	IV
+-19,781	10,509	-3,549	-0,564	1,36	I
+-10,05	11,335	1,606	-1	1,47	I
+15,479	-17,657	1,2	0,172	3,52	VI
+14,539	8,611	1,777	-1,115	3,96	IV
+-6,918	4,496	-1,665	-0,201	3,67	IV
+-9,068	-13,671	-3,256	-3,084	0,94	V
+10,391	6,934	-0,693	0,715	3,39	V
+-12,405	18,822	-0,845	-1,141	2,31	II
+-19,071	-10,68	4,172	-1,33	0,55	IV
+17,626	-7,961	1,588	0,808	0,98	V
+-19,497	6,095	1,774	-1,61	1,92	III
+-3,086	-7,079	-0,214	-1,07	3,65	II
+-16,079	-5,269	-0,41	-1,954	3,01	II
+-11,116	-6,39	-0,794	-0,873	2,58	I
+13,642	-1,264	-2,22	0,967	3,22	III
+-14,062	-17,907	-0,55	0,999	3,26	VI
+11,049	19,265	1,58	-1,216	1,02	IV
+-15,488	8,32	-1,575	5,304	0,6	II
+-5,018	2,817	-1,779	-0,07	1,2	IV
+-3,609	4,235	3,852	1,897	0,97	VI
+13,104	0,678	1,783	-4,736	0,71	VI
+17,7	17,083	3,446	-0,451	1,58	II
+-1,438	-19,536	-3,019	-2,098	1,4	I
+16,967	-5,226	-0,987	-0,788	3,43	VI
+1,914	-17,595	0,664	1,02	2,73	VI
+-6,525	16,618	-2,934	0,871	1,15	V
+-6,048	-18,743	-0,053	-0,831	3,85	IV
+-12,704	6,546	-0,104	2,45	0,77	V
+1,646	4,533	-2,45	-2,581	0,96	IV
+-3,948	-2,469	1,268	-1,799	2,23	III
+-3,032	-0,369	2,246	0,014	3,5	V
+14,726	3,373	0,971	0,489	3,68	III
+-13,489	6,54	1,222	-1,274	3,39	IV
+17,06	-9,359	-0,478	2,384	3,26	III
+18,002	17,122	0,141	-2,019	2,63	V
+-12,017	-4,671	2,072	1,417	2,01	IV
+9,773	4,994	-1,199	-3,062	1,63	II
+0,96	6,828	0,584	1,443	1,97	III
+15,792	-15,374	0,755	1,793	2,75	I
+16,267	-19,231	0,212	4,589	0,83	VI
+19,272	8,753	-2,451	-0,502	2,9	II
+13,174	-11,487	-0,339	-3,931	0,74	V
+0,486	12,833	1,541	-4,264	0,94	III
+7,464	4,215	0,76	1,537	3,97	I
+13,58	-11,37	-1,702	0,604	1,35	V
+11,596	-0,72	1,136	0,538	2,36	III
+16,12	13,619	0,163	-1,574	1,88	VI
+-18,075	4,468	-1,742	1,505	2,3	III
+14,296	2,523	1,405	0,242	2,46	III
+3,148	8,667	-1,09	2,476	1,56	II
+17,452	13,051	-3,054	-2,914	1,06	IV
+-7,288	16,844	-0,226	1,029	3,31	II
+5,745	12,064	-0,657	2,746	1,25	III
+-7,272	-19,892	-4,103	0,989	0,96	II
+2,521	19,422	-3,316	0,253	1,51	III
+4,645	9,608	-2,758	0,546	2,39	III
+-3,321	2,822	-0,681	-3,704	0,79	I
+-5,478	12,584	1,511	-2,174	0,86	III
+19,863	-1,394	-3,686	3,475	0,73	V
+-6,814	-12,374	1,887	-1,017	0,76	II
+16,156	8,169	4,466	-3,39	0,57	V
+14,819	-16,703	1,297	2,062	2	IV
+15,834	-11,236	-1,138	-1,927	3,65	II
+0,098	-8,376	-1,696	0,088	3,81	IV
+7,535	-14,783	3,403	2,503	0,97	I
+-5,061	-15,829	0,897	-1,52	3,14	II
+18,013	-15,94	1,262	-1,167	1,26	IV
+-18,393	-17,074	2,855	-3,185	1,08	I
+8,957	14,076	0	-3,254	1,76	I
+-9,916	-11,92	1,76	2,143	1,34	III
+15,182	-5,91	2,498	0,689	1,72	III
+-15,435	-8,124	-0,338	2,834	2,43	V
+6,763	-12,368	1,609	1,099	3,33	III
+-17,501	19,991	-3,704	-2,159	1,02	III
+-8,817	-13,834	-0,065	2,475	2,83	VI
+6,689	3,735	1,763	0,96	2,61	IV
+11,047	7,322	-0,899	0,609	3,92	III
+-15,904	-19,127	-0,916	-1,261	2,1	I
+8,886	18,295	-5,127	-0,039	0,73	VI
+10,358	-18,15	0,046	-4,032	1,14	I
+-13,569	-18,178	0,616	-1,917	2,94	V
+19,639	-4,977	-1,73	0,813	3,09	V
+-1,283	0,497	0,885	-1,603	3,58	III
+-2,565	-4,295	-1,567	-0,428	3,95	IV
+7,815	1,274	-0,087	1,612	2,36	III
+-14,177	2,311	-2,614	1,331	1,99	III
+-17,826	-2,803	3,083	2,939	1,05	VI
+18,637	-19,875	-1,545	-1,466	2,31	VI
+6,539	17,387	-0,757	-1,543	1,77	III
+15,426	-18,066	-2,326	1,295	2,67	III
+16,086	11,485	-1,076	-1,877	1,17	III
+9,324	-12,369	-0,645	1,945	2,64	V
+0,547	0,841	-0,481	3,231	1,64	IV
+3,871	6,994	1,351	1,712	3,88	III
+3,409	-11,565	-0,308	-2,348	3,36	II
+18,054	-16,824	-1,738	0,524	3,09	IV
+5,306	11,436	-2,53	4,379	0,7	VI
+-14,719	11,161	-2,712	0,675	1,43	VI
+9,276	-4,435	-2,16	0,289	2,05	I
+-14,95	3,281	2,448	0,129	3,12	VI
+16,499	13,917	1,347	-2,331	2,62	VI
+14,003	-10,673	5,662	1,502	0,54	IV
+4,947	-2,607	-1,558	-1,315	2,49	II
+16,009	19,298	1,807	0,082	1,44	III
+5,75	15,855	0,074	1,79	3,45	II
+8,548	-5,926	0,007	1,747	1,52	I
+9,798	-1,851	-2,112	-0,273	3,98	III
+-18,843	12,401	-0,967	0,319	3,07	VI
+5,952	16,849	-0,119	-1,498	2,22	IV
+8,05	-9,948	2,247	-1,451	1,64	V
+-3,141	-5,746	-2,305	1,116	2,64	I
+-2,063	14,251	-1,157	1,422	3,56	II
+-18,064	-11,216	-0,313	-2,1	2,65	V
+13,2	3,367	-2,604	1,03	1,38	V
+-15,456	-13,583	-1,518	-2,556	2,2	II
+-15,162	-5,818	-0,038	2,216	2,14	VI
+-18,963	2,725	0,472	-2,221	2,19	I
+-8,195	-7,563	0,939	0,288	3,68	V
+10,374	4,067	3,556	0,409	1,32	I
+2,053	18,197	-1,108	-1,065	1,48	II
+5,919	-7,332	1,084	3,492	1,32	I
+-9,076	-0,364	0,85	0,134	3,9	I
+19,721	16,778	1,439	1,321	3,09	II
+-15,492	16,447	0,49	3,133	1,17	I
+-5,496	2,981	2,071	-0,897	2,16	I
+18,408	-19,179	1,946	1,824	2,54	III
+2,208	11,937	-1,143	0,175	2,95	VI
+-18,785	-9,092	-1,125	-0,547	2,83	I
+9,981	0,261	-1,139	-1,958	3,52	III
+-5,128	2,935	-0,907	-0,849	3,2	IV
+-12,989	-8,726	-2,894	1,399	1,1	VI
+-0,027	19,41	-2,272	-0,002	3,74	V
+12,041	4,77	0,937	1,203	2,12	III
+-5,035	9,027	0,278	-1,187	2,69	II
+-4,815	7,494	-1,916	-0,263	0,79	V
+-14,381	18,581	-1,86	-1,276	3,66	I
+16,026	-6,148	-1,559	1,461	2,37	I
+-14,984	-13,068	3,789	0,255	0,83	IV
+14,382	14,266	2,069	-2,434	1,83	I
+-8,693	13,223	-2,362	-0,795	2,98	IV
+-18,868	-8,939	-2,805	-1,383	1,09	I
+5,361	-18,239	-1,079	0,12	3,95	II
+4,121	18,84	-3,044	0,044	1,98	VI
+-16,961	0,778	0,315	-2,069	2,3	IV
+-9,259	14,283	-0,018	-3,261	0,95	IV
+0,563	-0,492	3,228	5,133	0,54	II
+-15,235	6,381	2,902	-0,455	2,07	II
+3,464	-16,529	2,737	-0,477	0,71	V
+-0,862	-13,54	-1,116	1,49	2,82	VI
+-0,36	9,164	4,583	-2,053	0,68	IV
+-9,627	-6,89	0,334	-2,035	2,31	I
+4,182	8,571	0,631	-1,53	3,87	VI
+-4,534	1,142	-1,594	-2,353	1,35	VI
+-18,564	-17,849	1,318	1,356	3,03	III
+19,36	-2,347	-1,245	1,931	2,21	V
+-12,997	-8,233	-1,146	-0,514	3,23	II
+5,715	5,27	1,806	1,093	2,46	III
+-1,021	9,556	-2,059	-0,858	2,06	VI
+-6,187	-12,21	2,384	1,044	1,85	III
+12,187	7,221	3,049	-0,039	1,01	VI
+6,314	-8,468	-1,297	0,165	2,38	III
+-6,145	15,08	-0,298	1,154	2,88	III
+-14,985	-14,441	-0,633	0,913	3,69	IV
+5,251	6,447	0,431	4,65	0,53	V
+11,155	-15,203	-2,091	-2,311	1,94	III
+10,044	-17,606	-0,386	2,125	3,71	I
+-6,605	12,48	0,448	1,859	3,1	I
+16,985	11,2	-1,771	0,469	3,63	II
+0,421	6,304	0,744	-1,701	3,15	II
+12,761	17,791	2,297	-1,243	1,66	IV
+-18,826	-19,297	1,423	1,094	3,86	IV
+-19,034	4,447	-0,895	2,48	1,68	VI
+-5,801	14,089	1,687	-0,264	3,76	IV
+10,346	-1,374	-1,535	-0,109	3,93	I
+3,615	4,974	2,775	-1,946	1,54	IV
+-10,536	15,642	-4,471	-1,181	0,87	IV
+-7,532	9,275	-1,222	-0,754	1,89	II
+-12,783	19,593	4,323	-0,656	0,57	III
+14,686	-6,369	-0,947	-0,763	3,1	VI
+19,173	-18,37	1,236	2,764	1,94	II
+10,944	-10,737	-0,441	2,417	3,04	II
+-11,782	-1,874	0,924	1,666	3,19	II
+0,867	6,708	-1,22	-2,009	3,42	III
+-10,041	-9	-1,626	-1,633	3,54	II
+9,184	13,68	0,661	2,775	1,42	VI
+-15,386	-3,056	-2,03	3,597	1,13	IV
+15,342	-9,112	0,378	1,173	2,67	I
+-8,174	3,581	-0,891	2,468	1,59	III
+-6,053	10,862	1,821	1,682	1,91	V
+-5,765	-19,13	1,114	-3,998	1,12	I
+-10,986	13,171	2,478	0,686	2,67	V
+3,1	-17,16	1,83	-1,202	3,93	IV
+-15,893	3,332	-2,104	1,647	2,37	II
+-17,796	16,189	-3,905	0,848	0,75	I
+1,732	-10,465	5,349	-0,422	0,65	VI
+18,796	6,269	-1,407	0,984	3,61	III
+6,666	15,457	0,595	-1,193	1,7	IV
+-3,485	-19,926	-1,314	-1,692	2,3	VI
+-5,574	8,256	1,09	2,764	2,15	I
+-4,905	-11,276	1,24	-3,408	1,47	I
+-7,267	2,777	-1,322	0,557	2,05	III
+-16,214	-7,66	-1,819	0,034	3,06	V
+-0,724	-4,438	-4,434	1,437	0,52	VI
+-7,86	15,348	1,541	1,93	3,01	IV
+-11,913	-8,028	-1,551	0,877	3,74	III
+14,783	8,873	0,189	1,154	2,87	V
+0,92	-16,65	1,745	0,164	3,61	IV
+10,333	12,137	-3,424	1,677	1,26	V
+18,227	-3,271	2,737	-1,623	1,71	IV
+7,051	17,444	2,11	-0,311	2,59	II
+-7,44	-0,328	1,745	1,079	2,67	III
+9,724	-6,258	-1,852	-1,228	3,78	IV
+-8,805	-9,133	-0,122	1,86	3,25	II
+-8,305	2,957	2,805	-1,345	1,99	V
+6,533	6,424	1,518	-0,088	2,08	VI
+-8,668	14,657	-1,303	1,196	3,24	V
+13,991	-18,485	2,486	-1,454	1,42	I
+-13,874	-17,3	1,233	-1,096	1,86	I
+-5,668	-14,703	-2,229	-0,125	2,58	V
+13,733	-18,053	-2,468	1,847	1,87	III
+-1,958	-11,053	-0,293	2,284	2,14	II
+-12,055	4,009	-1,481	0,618	1,8	II
+18,093	-11,001	-2,617	-1,941	1,1	IV
+14,468	-19,37	-2,419	-0,06	1,88	III
+2,538	-3,011	1,401	-2,29	1,57	VI
+14,14	-14,286	1,075	1,368	3,51	V
+4,41	-17,738	-0,206	-1,931	3,09	III
+19,564	-6,439	2,854	-1,693	0,92	VI
+-9,945	-7,089	3,029	1,977	1,43	III
+16,413	17,244	1,162	0,245	2,13	III
+-14,454	-9,568	1,775	-3,313	1,37	III
+-0,378	-13,784	1,207	-0,789	1,7	VI
+15,675	-19,116	-1,163	-0,626	2,22	III
+2,784	-3,788	0,671	2,586	1,54	II
+4,813	-13,767	-1,472	2,456	2,39	III
+0,54	-6,492	-0,454	-1,042	3,98	III
+-1,426	18,869	1,967	0,324	0,75	III
+-5,902	-7,434	1,028	1,95	2,3	IV
+-5,255	-12,572	1,511	-0,241	2,31	IV
+-0,136	-12,618	3,112	2,39	0,75	VI
+-0,951	-17,543	-0,293	2,321	3,44	II
+19,949	-10,311	1,186	0,038	3,14	VI
+-4,08	14,573	1,058	-0,053	3,52	I
+1,838	-13,508	-1,272	-2,097	2,08	VI
+-3,126	-16,703	-1,065	-1,633	2,98	IV
+-7,318	-16,797	-1,481	2,952	1,13	VI
+-2,218	13,472	-1,767	0,229	2,95	IV
+9,513	10,086	-1,59	1,439	3,83	VI
+4,3	3,984	-0,597	2,001	0,9	I
+16,103	-6,893	1,214	0,668	1,75	IV
+-5,045	-15,722	-1,226	-1,005	1,72	III
+15,23	-9,117	1,614	-2,095	2,5	III
+7,311	-9,713	0,745	1,304	2,27	IV
+-0,955	-8,343	1,104	-0,859	2,16	III
+-8,868	-11,887	-0,256	-4,36	0,62	III
+10,804	-17,34	2,01	-0,76	3,67	V
+17,099	-15,905	1,213	1,802	3,79	II
+-3,362	18,777	-1,705	0,669	1,53	VI
+5,799	-12,868	-0,97	0,73	2,72	III
+-11,325	3,065	0,923	-2,95	1,88	III
+-9,676	5,712	-1,662	0,705	2,95	V
+-11,786	-15,683	3,611	1,792	0,7	III
+16,293	19,908	2,262	-0,425	2,18	VI
+11,733	-12,797	2,271	-1,046	2,73	III
+18,371	-3,78	1,912	1,692	1,87	VI
+7,704	-6,983	-1,276	-0,304	2,85	II
+-16,469	-17,896	3,832	2,262	0,98	VI
+3,125	1,861	-1,115	2,703	0,58	I
+1,383	11,011	-0,352	1,085	3,29	IV
+-17,607	-10,961	2,909	-1,731	1,02	II
+9,734	-4,259	-1,99	0,96	2,38	I
+15,961	5,277	-3,497	-2,087	0,68	VI
+6,427	15,358	5,725	-2,533	0,5	II
+6,567	4,624	1,845	-0,177	3,14	III
+7,912	0,676	2,255	0,536	3,19	II
+4,14	14,978	3,475	-3,582	0,77	VI
+9,577	-12,432	-2,825	-0,877	2,29	V
+12,662	-8,494	-1,351	-0,257	2,33	III
+-5,683	-9,723	-0,89	-1,137	2,1	VI
+-11,898	11,105	0,896	-0,708	3,5	V
+-19,62	-11,021	-3,785	-2,689	0,87	II
+6,182	-3,622	-0,382	1,827	1,11	II
+3,163	-18,756	0,774	0,721	3,71	III
+-5,817	18,134	-1,021	1,721	2,49	II
+13,46	-16,312	2,238	1,742	1,38	I
+17,094	8,931	-0,159	-3,199	1,09	IV
+11,188	15,358	-0,918	0,344	3,85	I
+13,707	-9,741	0,407	0,998	3,65	I
+-4,294	-19,568	-2,648	0,796	2,39	II
+5,371	6,74	-0,797	-2,32	2,85	VI
+-4,844	10,428	0,634	1,262	2,71	V
+9,833	14,151	-1,679	0,449	3,95	IV
+11,99	-13,489	-3,488	0,284	0,95	I
+9,093	7,536	0,94	1,962	2,34	IV
+4,396	15,419	-2,502	1,621	1,35	V
+-5,426	-5,294	-1,623	-1,448	3,83	II
+-11,038	19,168	-0,152	2,589	1,79	V
+-17,122	-1,928	2,756	-0,261	2,36	I
+-19,455	-8,489	0,892	-2,06	3,52	VI
+9,472	-15,4	-1,782	-0,195	3,49	V
+12,372	18,053	-1,678	-1,632	3,46	II
+-8,727	17,791	-0,181	-1,207	3,06	VI
+-19,64	-18,58	1,1	0,569	3	IV
+-12,277	-13,105	-0,997	1,461	3,08	IV
+12,795	-1,702	-0,555	-2,161	3,53	V
+6,488	8,937	2,012	-1,077	2,07	IV
+-6,628	-8,391	2,181	-0,562	3,76	I
+11,912	19,681	-0,246	-1,162	2,4	III
+17,636	-1,697	3,149	-2,978	0,61	VI
+11,5	-1,445	0,822	1,706	1,44	I
+-1,187	-10,824	1,385	-1,351	3,27	II
+-17,624	-11,064	0,757	3,252	1,67	III
+-7,188	-10,467	3,06	1,583	1,41	VI
+15,106	-17,489	1,643	2,036	2,73	VI
+18,436	7,053	2,369	-1,304	1,52	V
+-14,163	-2,398	-1,207	0,852	2,16	II
+2,346	12,964	1,839	-2,142	0,66	I
+-15,602	-6,519	1,054	1,808	2,49	II
+17,756	1,926	-3,793	-0,346	1,31	III
+-11,035	-2,744	-0,972	-2,043	3,59	II
+1,01	-1,565	0,464	-1,978	2,7	II
+15,583	-3,279	0,983	1,117	1,95	I
+-7,84	-18,509	-2,314	-2,135	1,85	I
+-19,067	-5,169	-1,927	-0,031	3,11	VI
+-13,827	5,54	4,904	0,995	0,76	VI
+-19,203	-10,961	-0,8	1,561	1,46	II
+-3,987	16,496	3,618	1,717	0,71	I
+-13,119	17,604	1,468	2,912	1,03	III
+-15,182	-13,937	-2,189	-0,333	2,38	V
+1,913	4,966	-0,1	-2,676	2,65	V
+-1,678	-1,882	-2,692	-2,321	1,46	VI
+-4,797	9,864	1,164	1,527	1,27	III
+-18,402	10,294	-1,408	-0,429	1,4	VI
+10,966	-19,515	0,46	-1,135	3,12	V
+9,798	0,443	-0,001	4,967	0,72	I
+-4,783	-16,486	4,519	-1,353	0,51	VI
+0,643	0,547	0,811	-3,034	0,98	I
+-4,158	-19,734	-0,889	0,697	2,62	IV
+-5,65	15,915	-2,009	2,941	0,8	VI
+-2,845	-9,778	-1,592	-1,432	2,35	VI
+0,378	11,455	1,676	-2,967	1,66	III
+-3,324	18,586	-0,573	1,73	1,59	V
+8,739	9,17	0,64	-0,727	3,83	VI
+-11,83	-11,98	-1,653	-0,907	3,45	IV
+-6,938	-19,297	-2,197	0,648	2,15	I
+-4,764	-16,35	-2,701	-1,331	1,21	VI
+-6,762	-17,638	1,996	0,993	3,98	IV
+-14,815	7,991	1,319	1,241	3,5	III
+-13,118	-5,999	2,66	-2,409	0,77	III
+-8,874	12,096	-1,276	3,268	0,82	I
+-13,175	0,75	-0,728	0,943	3,17	IV
+-10,418	-19,862	-5,136	0,086	0,72	III
+3,833	-19,813	1,64	0,853	3,13	II
+-12,28	-1,449	-0,535	-3,055	1,91	I
+-11,342	19,237	-1,182	1,302	1,5	III
+-13,596	-4,499	-0,901	0,893	2,83	V
+8,726	-7,822	-3,309	-2,008	1,26	III
+18,047	-13,148	-3,21	1,739	1,31	VI
+12,765	-9,343	-1,882	-2,354	2,06	II
+-8,958	8,773	1,233	-1,864	2,19	I
+9,809	-0,398	1,025	0,44	3,19	I
+4,62	10,994	-0,951	1,555	3,47	I
+-8,186	-5,868	0,798	-1,477	3,79	I
+-2,328	-10,425	-1,285	2,388	1,64	VI
+-18,185	5,714	-1,757	0,616	1,2	III
+11,424	-19,407	-2,29	-1,52	2,61	I
+19,748	-14,399	-0,768	-3,841	0,73	VI
+1,131	-5,643	0,924	-0,517	3,7	III
+8,526	18,667	1,181	-1,859	0,67	V
+0,661	-0,606	-0,158	-4,688	0,87	V
+-3,989	5,388	0,29	-2,476	1,8	I
+17,858	1,734	1,765	1,38	3,62	II
+14,918	-19,779	2,519	4,963	0,58	I
+-3,036	16,124	2,465	-0,262	2,83	IV
+10,252	8,682	0,287	-1,861	3,05	VI
+15,859	7,035	1,152	0,338	3,35	I
+12,694	-15,017	-1,256	-0,903	1,07	I
+4,91	8,63	2,211	-1,487	1,56	V
+-9,068	-7,738	-3,219	-0,263	1,03	III
+-15,098	-1,04	0,95	0,868	2,46	IV
+-16,704	-15,069	-2,039	-1,701	1,57	IV
+-15,326	-0,135	0,937	2,15	3,26	IV
+-7,773	11,885	-1,526	1,453	2,55	V
+-19,437	8,56	-1,447	-1,412	3,12	II
+19,255	-17,128	-1,526	0,968	3,66	III
+-14,2	-18,16	-1,161	-1,335	3,27	II
+-3,063	10,085	-3,441	-1,828	1,25	VI
+-1,375	-13,015	-2,113	1,464	0,59	VI
+2,416	0,982	3,391	1,158	0,91	IV
+0,767	1,953	1,498	1,428	2,5	V
+-2,909	1,76	0,462	-2,824	2,29	V
+-10,919	17,423	-0,133	1,009	3,93	V
+8,609	17,403	1,633	4,043	0,59	V
+9,79	-10,823	1,56	2,85	1,02	IV
+0,155	1,359	-2,16	0,622	2,1	III
+7,486	-1,657	1,471	-2,324	2,35	II
+0,973	-0,905	4,506	1,782	0,83	IV
+12,059	-6,324	1,75	-0,128	3,69	IV
+14,932	-1,596	-1,572	-1,613	2,45	V
+-12,658	-5,432	-0,995	-0,681	3,52	V
+-4,226	-18,928	-2,801	-1,796	0,96	IV
+5,292	-10,997	0,418	1,132	3,6	IV
+-1,68	3,452	-0,935	0,693	2,78	III
+19,016	-6,908	-3,025	3,227	0,51	VI
+-14,616	6,14	-1,191	-4,104	1,05	II
+15,994	-11,171	1,961	0,711	3,82	II
+2,538	3,858	2,972	-0,724	1,86	I
+15,39	-11,368	0,519	0,946	3,98	III
+2,425	-2,969	-3,322	-2,192	0,67	VI
+16,039	-19,673	1,174	-2,674	2,27	VI
+-6,765	-9,338	2,054	1,863	1,59	VI
+-16,192	10,678	-1,477	0,717	3,85	VI
+-0,167	-7,098	1,967	-0,902	3,63	VI
+-10,755	17,47	1,586	2,136	1,55	III
+3,242	11,434	-1,163	-1,342	3,46	I
+12,311	0,347	-1,014	0,693	1,88	II
+0,87	-6,046	0,29	-0,892	3,23	III
+0,263	5,831	1,893	-2,352	2,19	II
+-12,68	-8,477	0,073	-1,475	2,2	V
+6,347	-0,267	-0,438	0,96	3,44	VI
+-4,613	14,504	-0,854	2,26	2,88	VI
+5,31	-14,986	-0,488	-1,678	1,35	VI
+-3,289	16,276	-1,847	-1,072	2,24	IV
+-18,64	-6,169	2,517	2,213	1,65	I
+-13,948	18,933	-3,069	2,66	1,15	II
+-1,503	-7,557	0,907	-2,42	2,89	I
+13,742	15,286	0,338	-1,569	2,17	V
+18,829	-3,108	-3,7	-1,204	0,76	V
+-9,041	17,355	0,667	-2,968	1,78	I
+6,57	19,566	0,913	0,783	3,4	III
+11,232	9,059	-0,13	-2,034	0,64	III
+-6,005	-10,68	-2,126	0,86	2,28	V
+5,749	2,256	-0,711	-0,967	2,51	VI
+15,402	1,151	-1,75	-2,006	0,8	I
+-3,259	16,718	0,93	0,358	3,63	VI
+0,25	6,381	-1,503	0,051	2,03	VI
+-4,775	9,121	-1,863	3,778	1,11	II
+-11,996	-10,159	2,456	-1,493	2,06	IV
+-8,167	-9,004	0,764	-1,861	2,86	I
+-2,889	-12,223	-0,134	-2,812	2,51	VI
+19,065	18,024	2,494	-1,245	1,38	VI
+15,761	-12,956	0,873	2,789	1,33	VI
+0,213	7,52	1,643	0,987	3,09	III
+13,901	17,987	-2,406	-0,082	3,12	V
+3,245	-1,826	4,123	4,631	0,5	II
+-17,586	9,398	-0,026	2,314	1,95	II
+-13,808	17,622	1,455	-1,869	3,31	II
+13,75	13,429	-0,321	-2,404	2,94	VI
+6,806	1,919	0,801	0,908	3,14	V
+-15,395	-19,404	0,815	-0,676	3,97	V
+-10,265	13,213	-0,889	-1,572	1,19	V
+-19,837	11,983	2,153	-0,875	2,03	III
+-13,973	14,698	-1,914	1,652	2,92	IV
+-8,613	8,296	-1,587	0,937	3,78	VI
+0,975	10,729	-2,809	0,15	2,26	II
+-14,297	8,259	1,22	-3,196	1,07	IV
+7,102	9,986	-1,423	-2,204	2,91	II
+-7,015	-10,651	-1,509	-0,819	3,33	VI
+2,708	14,769	1,919	1,305	3,63	VI
+-4,033	8,469	-1,239	-3,102	0,96	VI
+-13,511	9,06	0,017	2,444	0,75	V
+-19,768	-16,407	0,189	1,273	2,53	III
+-8,727	6,974	3,047	-0,506	1,94	II
+8,906	-16,554	2,936	-1,389	1,64	IV
+-12,723	4,813	0,262	1,088	3,25	III
+-4,431	9,899	3,743	-1,995	0,61	VI
+6,184	2,933	1,083	1,378	3,63	III
+-14,54	-6,105	-1,466	-1,98	2,85	III
+-6,354	-0,276	-1,929	1,777	0,81	IV
+-12,548	15,624	-0,941	0,085	3,56	I
+-14,625	16,135	0,646	-1,273	1,83	III
+-12,216	3,987	-2,243	-0,482	1,09	I
+-2,246	3,021	-1,059	2,939	1,06	VI
+0,497	-2,666	1,756	-0,387	3,72	I
+-15,739	14,072	1,097	1,368	3,26	II
+-11,989	-16,091	-0,962	2,051	2,29	III
+13,426	7,635	-0,305	2,442	1,96	I
+-1,139	-9,126	0,081	1,715	1,67	II
+-12,879	-4,743	0,286	1,088	3,42	IV
+-14,148	-17,148	0,092	-2,11	2,15	IV
+-15,832	-12,324	0,077	1,074	3,96	III
+18,645	-4,98	-1,91	-2,728	1,62	VI
+3,042	-18,61	2,41	-0,893	2,79	VI
+9,181	-10,069	-1,284	0,104	2,23	II
+-7,768	-19,618	-0,373	1,037	3,08	I
+-19,081	3,241	-0,845	0,92	2,7	V
+-5,153	8,804	1,198	0,455	3,19	I
+-9,183	-16,773	0,335	0,973	3,69	VI
+1,912	19,002	-2,159	-0,047	3,87	VI
+-0,401	16,377	0,037	1,917	3,03	I
+-12,148	18,563	1,897	1,329	2,06	V
+-19,555	3,744	1,704	0,513	3,41	III
+15,516	12,293	2,319	0,193	3,19	I
+15,437	-10,02	0,14	-1,425	2,4	II
+3,121	-15,932	0,501	-0,822	3,83	I
+9,632	-13,538	-0,719	-2,731	0,51	VI
+7,278	-7,333	2,965	-0,256	1,33	III
+-1,251	-15,246	-1,138	-1,584	3,06	I
+6,111	18,262	2,754	1,039	2,03	VI
+-13,301	-4,687	-1,568	-0,514	2,05	I
+10,544	-15,444	2,774	1,079	2,17	II
+-16,68	-16,996	0,65	2,304	1,89	V
+7,499	4,833	0,584	4,257	0,92	I
+-16,639	6,349	2,142	0,602	3,63	V
+-7,404	18,114	-2,965	-1,101	1,9	II
+-16,191	7,719	-1,734	-1,216	2,56	II
+-15,004	-4,333	1,31	1,139	3,8	III
+-9,782	0,897	2,141	-0,323	1,11	VI
+5,215	3,39	-2,225	-0,964	1,74	V
+11,147	-9,438	-1,236	-1,925	0,73	VI
+2,934	-14,8	-0,457	1,239	2,75	III
+-0,78	0,308	-0,926	-4,166	0,7	III
+8,001	4,695	-1,097	0,375	3,24	II
+1,619	-19,005	-1,531	-2,251	0,68	VI
+-19,97	-5,685	-2,359	-2,278	1,71	III
+10,086	-16,73	2,368	0,367	2,99	IV
+-7,032	-15,544	-2,791	0,316	2,44	I
+-13,517	17,674	-2,278	0,105	2,17	VI
+-6,635	-0,632	2,007	0,511	1,05	VI
+-2,979	4,555	-1,019	1,427	3,32	I
+-14,627	1,096	-0,503	1,638	3,63	III
+-12,751	-6,753	1,484	2,278	2,5	III
+2,491	-14,181	0,872	-2,316	1,82	I
+0,993	-9,622	0,601	-1,766	2,87	II
+-14,191	-10,477	-0,534	-1,097	3,48	IV
+19,471	10,596	-1,861	-1,586	1,92	IV
+-10,108	6,274	3,216	0,561	1,03	II
+14,712	9,685	-1,382	-1,329	2,98	I
+-12,062	-1,627	-1,148	-2,266	1,66	III
+18,501	-6,472	-0,414	3,181	1,12	VI
+14,174	-2,87	-0,442	0,903	3,57	II
+-1,278	11,229	0,973	-0,812	2,72	V
+1,396	-1,963	2,171	-0,301	3,85	VI
+15,921	-16,887	-1,337	2,186	3,02	V
+11,942	-18,352	3,301	1,943	1,24	IV
+13,408	-9,751	1,961	0,188	2,68	II
+17,096	14,366	-0,894	-2,854	1,18	V
+-16,435	14,631	-2,091	-0,843	3,67	V
+12,418	-6,36	2,361	0,68	0,73	IV
+6,579	-11,743	-0,252	2,055	1,1	II
+4,006	-2,149	0,317	2,22	2,29	IV
+-11,701	-2,14	-2,896	-2,425	1,28	III
+-19,705	-19,903	-2,724	-1,831	1,72	IV
+1,745	5,691	-0,149	2,415	3,2	V
+18,343	11,673	-0,045	-2,053	1,18	I
+4,222	17,979	1,055	0,824	2,03	V
+14,079	1,406	2,711	-0,714	2,23	I
+-15,374	11,191	-1,334	2,005	1,99	III
+7,588	13,841	0,193	-3,055	1,93	VI
+9,807	10,243	0,413	1,496	1,57	I
+-15,413	17,987	-3,955	-0,565	1,17	III
+-4,458	-17,735	1,136	1,799	2,43	II
+1,728	-16,437	0,609	2,002	1,03	III
+-11,185	-11,323	-1,495	-1,077	3,15	VI
+-3,673	-7,22	-3,463	-3,458	0,76	I
+14,429	-1,45	2,28	-0,029	3,37	I
+-11,285	5,728	-0,762	1,506	3,31	I
+-15,331	9,619	-1,527	-1,768	0,63	II
+-8,998	18,027	0,12	2,16	3,89	III
+-15,128	9,285	1,181	0,198	3,5	VI
+-5,83	-3,483	-0,26	2,212	3,79	VI
+9,779	7,263	0,517	2,219	3,72	IV
+-19,526	4,242	0,507	1,801	3,19	I
+6,91	-5,473	-3,534	-0,5	1,51	II
+-6,175	15,703	0,258	0,977	3,98	V
+3,468	17,08	1,361	-1,682	3,87	VI
+12,818	-16,239	2,34	1,017	0,73	V
+13,238	-1,203	2,645	0,272	0,68	III
+-4,397	9,55	3,005	0,613	1,16	V
+18,559	-16,894	-4,04	-1,283	1,02	I
+16,679	-7,086	4,112	-3,647	0,57	V
+17,915	14,164	-0,551	-1,081	2,57	I
+-18,732	5,698	-1,023	-0,365	3,29	I
+-1,434	-1,047	1,502	1,652	2,2	I
+-8,056	-1,861	2,691	1,151	2,08	I
+16,877	-16,844	-1,64	-2,23	2,31	IV
+14,333	-8,03	-0,098	-2,063	2,4	V
+16,326	19,001	-1,846	1,841	1,6	VI
+14,523	-19,302	-0,139	-0,995	3,88	II
+5,267	-3,875	-1,183	-2,793	1,18	VI
+-14,215	-7,634	-1,012	0,919	1,73	I
+-18,531	16,001	-1,263	1,802	3,87	IV
+3,474	-9,041	-0,838	0,539	3,98	II
+-19,945	13,722	2,336	-0,392	2,97	III
+-19,916	-19,72	2,099	-0,33	3,92	V
+18,914	-14,993	-1,692	1,657	3,17	III
+9,673	13,829	1,334	2,646	0,54	IV
+3,632	-11,261	2,661	-0,005	1,6	II
+10,841	-14,84	1,487	2,284	1,53	I
+18,167	-12,456	1,755	-1,37	2,15	V
+9,027	15,92	1,208	-1,37	3,16	VI
+6,056	-11,951	1,043	0,117	3,59	II
+-16,9	10,613	-1,277	0,724	2,17	III
+-1,841	-12,831	2,09	-1,154	3,19	VI
+7,384	14,912	0,444	-1,459	1,61	IV
+6,161	8,773	3,562	-1,37	1,22	VI
+-2,372	-17,532	-0,915	1,913	3,74	VI
+-0,207	13,899	-0,855	-0,891	2,27	V
+-16,71	-11,416	-1,713	1,555	3,41	III
+18,943	5,595	-1,591	1,355	2,66	IV
+13,677	3,807	-1,758	1,18	2,48	I
+-0,907	13,998	1,695	0,366	3,84	IV
+1,297	16,079	3,931	-3,283	0,64	V
+5,564	-5,572	-1,646	1,521	2,19	III
+-1,357	19,621	1,898	-0,822	3,97	III
+-6,521	12,223	0,371	-1,705	3,71	III
+16,42	-1,463	0,2	-0,915	3,67	VI
+-17,072	11,412	-0,881	-2,021	3,94	VI
+-8,753	-7,175	-1,37	0,438	2,32	I
+-13,361	-13,171	2,77	-1,888	0,91	IV
+-18,665	-12,459	0,531	3,451	0,98	IV
+-15,132	18,105	1,391	1,568	2,61	V
+2,6	-18,963	0,729	-2,822	2,14	V
+-11,389	5,063	2,433	-0,773	3,01	VI
+-14,813	17,57	3,182	-0,33	1,05	I
+-19,696	-5,006	1,922	2,199	2,22	I
+-1,083	-7,042	1,262	-0,765	1,87	II
+16,053	-15,038	0,132	1,828	3,22	IV
+-17,063	12,47	-2,194	0,333	3,56	VI
+4,517	-10,118	-2,128	-2,219	1,83	III
+-11,668	17,805	0,611	-1,675	3,67	VI
+3,282	-3,651	-0,416	4,143	0,61	I
+-15,901	14,258	-1,154	-0,726	2,4	VI
+18,417	-19,078	-1,38	1,47	1,26	VI
+-9,87	-17,019	-1,728	-0,549	3,48	II
+-2,204	-14,968	-2,631	-1,072	2,21	II
+0,393	4,656	1,425	-3,003	1,62	V
+16,764	1,174	-0,019	1,97	2,88	I
+9,291	-10,836	1,086	-2,02	2,04	V
+2,909	4,726	0,239	2,303	3,69	II
+0,328	-6,004	-2,503	4,829	0,64	V
+18,078	-7,515	-2,387	1,251	0,81	II
+-5,567	-0,726	1,004	-0,107	3,22	I
+6,156	14,901	1,039	0,11	2,98	V
+-2,021	-18,473	-2,256	0,238	2,21	IV
+14,493	-7,003	-0,142	-2,125	2,37	V
+-12,117	2,606	0,247	-2,391	3,15	I
+-18,667	-14,106	-0,639	-1,614	3,76	III
+2,09	19,762	-0,606	-1,788	2,91	V
+-9,839	16,794	-1,162	0,226	2,55	IV
+8,34	-18,116	0,982	-0,625	2,12	I
+4,517	10,773	-3,123	-1,502	1,4	III
+19,075	-12,147	1,039	1,509	3,5	I
+-11,912	2,366	-2,631	-1,173	2,16	VI
+-1,117	-5,394	0,416	-0,98	3,6	I
+19,411	1,642	0,281	-1,119	3,01	III
+-17,357	-3,579	-3,867	4,235	0,52	I
+10,887	-6,985	0,724	0,875	3,21	III
+-12,919	-8,559	-0,716	-0,885	3,59	II
+-7,927	-17,824	-2,409	0,455	1,66	IV
+-8,16	0,93	1,286	-1,551	2,88	V
+-18,569	14,213	-0,722	-0,968	2,45	I
+-10,876	-4,855	2,324	0,115	3,58	II
+-9,213	-1,396	0,231	-2,782	2,56	IV
+12,842	-17,373	-0,508	1,665	3,75	I
+4,935	5,424	0,872	3,569	0,81	V
+17,534	-17,9	-4,14	3,981	0,58	IV
+-3,859	14,617	-3,277	-0,857	1,59	II
+17,384	-8,597	0,536	-1,825	1,58	VI
+19,894	-0,064	1,213	-1,185	3,8	VI
+-7,929	-2,223	-1,045	1,887	2,57	V
+7,925	9,965	-1,822	1,473	3,29	II
+16,683	-3,233	-2,428	0,091	3,35	III
+-15,25	1,717	-1,525	1,169	0,97	I
+-17,368	3,129	1,023	-0,751	2,43	VI
+4,678	-19,91	-1,61	1,636	3,37	III
+5,137	-18,267	1,292	1,232	3,2	V
+6,119	-17,499	1,851	0,001	3,27	IV
+15,041	-19,522	-0,886	-2,353	2,98	II
+-2,251	17,595	4,135	-1,066	0,92	III
+5,131	-7,597	-2,738	1,049	1,31	IV
+3,288	-2,042	1,167	-0,025	3,72	IV
+12,196	19,406	-1,553	-0,698	1,95	III
+16,726	-12,85	1,463	-2,927	0,94	VI
+-0,991	-0,466	0,338	2,896	2,04	IV
+18,199	11,529	-1,095	-0,69	3,03	V
+11,95	-2,915	1,235	-0,023	3,66	III
+13,184	15,24	0,196	-2,622	1,58	VI
+13,879	-17,068	-1,156	-0,385	3,33	IV
+-13,501	-0,935	0,605	2,102	2,21	V
+4,813	-9,872	-1,952	-1,04	2,35	V
+17,35	-1,43	2,765	1,972	1,67	IV
+19,309	-13,226	-0,013	-2,205	3,78	V
+-9,115	-2,538	1,388	-0,986	1,9	II
+-17,174	-14,781	-1,81	4,195	0,9	II
+-11,371	-9,806	1,684	0,946	3,1	III
+-15,895	3,12	1,152	2,173	1,9	VI
+16,957	16,791	1,307	-1,023	3,84	III
+12,436	14,827	0,886	-3,346	1,5	VI
+-7,678	12,055	2,348	-1,841	1,33	V
+-5,665	2,962	-0,983	2,451	2,52	V
+2,699	-12,046	-1,05	-1,176	2,06	IV
+-17,965	-18,798	3,417	-1,926	0,66	IV
+-3,659	-17,339	2,449	-1,491	2,35	II
+19,075	-18,215	-1,864	1,688	0,87	II
+-9,815	-15,735	-2,13	0,538	3,75	IV
+19,496	1,691	-1,545	-0,805	3,7	II
+-9,072	9,974	-1,152	-0,287	3,14	I
+-15,977	-1,356	3,293	0,836	1,57	II
+9,954	9,213	1,428	-2,067	3,02	IV
+-9,483	-0,698	2,146	1,486	2,72	V
+</script>
+<script type="text/plain" id="solution">
+from itertools import combinations
+
+cl = [[], [], []]
+for s in open('27.txt'):
+    x, y, vx, vy, m, t = s.replace(',', '.').split()
+    x, y, vx, vy, m = map(float, [x, y, vx, vy, m])
+    E = 0.5 * m * (vx ** 2 + vy ** 2)
+    if E < 4:
+        cl[0].append([x, y, E, t])
+    elif E < 7.5:
+        cl[1].append([x, y, E, t])
+    else:
+        cl[2].append([x, y, E, t])
+
+
+def dist(p1, p2):
+    x1, y1, e1, t1 = p1
+    x2, y2, e2, t2 = p2
+    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+
+
+def centr(group):
+    m = []
+    for p in group:
+        s = sum(abs(p[2] - p1[2]) for p1 in group)
+        m.append([s, p])
+    return min(m)[1][2]
+
+
+q1 = float('inf')
+for group in cl:
+    type_IV = [p for p in group if p[3] == 'IV']
+    for p, p1 in combinations(type_IV, 2):
+        q1 = min(q1, dist(p, p1))
+
+centers = [centr(group) for group in cl]
+q2 = sum(centers) / len(centers)
+print(int(q1 * 10000), int(q2 * 10000))
+</script>
+<script>(function (G) {
+  // Расчёты разбора отдельно от интерфейса: их же вызывает автотест
+  const ENERGY = (m, vx, vy) => 0.5 * m * (vx ** 2 + vy ** 2);
+  const dist = (a, b) => ((b.x - a.x) ** 2 + (b.y - a.y) ** 2) ** 0.5;
+
+  function parseText(text) {
+    const pts = [], bad = [];
+    text.split(/\r?\n/).forEach((line, k) => {
+      const s = line.replace(/,/g, '.').trim();
+      if (!s) return;
+      const v = s.split(/\s+/);
+      const nums = v.slice(0, 5).map(Number);
+      if (v.length !== 6 || !nums.every(Number.isFinite)) { bad.push(k + 1); return; }
+      const [x, y, vx, vy, m] = nums;
+      pts.push({ id: pts.length, line: k + 1, x, y, vx, vy, m, t: v[5], E: ENERGY(m, vx, vy) });
+    });
+    return { pts, bad };
+  }
+
+  // как if / elif / else в программе: границы по возрастанию
+  function split(pts, borders) {
+    const groups = borders.map(() => []).concat([[]]);
+    for (const p of pts) {
+      let k = borders.findIndex(b => p.E < b);
+      if (k < 0) k = borders.length;
+      groups[k].push(p.id);
+    }
+    return groups;
+  }
+
+  // суммы как в centr(): для каждого кандидата сумма |E - E1| по всему кластеру
+  function sums(pts, ids) {
+    return ids.map(i => { let s = 0; for (const j of ids) s += Math.abs(pts[i].E - pts[j].E); return { i, s }; });
+  }
+  function centr(pts, ids) {
+    let best = null;
+    for (const r of sums(pts, ids)) if (!best || r.s < best.s) best = r;
+    return best;
+  }
+
+  function pairs(pts, ids, type, mode = 'min') {
+    const own = ids.filter(i => pts[i].t === type);
+    let best = null;
+    for (let a = 0; a < own.length; a++) for (let b = a + 1; b < own.length; b++) {
+      const d = dist(pts[own[a]], pts[own[b]]);
+      if (!best || (mode === 'min' ? d < best.d : d > best.d)) best = { d, a: own[a], b: own[b] };
+    }
+    return { own, best, count: own.length * (own.length - 1) / 2 };
+  }
+
+  function solve(pts, borders, type = 'IV') {
+    const groups = split(pts, borders);
+    const centers = groups.map(g => centr(pts, g));
+    const pr = groups.map(g => pairs(pts, g, type));
+    const q1 = Math.min(...pr.map(r => r.best ? r.best.d : Infinity));
+    const q2 = centers.reduce((a, c) => a + pts[c.i].E, 0) / centers.length;
+    return { groups, centers, pr, q1, q2, a1: Math.trunc(q1 * 10000), a2: Math.trunc(q2 * 10000) };
+  }
+
+  // для чужого файла: границы в K−1 самых больших промежутках между соседними энергиями
+  function autoBorders(pts, K) {
+    const es = pts.map(p => p.E).sort((a, b) => a - b);
+    const gaps = [];
+    for (let i = 1; i < es.length; i++) gaps.push({ g: es[i] - es[i - 1], b: (es[i] + es[i - 1]) / 2 });
+    return gaps.sort((a, b) => b.g - a.g).slice(0, Math.max(0, K - 1)).map(x => x.b).sort((a, b) => a - b);
+  }
+
+  // центр за n·log n: после сортировки сумма считается через префиксные суммы
+  function centrFast(pts, ids) {
+    const s = ids.slice().sort((a, b) => pts[a].E - pts[b].E), n = s.length;
+    let total = 0; for (const i of s) total += pts[i].E;
+    let left = 0, best = null;
+    s.forEach((i, k) => {
+      const e = pts[i].E, sum = e * k - left + (total - left - e) - e * (n - k - 1);
+      if (!best || sum < best.s) best = { i, s: sum };
+      left += e;
+    });
+    return best;
+  }
+
+  G.Z27P = { ENERGY, dist, parseText, split, sums, centr, centrFast, pairs, solve, autoBorders };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const NS="http://www.w3.org/2000/svg";
+const RAW=$("fileData").textContent.replace(/^\s+|\s+$/g,"");
+const RAW_LINES=RAW.split(/\r?\n/);
+const FULL=$("solution").textContent.replace(/^\s+|\s+$/g,"");
+const {pts:P}=Z27P.parseText(RAW);
+const BORDERS=[4,7.5],TYPE="IV";
+const fmt=(v,n=4)=>v.toFixed(n).replace(".",",");
+const pyNum=v=>Number.isInteger(v)?v+".0":String(v);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const plural=(n,a,b,c)=>n%10===1&&n%100!==11?a:(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?b:c;
+const word=n=>plural(n,"частица","частицы","частиц");
+
+/* ---------- все числа на странице считаются из данных ---------- */
+const SOL=Z27P.solve(P,BORDERS,TYPE);
+const G=SOL.groups;
+const L0=RAW_LINES[0].split(/\s+/),P0=P[0];
+const meanAll=P.reduce((a,p)=>a+p.E,0)/P.length;
+const V={n:P.length,ans:SOL.a1+" "+SOL.a2};
+document.querySelectorAll("[data-v]").forEach(e=>e.textContent=V[e.dataset.v]);
+
+/* ---------- тема ---------- */
+const themeBtn=$("themeBtn");
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches};
+const syncTheme=()=>{themeBtn.setAttribute("aria-pressed",String(isDark()));themeBtn.setAttribute("aria-label",isDark()?"Светлая тема":"Тёмная тема")};
+themeBtn.addEventListener("click",()=>{const next=isDark()?"light":"dark";document.documentElement.dataset.theme=next;try{localStorage.setItem("theme",next)}catch(e){}syncTheme()});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",syncTheme);
+syncTheme();
+
+/* ---------- подсветка Python ---------- */
+const KW=new Set(["import","def","return","for","in","if","elif","else","from","and","or","not"]);
+const FN=new Set(["open","float","print","len","sum","min","max","int","round","map","abs","sorted","zip","combinations","dist","centr","range"]);
+function hl(line){
+  const re=/(#.*$)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)|([^#'"\w]+|.)/g;
+  let out="",m;
+  while((m=re.exec(line))){
+    if(m[1])out+=`<span class="tk-cmt">${esc(m[1])}</span>`;
+    else if(m[2])out+=`<span class="tk-str">${esc(m[2])}</span>`;
+    else if(m[3])out+=`<span class="tk-num">${m[3]}</span>`;
+    else if(m[4])out+=KW.has(m[4])?`<span class="tk-kw">${m[4]}</span>`:FN.has(m[4])?`<span class="tk-fn">${m[4]}</span>`:m[4];
+    else out+=esc(m[5]);
+  }
+  return out;
+}
+const hlBlock=t=>t.split("\n").map(hl).join("\n");
+
+/* ---------- данные для пояснений ---------- */
+const sizes=G.map(g=>g.length);
+const ivCount=SOL.pr.map(r=>r.own.length);
+const cE=SOL.centers.map(c=>P[c.i].E);
+const minCl=SOL.pr.findIndex(r=>r.best&&r.best.d===SOL.q1);
+const exE=fmt(P0.E,6);
+
+/* ---------- код по строкам ---------- */
+const ANNO={
+read:[
+ {c:"from itertools import combinations",h:"Подключаем combinations",n:`<p>Из модуля <code>itertools</code> берём одну функцию: она перебирает все пары элементов списка. Понадобится на шаге 4.</p>`},
+ {c:"",h:"Пустая строка",n:`<p>Пустые строки Python пропускает. Они нужны людям: так блоки программы легче отличить друг от друга.</p>`},
+ {c:"cl = [[], [], []]",h:"Три пустых кластера",n:`<p>Список из трёх пустых списков: <code>cl[0]</code>, <code>cl[1]</code>, <code>cl[2]</code>. В каждый будем складывать частицы одного кластера.</p><p>Почему именно три, видно на графике энергий вверху страницы: групп три.</p>`},
+ {c:"for s in open('27.txt'):",h:"Идём по файлу строка за строкой",n:`<p>На каждом шаге в <code>s</code> попадает <b>одна строка файла как текст</b>. Первая строка файла:</p><pre>'${esc(L0.join("\\t"))}\\n'</pre><p><code>\\t</code> — табуляция между значениями, <code>\\n</code> — перевод строки. Файл должен лежать в одной папке с программой.</p>`},
+ {c:"    x, y, vx, vy, m, t = s.replace(',', '.').split()",h:"Запятые → точки, режем на шесть частей",n:`<p>Читаем слева направо.</p><p><b>1.</b> <code>s.replace(',', '.')</code> меняет десятичные запятые на точки: <code>${esc(L0[0])}</code> → <code>${esc(L0[0].replace(",","."))}</code>. Python понимает дробные числа только с точкой.</p><p><b>2.</b> <code>.split()</code> режет строку по табуляциям и пробелам. Получается список из шести <b>строк</b>:</p><pre>[${L0.map(v=>"'"+esc(v.replace(",","."))+"'").join(", ")}]</pre><p><b>3.</b> Шесть значений по порядку попадают в шесть переменных. Если в строке окажется не шесть значений, Python выдаст <code>ValueError</code>.</p>`},
+ {c:"    x, y, vx, vy, m = map(float, [x, y, vx, vy, m])",h:"Превращаем пять значений в числа",n:`<p><code>map(float, ...)</code> применяет <code>float</code> к каждому элементу списка. То же самое длинно:</p><pre>x = float(x)\ny = float(y)\nvx = float(vx)\nvy = float(vy)\nm = float(m)</pre><p>Признак <code>t</code> не трогаем: <code>'${esc(L0[5])}'</code> — это не число, <code>float('${esc(L0[5])}')</code> дал бы ошибку. Признак так и останется текстом.</p>`},
+ {c:"    E = 0.5 * m * (vx ** 2 + vy ** 2)",h:"Энергия частицы",n:`<p>Формула из условия: половина массы на сумму квадратов проекций скорости. <code>**</code> — возведение в степень.</p><p>Для первой строки файла:</p><pre>0.5 * ${pyNum(P0.m)} * (${pyNum(P0.vx)} ** 2 + ${pyNum(P0.vy)} ** 2)\n= ${exE.replace(",",".")}</pre><p>Скобки обязательны: без них <code>0.5 * m * vx ** 2 + vy ** 2</code> посчитает другое.</p>`}
+],
+split:[
+ {c:"    if E < 4:",h:"Первая граница",n:`<p>Эта строка и все ниже стоят <b>внутри цикла</b> <code>for</code> (отступ 4 пробела): каждую частицу кладём в кластер сразу после того, как посчитали её энергию.</p><p>Энергия меньше 4 — это первая группа на графике.</p>`},
+ {c:"        cl[0].append([x, y, E, t])",h:"Кладём частицу в первый кластер",n:`<p><code>append</code> добавляет в конец списка <code>cl[0]</code> <b>одну запись</b> — список из четырёх значений. Первая строка файла превратится в:</p><pre>[${pyNum(P0.x)}, ${pyNum(P0.y)}, ${exE.replace(",",".")}, '${esc(P0.t)}']</pre><p>Квадратные скобки внутри <code>append</code> важны: без них <code>append</code> получил бы четыре значения и выдал ошибку.</p>`},
+ {c:"    elif E < 7.5:",h:"Вторая граница",n:`<p><code>elif</code> проверяется, только если предыдущее условие ложно. Поэтому сюда попадают частицы с <b>4 ≤ E &lt; 7,5</b>, хотя слева от <code>E</code> ничего не написано.</p>`},
+ {c:"        cl[1].append([x, y, E, t])",h:"Во второй кластер",n:`<p>Вторая группа на графике.</p>`},
+ {c:"    else:",h:"Всё остальное",n:`<p>Сюда попадают частицы с <b>E ≥ 7,5</b>: оба условия выше оказались ложными.</p>`},
+ {c:"        cl[2].append([x, y, E, t])",h:"В третий кластер",n:`<p>После цикла в кластерах ${sizes.join(", ")} частиц, всего ${P.length}. Ни одна строка файла не потерялась.</p>`}
+],
+center:[
+ {c:"def centr(group):",h:"Функция поиска центра",n:`<p>Функция получает <b>один кластер</b> — список частиц <code>group</code>. Вернёт энергию его центра.</p><p>Параметр назван <code>group</code>, а не <code>cl</code>, чтобы не путать один кластер со списком всех кластеров.</p>`},
+ {c:"    m = []",h:"Таблица результатов",n:`<p>Сюда запишем пары <code>[сумма, частица]</code> для каждой частицы кластера. Буква <code>m</code> здесь не масса: внутри функции это своя переменная.</p>`},
+ {c:"    for p in group:",h:"Перебираем кандидатов",n:`<p>Каждую частицу <code>p</code> по очереди проверяем как кандидата в центр.</p>`},
+ {c:"        s = sum(abs(p[2] - p1[2]) for p1 in group)",h:"Сумма модулей разностей энергий",n:`<p><code>p[2]</code> — энергия кандидата, <code>p1[2]</code> — энергия очередной частицы кластера. <code>abs</code> — модуль: разность всегда неотрицательна.</p><p>То же самое длинно:</p><pre>s = 0\nfor p1 in group:\n    s = s + abs(p[2] - p1[2])</pre><p>Когда <code>p1</code> — сам кандидат, разность 0. Сумму это не меняет, пропускать его не нужно.</p>`},
+ {c:"        m.append([s, p])",h:"Записываем пару",n:`<p>Сначала <b>сумма</b>, потом <b>частица</b>. Порядок важен: <code>min</code> в следующей строке сравнивает пары по первому элементу.</p>`},
+ {c:"    return min(m)[1][2]",h:"Энергия лучшего кандидата",n:`<p>Читаем слева направо:</p><table><tr><td><code>min(m)</code></td><td>пара с наименьшей суммой: <code>[s, p]</code></td></tr><tr><td><code>[1]</code></td><td>из пары берём частицу <code>p</code></td></tr><tr><td><code>[2]</code></td><td>из частицы — энергию</td></tr></table><p>Функция возвращает <b>одно число</b> — энергию центра. Для кластеров файла: ${cE.map(e=>fmt(e,4)).join("; ")}.</p>`}
+],
+pairs:[
+ {c:"names = ['A', 'B', 'C', 'D']",h:"Список из четырёх элементов",n:`<p>Учебный список. В задаче на его месте будет список частиц IV одного кластера.</p>`},
+ {c:"for a, b in combinations(names, 2):",h:"Перебираем пары",n:`<p><code>combinations(names, 2)</code> выдаёт пары по очереди: A–B, A–C, A–D, B–C, B–D, C–D. Всего <b>6</b> пар.</p><p>Каждая пара сразу распаковывается в две переменные: <code>a</code> и <code>b</code>. Число 2 означает «по два элемента».</p><p>Для n элементов пар n · (n − 1) / 2: для 4 элементов 4 · 3 / 2 = 6.</p>`},
+ {c:"    print(a, b)",h:"Печатаем пару",n:`<p>Программа напечатает шесть строк:</p><pre>A B\nA C\nA D\nB C\nB D\nC D</pre><p>Пар <code>B A</code> и <code>A A</code> нет.</p>`}
+],
+q1:[
+ {c:"def dist(p1, p2):",h:"Расстояние между частицами",n:`<p>Функция получает две частицы-записи <code>[x, y, E, t]</code> и возвращает расстояние между ними на плоскости.</p>`},
+ {c:"    x1, y1, e1, t1 = p1",h:"Распаковываем первую частицу",n:`<p>Четыре значения записи попадают в четыре переменные. Нужны только <code>x1</code> и <code>y1</code>, но распаковать приходится все четыре: число переменных должно совпасть с длиной записи.</p>`},
+ {c:"    x2, y2, e2, t2 = p2",h:"…и вторую",n:`<p>То же для второй частицы.</p>`},
+ {c:"    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5",h:"Теорема Пифагора",n:`<p>Разности координат — катеты, расстояние — гипотенуза. <code>** 0.5</code> — квадратный корень.</p><table><tr><th>шаг</th><th>для (0, 0) и (3, 4)</th></tr><tr><td><code>(x2 - x1) ** 2</code></td><td>9</td></tr><tr><td><code>(y2 - y1) ** 2</code></td><td>16</td></tr><tr><td><code>** 0.5</code></td><td>√25 = <b>5.0</b></td></tr></table><p>Энергия <code>e1</code>, <code>e2</code> здесь не нужна.</p>`},
+ {c:"",h:"Пустая строка",n:`<p>Функция закончилась. Дальше — основной расчёт.</p>`},
+ {c:"q1 = float('inf')",h:"Начинаем с бесконечности",n:`<p><code>float('inf')</code> — бесконечность: любое расстояние меньше её. Поэтому первая же пара заменит это значение.</p><p class="why bad"><strong>Ловушка.</strong> Если начать с <code>q1 = 0</code>, ни одно расстояние не окажется меньше нуля, и программа напечатает 0. Проверь переключателем ниже.</p>`},
+ {c:"for group in cl:",h:"По каждому кластеру",n:`<p>Перебираем три кластера по очереди. <code>q1</code> при переходе к следующему кластеру <b>не обнуляется</b>: ищем минимум сразу по всем кластерам.</p>`},
+ {c:"    type_IV = [p for p in group if p[3] == 'IV']",h:"Отбираем частицы IV",n:`<p>«Возьми из кластера каждую частицу, у которой признак <code>'IV'</code>». Сравниваем со строкой в кавычках: признак так и остался текстом.</p><pre>type_IV = []\nfor p in group:\n    if p[3] == 'IV':\n        type_IV.append(p)</pre><p>В кластерах файла частиц IV: ${ivCount.join(", ")}.</p><p class="why bad"><strong>Внимание:</strong> сравниваем признак целиком, через <code>==</code>. Проверка <code>'V' in p[3]</code> была бы ошибкой: буква V есть и в <code>'IV'</code>, и в <code>'VI'</code>.</p>`},
+ {c:"    for p, p1 in combinations(type_IV, 2):",h:"Все пары частиц IV кластера",n:`<p>Перебираем пары только внутри одного кластера. Для ${ivCount[0]} частиц первого кластера это ${ivCount[0]*(ivCount[0]-1)/2} пар.</p>`},
+ {c:"        q1 = min(q1, dist(p, p1))",h:"Запоминаем меньшее",n:`<p>Если расстояние новой пары меньше того, что уже лежит в <code>q1</code>, запоминаем его. То же самое длинно:</p><pre>d = dist(p, p1)\nif d &lt; q1:\n    q1 = d</pre><p>Итог для файла: <b>q1 = ${pyNum(SOL.q1)}</b>, это пара из кластера ${minCl+1}.</p>`}
+],
+q2:[
+ {c:"centers = [centr(group) for group in cl]",h:"Энергии трёх центров",n:`<p>Зовём <code>centr</code> для каждого кластера и собираем результаты в список. То же длинно:</p><pre>centers = []\nfor group in cl:\n    centers.append(centr(group))</pre><p>Для файла: <code>[${cE.map(pyNum).join(", ")}]</code>.</p>`},
+ {c:"q2 = sum(centers) / len(centers)",h:"Среднее арифметическое",n:`<p>Сумма, делённая на количество. <code>len(centers)</code> равно 3; с <code>len</code> код не нужно править, если кластеров станет больше.</p><p>Q2 = ${pyNum(SOL.q2)}.</p>`},
+ {c:"print(int(q1 * 10000), int(q2 * 10000))",h:"Ответ в нужном формате",n:`<p>Умножение на 10 000 сдвигает запятую на 4 знака вправо, <code>int</code> отбрасывает дробную часть.</p><p>Программа напечатает <b>${V.ans}</b>.</p>`}
+]};
+
+document.querySelectorAll("[data-anno]").forEach(box=>{
+  const lines=ANNO[box.dataset.anno];
+  const ol=document.createElement("ol");ol.className="code";ol.setAttribute("role","listbox");ol.setAttribute("aria-label","Код по строкам: стрелки вверх и вниз переключают строку");
+  const note=document.createElement("div");note.className="note";note.setAttribute("aria-live","polite");
+  const btns=lines.map((L,i)=>{
+    const li=document.createElement("li");li.setAttribute("role","presentation");
+    const b=document.createElement("button");b.type="button";b.setAttribute("role","option");
+    b.innerHTML=`<span class="ln">${i+1}</span><span>${L.c?hl(L.c):" "}</span>`;
+    b.addEventListener("click",()=>show(i));
+    b.addEventListener("keydown",e=>{if(e.key==="ArrowDown"){e.preventDefault();show(Math.min(i+1,lines.length-1),true)}if(e.key==="ArrowUp"){e.preventDefault();show(Math.max(i-1,0),true)}});
+    li.appendChild(b);ol.appendChild(li);return b;
+  });
+  const real=lines.map((L,i)=>i).filter(i=>lines[i].c);
+  function show(i,focus){
+    btns.forEach((b,j)=>{b.setAttribute("aria-selected",String(j===i));b.tabIndex=j===i?0:-1});
+    if(focus)btns[i].focus();
+    const L=lines[i],pos=real.indexOf(i);
+    const prev=real[pos-1],next=real[pos+1];
+    note.innerHTML=`<span class="label">Строка ${i+1} из ${lines.length}</span><h3>${L.h}</h3>${L.n}<div class="nav"><button class="btn" type="button" data-go="${prev??""}" ${prev===undefined?"disabled":""}>← Назад</button><button class="btn primary" type="button" data-go="${next??""}" ${next===undefined?"disabled":""}>Следующая строка →</button></div>`;
+    note.querySelectorAll("[data-go]").forEach(x=>x.addEventListener("click",()=>{if(x.dataset.go!=="")show(+x.dataset.go)}));
+  }
+  box.append(ol,note);show(0);
+});
+
+/* ---------- проверь себя ---------- */
+const exQ=SOL.q2*10000;
+const QUIZ={
+read:[
+ {q:"Зачем в строке нужен replace(',', '.')?",o:[
+  ["Python понимает дробные числа только с точкой",1,`Верно. <code>float('${esc(L0[0])}')</code> выдаст <code>ValueError</code>, а <code>float('${esc(L0[0].replace(",","."))}')</code> — число.`],
+  ["Чтобы split разрезал строку по запятым",0,"Нет. <code>split()</code> без аргументов режет по пробелам и табуляциям. Запятая стоит внутри числа, а не между числами."],
+  ["Чтобы убрать лишние запятые между значениями",0,"Значения разделены табуляцией. Запятая — это десятичный разделитель внутри каждого числа."]]},
+ {q:"Почему в map(float, ...) пять переменных, а не шесть?",o:[
+  ["Шестая — признак, это текст вроде 'IV'",1,"Верно. Признак не число: <code>float('IV')</code> выдал бы ошибку. Его сравнивают как строку."],
+  ["Python не умеет переводить больше пяти значений",0,"<code>map</code> работает со списком любой длины. Дело в самом значении: <code>'IV'</code> не превращается в число."],
+  ["Масса m уже число, её переводить не надо",0,"После <code>split()</code> все шесть значений — строки, и масса тоже. Её мы как раз переводим; не переводим только признак <code>t</code>."]]}
+],
+split:[
+ {q:"У частицы E = 4 ровно. Куда её положит программа?",o:[
+  ["В cl[0]",0,"Условие <code>E &lt; 4</code> ложно: 4 не меньше 4. Программа перейдёт к <code>elif</code>."],
+  ["В cl[1]",1,"Верно. <code>E &lt; 4</code> ложно, <code>E &lt; 7.5</code> истинно. В файле разбора таких частиц нет: граница стоит в пустом промежутке."],
+  ["Ни в какой, частица пропадёт",0,"Благодаря <code>else</code> каждая частица попадает ровно в один кластер."]]},
+ {q:"Почему границы 4 и 7,5?",o:[
+  ["Так сказано в условии",0,"В условии границ нет. Там сказано только, что кластеры узкие: разница энергий не больше 2."],
+  ["Подходит любое число из пустого промежутка между группами",1,"Верно. Сдвинь ползунок внутри промежутка: кластеры и ответ не меняются."],
+  ["Граница всегда равна минимальной энергии плюс R",0,`Тогда первая граница была бы ${fmt(P[G[0].reduce((a,i)=>P[i].E<P[a].E?i:a,G[0][0])].E+2,2)}. Это случайно попадает в промежуток, но правила такого нет: R только ограничивает ширину кластера.`]]},
+ {q:"Первую границу поставили на 3. Что изменится?",o:[
+  ["Ничего",0,"Часть частиц первой группы (с энергией от 3 до "+fmt(Math.max(...G[0].map(i=>P[i].E)),2)+") перейдёт во второй кластер."],
+  ["Во втором кластере разница энергий станет больше 2",1,"Верно. Второй кластер растянется от 3 до "+fmt(Math.max(...G[1].map(i=>P[i].E)),2)+". Условие нарушено, значит, граница неверна."],
+  ["Программа выдаст ошибку",0,"Ошибки не будет: программа тихо разложит частицы неправильно, и ответ получится неверным."]]}
+],
+center:[
+ {q:"Что возвращает функция centr(group)?",o:[
+  ["Энергию центральной частицы",1,"Верно. <code>min(m)[1]</code> — частица, а <code>[2]</code> — её энергия."],
+  ["Саму частицу целиком",0,"Частица — это <code>min(m)[1]</code>. Последний индекс <code>[2]</code> достаёт из неё энергию."],
+  ["Минимальную сумму s",0,"Сумма — это <code>min(m)[0]</code>. В коде стоит <code>[1][2]</code>."]]},
+ {q:"Энергии кластера: 1, 2, 10. У какой частицы энергия-центр?",o:[
+  ["2",1,"Верно. Суммы: для 1 — 0 + 1 + 9 = 10, для 2 — 1 + 0 + 8 = 9, для 10 — 9 + 8 + 0 = 17. Минимум у 2."],
+  ["4,33 — среднее арифметическое",0,"Среднее (1 + 2 + 10) / 3 ≈ 4,33 не совпадает ни с одной частицей. По условию центр — частица кластера."],
+  ["10 — самая большая энергия",0,"У частицы с энергией 10 сумма самая большая: 9 + 8 + 0 = 17."]]}
+],
+pairs:[
+ {q:"Сколько пар выдаст combinations для 5 элементов?",o:[
+  ["10",1,"Верно: 5 · 4 / 2 = 10."],
+  ["20",0,"20 = 5 · 4 — это пары с учётом порядка: A–B и B–A посчитаны дважды. <code>combinations</code> выдаёт каждую пару один раз: 20 / 2 = 10."],
+  ["25",0,"25 = 5 · 5 — сюда попали и пары элемента с самим собой, и повторы. Пар без повторов 10."]]},
+ {q:"Почему во втором цикле range(i + 1, n), а не range(n)?",o:[
+  ["Иначе будет пара частицы с самой собой",1,"Верно, и её расстояние 0 сделает минимум нулём. Заодно уходят повторы B–A."],
+  ["Так быстрее, ответ не изменится",0,"Ответ изменится: при <code>j = i</code> расстояние 0, и <code>q1</code> станет 0."],
+  ["Иначе выйдем за границы списка",0,"<code>range(n)</code> не выходит за границы. Проблема в паре i = j с расстоянием 0."]]}
+],
+q1:[
+ {q:"Что напечатает программа, если написать q1 = 0?",o:[
+  ["0 "+SOL.a2,1,"Верно. Расстояние не бывает меньше нуля, <code>min</code> всё время оставляет 0. Нужен старт с бесконечности."],
+  [V.ans,0,"Ответ был бы правильным, если бы начали с <code>float('inf')</code>. С нулём <code>min(0, d)</code> всегда равен 0."],
+  ["Ошибку",0,"Ошибки не будет: программа тихо напечатает 0 в первой части ответа."]]},
+ {q:"Какие частицы сравнивает combinations(type_IV, 2)?",o:[
+  ["Любые две частицы IV из файла",0,"Список <code>type_IV</code> собирается заново для каждого кластера. Частицы из разных кластеров в одну пару не попадают."],
+  ["Две разные частицы IV одного кластера",1,"Верно. Так и требует условие."],
+  ["Частицу IV и центр кластера",0,"Центр в Q1 не участвует. Он нужен только для Q2."]]},
+ {q:"Чем считаем расстояние для Q1?",o:[
+  ["Разностью энергий",0,"Энергия нужна для кластеров и центра. Расстояние в условии — на плоскости, по x и y."],
+  ["По координатам x и y, по теореме Пифагора",1,"Верно. <code>dist</code> берёт <code>x1, y1, x2, y2</code>, энергию не трогает."],
+  ["Разностью номеров строк в файле",0,"Номер строки — просто порядок записи, к расстоянию отношения не имеет."]]}
+],
+q2:[
+ {q:"Что такое Q2?",o:[
+  ["Среднее энергий трёх центров",1,`Верно: (${cE.map(e=>fmt(e,4)).join(" + ")}) / 3 ≈ ${fmt(SOL.q2,4)}.`],
+  ["Среднее энергий всех частиц файла",0,`Это другое число: ${fmt(meanAll,4)}. Кластеры разного размера, поэтому среднее по всем частицам не равно среднему по центрам.`],
+  ["Наибольшая энергия центра",0,`Это ${fmt(Math.max(...cE),4)} — энергия центра третьего кластера. В нашем условии нужно среднее.`]]},
+ {q:`q2 * 10000 = ${pyNum(exQ)}. Что идёт в ответ?`,o:[
+  [String(Math.trunc(exQ)),1,"Верно. <code>int</code> отбрасывает дробную часть."],
+  [String(Math.trunc(exQ)+1),0,"Это округление вверх. Условие просит целую часть."],
+  [pyNum(exQ),0,"В ответ записывают целое число: <code>int</code> возвращает целое."]]}
+]};
+document.querySelectorAll("[data-quiz]").forEach(box=>{
+  box.insertAdjacentHTML("beforebegin",`<h3>Проверь себя</h3>`);
+  QUIZ[box.dataset.quiz].forEach(Q=>{
+    const card=document.createElement("div");card.className="q";
+    card.innerHTML=`<h3>${esc(Q.q)}</h3><div class="opts"></div><div class="why" aria-live="polite" hidden></div>`;
+    const opts=card.querySelector(".opts"),why=card.querySelector(".why");
+    Q.o.forEach(([t,ok,ex])=>{
+      const b=document.createElement("button");b.type="button";b.className="opt";b.textContent=t;
+      b.addEventListener("click",()=>{
+        opts.querySelectorAll(".opt").forEach(x=>x.classList.remove("wrong"));
+        b.classList.add(ok?"right":"wrong");
+        why.hidden=false;why.className="why "+(ok?"good":"bad");
+        why.innerHTML=`<strong>${ok?"Да!":"Не совсем."}</strong><span>${ex}</span>`;
+      });
+      opts.appendChild(b);
+    });
+    box.appendChild(card);
+  });
+});
+
+/* ---------- графики ---------- */
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function txt(parent,x,y,s,attrs={}){const t=el("text",Object.assign({x,y,fill:"var(--soft)","font-size":15,"font-family":"var(--mono)"},attrs),parent);t.textContent=s;return t}
+const COL=["var(--c1)","var(--c2)","var(--c3)"];
+const EMAX=Math.ceil(Math.max(...P.map(p=>p.E))+0.5);
+const ex=e=>30+e/EMAX*550;
+// полоса энергий: точка по x — энергия, по y — разброс, чтобы точки не слипались
+function strip(svg,colorOf,borders){
+  svg.innerHTML="";
+  for(let e=0;e<=EMAX;e++){el("line",{x1:ex(e),x2:ex(e),y1:20,y2:232,stroke:"var(--grid)","stroke-width":1},svg);if(e<EMAX)txt(svg,ex(e),258,String(e),{"text-anchor":"middle"})}
+  txt(svg,590,258,"E",{"text-anchor":"end","font-weight":700,fill:"var(--ink)"});
+  const g=el("g",{},svg);
+  const dots=P.map(p=>el("circle",{cx:ex(p.E),cy:32+((p.line*37)%97)/96*190,r:3.4,fill:colorOf(p),opacity:.8},g));
+  const lines=(borders||[]).map(b=>{
+    const l=el("line",{x1:ex(b),x2:ex(b),y1:10,y2:236,stroke:"var(--hot)","stroke-width":2.5,"stroke-dasharray":"7 5"},svg);
+    const t=txt(svg,ex(b)+6,16,fmt(b,1),{fill:"var(--hot)","font-weight":700});
+    return {l,t};
+  });
+  return {dots,lines};
+}
+strip($("plotHero"),()=>"var(--ink)");
+
+/* ---------- конвейер строки ---------- */
+{
+  const inp=$("lnInput");inp.max=RAW_LINES.length;
+  const repr=s=>"'"+esc(s).replace(/\t/g,"<i>\\t</i>")+"<i>\\n</i>'";
+  const listStr=a=>"["+a.map(x=>"<em>'"+esc(x)+"'</em>").join(", ")+"]";
+  function render(){
+    const n=Math.max(1,Math.min(RAW_LINES.length,Math.round(+inp.value)||1));inp.value=n;
+    const raw=RAW_LINES[n-1].replace(/\r$/,""),rep=raw.replace(/,/g,"."),parts=rep.trim().split(/\s+/);
+    const p=P.find(q=>q.line===n),k=G.findIndex(g=>g.includes(p.id));
+    const rows=[
+      ["s",repr(raw)],
+      ["s.replace(',', '.')",repr(rep)],
+      [".split()",listStr(parts)],
+      ["map(float, …) для пяти",`x = ${pyNum(p.x)}, y = ${pyNum(p.y)}, vx = ${pyNum(p.vx)}, vy = ${pyNum(p.vy)}, m = ${pyNum(p.m)}, t = <em>'${esc(p.t)}'</em>`],
+      ["E = 0.5 * m * (vx**2 + vy**2)",pyNum(p.E)],
+      ["в какой кластер",`E ${p.E<4?"&lt; 4":p.E<7.5?"от 4 до 7,5":"≥ 7,5"}  →  cl[${k}]`]];
+    $("pipe").innerHTML=rows.map(([w,v])=>`<div class="pipe-row"><span class="what">${esc(w)}</span><span class="val">${v}</span></div>`).join("");
+    $("pipeSay").innerHTML=`<span>Красным отмечены невидимые символы: табуляция <b>\\t</b> и перевод строки <b>\\n</b>. После <b>replace</b> запятые стали точками, <b>split</b> разрезал строку на шесть кусочков, <b>float</b> превратил пять из них в числа. Признак остался текстом в кавычках.</span>`;
+  }
+  inp.addEventListener("input",render);
+  $("lnMinus").onclick=()=>{inp.value=+inp.value-1;render()};
+  $("lnPlus").onclick=()=>{inp.value=+inp.value+1;render()};
+  render();
+}
+
+/* ---------- границы кластеров ---------- */
+{
+  const b1=$("b1"),b2=$("b2");let S=null;
+  function upd(){
+    let x=+b1.value,y=+b2.value;const bs=[Math.min(x,y),Math.max(x,y)];
+    $("b1Val").textContent=fmt(x,1);$("b2Val").textContent=fmt(y,1);
+    b1.setAttribute("aria-valuetext",fmt(x,1));b2.setAttribute("aria-valuetext",fmt(y,1));
+    const groups=Z27P.split(P,bs);
+    const own=new Array(P.length);groups.forEach((g,k)=>g.forEach(i=>own[i]=k));
+    if(!S)S=strip($("plotSplit"),p=>COL[own[p.id]],bs);
+    S.dots.forEach((d,i)=>d.setAttribute("fill",COL[own[i]]));
+    S.lines.forEach((L,j)=>{L.l.setAttribute("x1",ex(bs[j]));L.l.setAttribute("x2",ex(bs[j]));L.t.setAttribute("x",ex(bs[j])+6);L.t.textContent=fmt(bs[j],1)});
+    const rows=groups.map((g,k)=>{
+      if(!g.length)return {k,n:0};
+      const es=g.map(i=>P[i].E);const lo=Math.min(...es),hi=Math.max(...es);return {k,n:g.length,lo,hi,ok:hi-lo<=2};
+    });
+    $("splitTbl").innerHTML=rows.map(r=>r.n?`<tr><td><span class="dot" style="background:${COL[r.k]}"></span>${r.k+1}</td><td>${r.n}</td><td>${fmt(r.lo,3)}</td><td>${fmt(r.hi,3)}</td><td>${fmt(r.hi-r.lo,3)}</td><td class="${r.ok?"good":"bad"}">${r.ok?"✓ да":"✗ нет"}</td></tr>`:`<tr><td><span class="dot" style="background:${COL[r.k]}"></span>${r.k+1}</td><td>0</td><td colspan="4" class="bad">✗ пустой кластер</td></tr>`).join("");
+    const good=rows.every(r=>r.n&&r.ok);
+    let ans="";
+    if(good){const s=Z27P.solve(P,bs,TYPE);ans=` Ответ при таких границах: <b class="mono">${s.a1} ${s.a2}</b>.`}
+    $("splitSay").innerHTML=good
+      ?`<span class="ok-msg">✓ Все три кластера подходят под условие.</span><span>Каждая граница стоит в пустом промежутке.${ans}</span>`
+      :`<span class="bad-msg">✗ Кластеры не подходят под условие.</span><span>${rows.some(r=>!r.n)?"Один из кластеров пустой: обе границы попали в один промежуток. ":""}${rows.some(r=>r.n&&!r.ok)?"Граница разрезала группу, и в один кластер попали частицы из двух групп: разница энергий больше 2.":""}</span>`;
+  }
+  b1.addEventListener("input",upd);b2.addEventListener("input",upd);
+  $("bReset").onclick=()=>{b1.value=4;b2.value=7.5;upd()};
+  upd();
+  const GAP=`energies = []
+for s in open('27.txt'):
+    x, y, vx, vy, m, t = s.replace(',', '.').split()
+    energies.append(0.5 * float(m) * (float(vx) ** 2 + float(vy) ** 2))
+energies.sort()
+for a, b in zip(energies, energies[1:]):
+    if b - a > 1:
+        print(a, b)`;
+  $("gapCode").innerHTML=hlBlock(GAP);
+  const es=P.map(p=>p.E).sort((a,b)=>a-b),out=[];
+  for(let i=1;i<es.length;i++)if(es[i]-es[i-1]>1)out.push(pyNum(es[i-1])+" "+pyNum(es[i]));
+  $("gapOut").textContent=out.join("\n");
+}
+
+/* ---------- центр: пример на пяти ---------- */
+{
+  const E=[1,2,3,7,9],S=E.map(a=>E.reduce((s,b)=>s+Math.abs(a-b),0)),best=S.indexOf(Math.min(...S));
+  $("miniTbl").innerHTML=`<thead><tr><th scope="col">кандидат</th>${E.map(e=>`<th scope="col">|E − ${e}|</th>`).join("")}<th scope="col">сумма s</th></tr></thead><tbody class="mono">`+
+    E.map((a,i)=>`<tr${i===best?' class="win"':""}><td>E = ${a}</td>${E.map(b=>`<td>${Math.abs(a-b)}</td>`).join("")}<td>${S[i]}${i===best?" ← минимум":""}</td></tr>`).join("")+"</tbody>";
+  $("miniSay").innerHTML=`Центр — частица с энергией <b>${E[best]}</b>: она третья из пяти по порядку. Среднее (1 + 2 + 3 + 7 + 9) / 5 = 4,4 — такой частицы нет, поэтому среднее не может быть центром.`;
+}
+
+/* ---------- центр: файл разбора ---------- */
+{
+  const svg=$("plotCenter"),inp=$("cand");let cur=0,data=null;
+  const btns=[...document.querySelectorAll("[data-cl]")];
+  function build(){
+    const ids=G[cur],ss=Z27P.sums(P,ids).map(r=>({i:r.i,s:r.s,E:P[r.i].E})).sort((a,b)=>a.E-b.E);
+    const best=ss.reduce((a,r)=>r.s<a.s?r:a,ss[0]);
+    data={ss,best,bestK:ss.indexOf(best)};
+    inp.max=ss.length-1;inp.value=data.bestK;
+  }
+  function render(){
+    const {ss,best,bestK}=data,k=+inp.value,c=ss[k];
+    const e0=ss[0].E,e1=ss[ss.length-1].E,smax=Math.max(...ss.map(r=>r.s));
+    const X=e=>60+(e-e0)/(e1-e0)*520,Y=s=>340-s/smax*300;
+    svg.innerHTML="";
+    for(let j=0;j<=4;j++){const s=smax*j/4;el("line",{x1:60,x2:585,y1:Y(s),y2:Y(s),stroke:"var(--grid)"},svg);txt(svg,54,Y(s)+5,String(Math.round(s)),{"text-anchor":"end"})}
+    for(let e=Math.ceil(e0*2)/2;e<=e1;e+=0.5){el("line",{x1:X(e),x2:X(e),y1:30,y2:340,stroke:"var(--grid)"},svg);txt(svg,X(e),364,fmt(e,1),{"text-anchor":"middle"})}
+    txt(svg,64,22,"сумма s",{fill:"var(--ink)","font-weight":700});
+    ss.forEach(r=>el("circle",{cx:X(r.E),cy:Y(r.s),r:3.2,fill:COL[cur],opacity:.75},svg));
+    el("line",{x1:X(c.E),x2:X(c.E),y1:Y(c.s),y2:340,stroke:"var(--hot)","stroke-width":2,"stroke-dasharray":"5 4"},svg);
+    el("circle",{cx:X(best.E),cy:Y(best.s),r:9,fill:"var(--ok)",stroke:"var(--bg)","stroke-width":2},svg);
+    el("circle",{cx:X(c.E),cy:Y(c.s),r:8,fill:"none",stroke:"var(--hot)","stroke-width":3},svg);
+    const left=k,right=ss.length-1-k;
+    $("candVal").textContent=`${k+1} из ${ss.length} по порядку энергии`;
+    inp.setAttribute("aria-valuetext",`кандидат ${k+1} из ${ss.length}, энергия ${fmt(c.E,4)}, сумма ${fmt(c.s,2)}`);
+    $("cSay").innerHTML=`<span>Кандидат: строка ${P[c.i].line}, E = <b class="mono">${fmt(c.E,4)}</b>, сумма s = <b class="mono">${fmt(c.s,3)}</b>.</span><span>Частиц с меньшей энергией: ${left}, с большей: ${right}.</span>`+
+      (k===bestK?`<span class="ok-msg">✓ Это центр: меньшей суммы в кластере нет. Слева и справа поровну.</span>`
+       :`<span>${left<right?"Справа частиц больше: шаг вправо уменьшит сумму.":"Слева частиц больше: шаг влево уменьшит сумму."} У центра (кандидат ${bestK+1}) сумма ${fmt(best.s,3)}.</span>`);
+  }
+  btns.forEach(b=>b.onclick=()=>{cur=+b.dataset.cl;btns.forEach(x=>x.setAttribute("aria-pressed",String(x===b)));build();render()});
+  inp.addEventListener("input",render);
+  build();render();
+}
+
+/* ---------- пары на четырёх точках ---------- */
+{
+  const pts=[{n:"A",x:1,y:2},{n:"B",x:5,y:6},{n:"C",x:9,y:1},{n:"D",x:-2,y:3}];
+  const prs=[];for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)prs.push([pts[i],pts[j]]);
+  const X=x=>60+(x+3)*40,Y=y=>330-y*42,svg=$("plotPairs");
+  let cur=-1;const seen=new Set();
+  const box=$("pairBtns");
+  const pb=prs.map(([a,b],i)=>{const t=document.createElement("button");t.type="button";t.className="btn";t.textContent=a.n+"–"+b.n;t.setAttribute("aria-pressed","false");t.onclick=()=>go(i);box.appendChild(t);return t});
+  const d=([a,b])=>Math.hypot(a.x-b.x,a.y-b.y),sg=v=>v<0?`(−${-v})`:String(v);
+  function go(i){cur=i;seen.add(i);render()}
+  function render(){
+    svg.innerHTML="";
+    for(let x=-3;x<=10;x++){el("line",{x1:X(x),x2:X(x),y1:20,y2:350,stroke:"var(--grid)"},svg);if(x%2===0)txt(svg,X(x)+3,368,String(x))}
+    for(let y=0;y<=7;y++){el("line",{x1:20,x2:590,y1:Y(y),y2:Y(y),stroke:"var(--grid)"},svg);if(y)txt(svg,24,Y(y)-4,String(y))}
+    let best=null;for(const i of seen)if(best===null||d(prs[i])<d(prs[best]))best=i;
+    if(best!==null&&best!==cur){const [a,b]=prs[best];el("line",{x1:X(a.x),y1:Y(a.y),x2:X(b.x),y2:Y(b.y),stroke:"var(--ok)","stroke-width":3,"stroke-dasharray":"8 6"},svg)}
+    if(cur>=0){const [a,b]=prs[cur];
+      el("line",{x1:X(a.x),y1:Y(a.y),x2:X(b.x),y2:Y(a.y),stroke:"var(--soft)","stroke-dasharray":"5 4","stroke-width":2},svg);
+      el("line",{x1:X(b.x),y1:Y(a.y),x2:X(b.x),y2:Y(b.y),stroke:"var(--soft)","stroke-dasharray":"5 4","stroke-width":2},svg);
+      el("line",{x1:X(a.x),y1:Y(a.y),x2:X(b.x),y2:Y(b.y),stroke:"var(--hot)","stroke-width":3.5},svg)}
+    pts.forEach(p=>{const on=cur>=0&&prs[cur].includes(p);el("circle",{cx:X(p.x),cy:Y(p.y),r:10,fill:on?"var(--hot)":"var(--ink)",stroke:"var(--bg)","stroke-width":2},svg);txt(svg,X(p.x),Y(p.y)-16,p.n,{"text-anchor":"middle","font-size":18,"font-weight":700,fill:"var(--ink)"})});
+    pb.forEach((b,i)=>{b.setAttribute("aria-pressed",String(i===cur));b.classList.toggle("seen",seen.has(i))});
+    if(cur<0){$("pairSay").innerHTML=`<span>Пар всего <b>${prs.length}</b>. Сначала <code>q1 = inf</code>. Нажми «Следующая пара».</span>`;return}
+    const [a,b]=prs[cur],v=d(prs[cur]),q=d(prs[best]);
+    $("pairSay").innerHTML=`<span>Пара ${cur+1} из ${prs.length}: <b>${a.n}–${b.n}</b></span><span class="mono">√((${sg(b.x)} − ${sg(a.x)})² + (${sg(b.y)} − ${sg(a.y)})²) = ${fmt(v,3)}</span><span>Самое маленькое из просмотренных: <b class="mono">q1 = ${fmt(q,3)}</b> (${prs[best][0].n}–${prs[best][1].n}, зелёный пунктир).${seen.size===prs.length?" <span class=\"ok-msg\">Все пары просмотрены.</span>":""}</span>`;
+  }
+  $("pairNext").onclick=()=>go((cur+1)%prs.length);
+  $("pairReset").onclick=()=>{cur=-1;seen.clear();render()};
+  render();
+  $("loopCode").innerHTML=hlBlock(`n = len(type_IV)
+for i in range(n):
+    for j in range(i + 1, n):
+        q1 = min(q1, dist(type_IV[i], type_IV[j]))`);
+}
+
+/* ---------- Q1 на плоскости ---------- */
+{
+  const svg=$("plotQ1"),S=600/44,X=x=>(x+22)*S,Y=y=>600-(y+22)*S;let cur=0,sel=null;
+  const btns=[...document.querySelectorAll("[data-q]")];
+  $("q1Tbl").innerHTML=SOL.pr.map((r,k)=>`<tr${k===minCl?' class="win"':""}><td>${k+1}</td><td>${r.own.length}</td><td>${r.count}</td><td>${r.best?fmt(r.best.d,4):"—"}${k===minCl?" ← Q1":""}</td></tr>`).join("");
+  function render(){
+    svg.innerHTML="";
+    for(let v=-20;v<=20;v+=5){el("line",{x1:X(v),x2:X(v),y1:0,y2:600,stroke:"var(--grid)"},svg);el("line",{y1:Y(v),y2:Y(v),x1:0,x2:600,stroke:"var(--grid)"},svg);txt(svg,X(v)+4,592,String(v));if(v>-20)txt(svg,6,Y(v)-5,String(v))}
+    const R=SOL.pr[cur],ids=G[cur],own=new Set(R.own);
+    ids.forEach(i=>{if(!own.has(i))el("circle",{cx:X(P[i].x),cy:Y(P[i].y),r:3,fill:"var(--idle)",opacity:.6},svg)});
+    let pair=R.best,note="";
+    if(sel!==null){let b=null;for(const j of R.own)if(j!==sel){const v=Z27P.dist(P[sel],P[j]);if(!b||v<b.d)b={d:v,a:sel,b:j}}pair=b}
+    if(pair){const a=P[pair.a],b=P[pair.b];
+      el("line",{x1:X(a.x),y1:Y(a.y),x2:X(b.x),y2:Y(b.y),stroke:sel===null?"var(--ok)":"var(--hot)","stroke-width":4,"stroke-linecap":"round"},svg);
+      el("circle",{cx:X((a.x+b.x)/2),cy:Y((a.y+b.y)/2),r:22,fill:"none",stroke:sel===null?"var(--ok)":"var(--hot)","stroke-width":2.5},svg)}
+    R.own.forEach(i=>{const c=el("circle",{cx:X(P[i].x),cy:Y(P[i].y),r:i===sel?9:6.5,fill:COL[cur],stroke:i===sel?"var(--ink)":"var(--bg)","stroke-width":i===sel?3:1.5},svg);
+      c.style.cursor="pointer";const t=el("title",{},c);t.textContent=`строка ${P[i].line}: x = ${fmt(P[i].x,3)}, y = ${fmt(P[i].y,3)}`;
+      c.addEventListener("click",()=>{sel=sel===i?null:i;render()})});
+    if(sel!==null&&pair)note=`<span>Выбрана частица из строки ${P[sel].line}. Её ближайшая соседка IV — строка ${P[pair.b].line}, расстояние <b class="mono">${fmt(pair.d,4)}</b>${pair.d===R.best.d?" — это и есть самая близкая пара кластера.":`. Самая близкая пара кластера ближе: ${fmt(R.best.d,4)}.`} Нажми на точку ещё раз, чтобы снять выбор.</span>`;
+    $("q1Say").innerHTML=`<span>Кластер ${cur+1}: ${ids.length} ${word(ids.length)}, из них с признаком IV — <b>${R.own.length}</b>. Пар: ${R.own.length} · ${R.own.length-1} / 2 = <b>${R.count}</b>.</span>`+
+      (R.best?`<span>Самая близкая пара: строки ${P[R.best.a].line} и ${P[R.best.b].line}, расстояние <b class="mono">${fmt(R.best.d,4)}</b>.${cur===minCl?' <span class="ok-msg">Меньше, чем в других кластерах — это Q1.</span>':""}</span>`:"")+note;
+  }
+  btns.forEach(b=>b.onclick=()=>{cur=+b.dataset.q;sel=null;btns.forEach(x=>x.setAttribute("aria-pressed",String(x===b)));render()});
+  render();
+  const ib=[...document.querySelectorAll("[data-init]")];
+  function init(mode){
+    ib.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.init===mode)));
+    $("initSay").innerHTML=mode==="inf"
+      ?`<span>Первая пара сразу заменяет бесконечность, дальше <code>min</code> оставляет меньшее. Программа печатает <b class="mono">${V.ans}</b>. <span class="ok-msg">Верно.</span></span>`
+      :`<span><code>min(0, ${fmt(SOL.pr[0].best.d,4).replace(",",".")})</code> = 0, и так для каждой из ${SOL.pr.reduce((a,r)=>a+r.count,0)} пар: расстояние не бывает меньше нуля. Программа печатает <b class="mono">0 ${SOL.a2}</b>. <span class="bad-msg">Ошибки нет, а ответ неверный.</span></span><span>Для максимума старт с 0 подходит: любое расстояние больше нуля. Для минимума — только бесконечность или первое расстояние.</span>`;
+  }
+  ib.forEach(b=>b.onclick=()=>init(b.dataset.init));init("inf");
+}
+
+/* ---------- Q2 и ответ ---------- */
+{
+  const c=SOL.centers;
+  $("calc").innerHTML=c.map((r,k)=>`<div>центр кластера ${k+1}: строка ${P[r.i].line}, E = ${pyNum(P[r.i].E)}</div>`).join("")+
+    `<div>q2 = (${cE.map(pyNum).join(" + ")}) / 3 = ${pyNum(SOL.q2)}</div><div>q1 = ${pyNum(SOL.q1)} (кластер ${minCl+1})</div><div>q1 * 10000 = ${pyNum(SOL.q1*10000)}</div><div>q2 * 10000 = ${pyNum(SOL.q2*10000)}</div>`;
+  $("ans1").textContent=SOL.a1;$("ans2").textContent=SOL.a2;
+  $("intRound").innerHTML=[SOL.q1*10000,SOL.q2*10000].map(v=>{const r=Math.round(v),bad=r!==Math.trunc(v);
+    return `<tr><td>${pyNum(v)}</td><td>${Math.trunc(v)}</td><td${bad?' class="bad"':""}>${r}${bad?" ✗ не то":""}</td></tr>`}).join("");
+}
+
+/* ---------- весь код и файл ---------- */
+$("fullCode").innerHTML=hlBlock(FULL);
+$("copyBtn").onclick=async e=>{
+  const b=e.currentTarget;
+  try{await navigator.clipboard.writeText(FULL);b.textContent="Скопировано"}
+  catch(err){const r=document.createRange();r.selectNodeContents($("fullCode"));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Выделено: нажми Ctrl+C"}
+  setTimeout(()=>b.textContent="Копировать",2200);
+};
+$("dlBtn").onclick=()=>{
+  try{const url=URL.createObjectURL(new Blob([RAW_LINES.join("\r\n")+"\r\n"],{type:"text/plain"}));const a=document.createElement("a");a.href=url;a.download="27.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}catch(e){}
+};
+
+/* ---------- свой файл ---------- */
+let lastText=null,lastName="";
+function analyse(text,name){
+  const {pts,bad}=Z27P.parseText(text);
+  $("upPlate").hidden=false;
+  const clear=()=>{$("upTbl").innerHTML="";$("up1").textContent=$("up2").textContent="—"};
+  if(pts.length<2){$("upSay").innerHTML=`<span class="bad-msg">В файле «${esc(name)}» не нашлось частиц.</span><span>В каждой строке должно быть шесть значений: x, y, vx, vy, m и признак.</span>`;clear();return}
+  const K=Math.max(1,Math.round(+$("upK").value)||1),R=Math.max(0,+$("upR").value||0),T=$("upT").value,m1=$("upQ1").value,m2=$("upQ2").value;
+  const groups=Z27P.split(pts,Z27P.autoBorders(pts,K));
+  if(groups.some(g=>!g.length)){$("upSay").innerHTML=`<span class="bad-msg">Частиц меньше, чем кластеров.</span>`;clear();return}
+  const rows=groups.map(g=>{
+    const es=g.map(i=>pts[i].E),lo=Math.min(...es),hi=Math.max(...es);
+    const c=Z27P.centrFast(pts,g),pr=Z27P.pairs(pts,g,T,m1);
+    return {n:g.length,lo,hi,ok:hi-lo<=R+1e-9,cE:pts[c.i].E,own:pr.own.length,d:pr.best?pr.best.d:null};
+  });
+  const ds=rows.map(r=>r.d).filter(d=>d!==null),cs=rows.map(r=>r.cE);
+  const q1=ds.length?(m1==="min"?Math.min(...ds):Math.max(...ds)):null;
+  const q2=m2==="avg"?cs.reduce((a,b)=>a+b,0)/cs.length:m2==="max"?Math.max(...cs):Math.min(...cs);
+  const allOk=rows.every(r=>r.ok);
+  $("upTbl").innerHTML=rows.map((r,k)=>`<tr><td>${k+1}</td><td>${r.n}</td><td>${fmt(r.lo,3)}</td><td>${fmt(r.hi,3)}</td><td class="${r.ok?"good":"bad"}">${r.ok?"✓":"✗"} ${fmt(r.hi-r.lo,3)}</td><td>${fmt(r.cE,6)}</td><td>${r.own}</td><td>${r.d===null?"—":fmt(r.d,5)}</td></tr>`).join("");
+  $("upSay").innerHTML=`<span>Файл «${esc(name)}»: <b>${pts.length}</b> ${word(pts.length)}${bad.length?`, пропущено строк: ${bad.length} (например, строка ${bad[0]})`:""}.</span>`+
+    (allOk?`<span class="ok-msg">✓ Во всех ${K} кластерах разница энергий не больше R = ${fmt(R,1)}.</span>`:`<span class="bad-msg">✗ В каком-то кластере разница энергий больше R.</span><span>Проверь число кластеров: возможно, в файле их другое количество.</span>`)+
+    (q1===null?`<span class="bad-msg">Ни в одном кластере нет двух частиц с признаком ${esc(T)}.</span>`:"");
+  $("up1").textContent=q1===null?"—":Math.trunc(q1*10000);$("up2").textContent=Math.trunc(q2*10000);
+}
+const readFile=file=>{const fr=new FileReader();fr.onload=()=>{lastText=String(fr.result);lastName=file.name;analyse(lastText,lastName)};fr.readAsText(file)};
+$("fileInput").addEventListener("change",e=>{const f=e.target.files[0];if(f)readFile(f)});
+$("useOwn").onclick=()=>{lastText=RAW;lastName="27.txt";analyse(lastText,lastName)};
+["upK","upR","upT","upQ1","upQ2"].forEach(id=>$(id).addEventListener("change",()=>{if(lastText)analyse(lastText,lastName)}));
+const drop=$("drop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)readFile(f)});
+
+/* ---------- подсветка шага в навигации ---------- */
+const links=[...document.querySelectorAll("#stepsNav a")];
+if("IntersectionObserver" in window){
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>{const on=a.getAttribute("href")==="#"+e.target.id;a.classList.toggle("on",on);if(on){a.setAttribute("aria-current","step");a.scrollIntoView({block:"nearest",inline:"nearest"})}else a.removeAttribute("aria-current")})}})},{rootMargin:"-40% 0px -55% 0px"});
+  links.forEach(a=>{const s=document.querySelector(a.getAttribute("href"));if(s)io.observe(s)});
+}
+})();
+</script>
+
+</body></html>

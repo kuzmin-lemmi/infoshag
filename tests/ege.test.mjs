@@ -27,6 +27,7 @@ test('Справочник содержит 27 номеров проекта Е�
     assert.ok(!seen.has(key)); seen.add(key);
   }
   assert.match(bindings.find(b => b.itemId === 'ege-27-klastery').notice, /2027/);
+  assert.match(bindings.find(b => b.itemId === 'ege-27-chasticy').notice, /вопросы изменены/);
 });
 
 test('Разделение по классам не перенумеровывает задания и не ограничивает привязки классом карточки', () => {
@@ -34,7 +35,7 @@ test('Разделение по классам не перенумеровыва
   assert.deepEqual(egeRows(exam.tasks, bindings, items, 10).map(r=>r.number), Array.from({length:17},(_,i)=>i+1));
   const eleventh = egeRows(exam.tasks, bindings, items, 11);
   assert.deepEqual(eleventh.map(r=>r.number), Array.from({length:10},(_,i)=>i+18));
-  assert.equal(eleventh.at(-1).primary[0].item.id, 'ege-27-klastery');
+  assert.deepEqual(eleventh.at(-1).primary.map(m=>m.item.id), ['ege-27-chasticy', 'ege-27-klastery']);
   assert.equal(egeRows(exam.tasks, bindings, items.map(i=>({...i,data:{access:'soon'}})), 11).at(-1).primary.length, 0);
   assert.deepEqual(egeRows(exam.tasks, bindings, items, 9), []);
 });
@@ -53,6 +54,7 @@ test('Страницы ЕГЭ содержат правильные диапаз
     assert.match(read('dist/sitemap.xml'), new RegExp(`/klass/${grade}/`));
   }
   const html = read('dist/klass/11/index.html');
+  assert.match(html, /data-primary-material="ege-27-chasticy"/);
   assert.match(html, /data-primary-material="ege-27-klastery"/);
   assert.match(html, /формат прежних лет/);
 });

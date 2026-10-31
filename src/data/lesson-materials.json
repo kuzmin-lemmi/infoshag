@@ -329,6 +329,12 @@
     "note": "Разбор задания ЕГЭ для 11 класса; вне КТП 5–9."
   },
   {
+    "itemId": "ege-27-chasticy",
+    "primary": [],
+    "related": [],
+    "note": "Разбор задания 27 ЕГЭ-2027 для 11 класса; вне КТП 5–9."
+  },
+  {
     "itemId": "telegram-bots",
     "primary": [],
     "related": [],

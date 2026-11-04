@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+<defs>
+  <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#081a36"/><stop offset="1" stop-color="#123a72"/></linearGradient>
+  <linearGradient id="tile" x2="1" y2="1"><stop stop-color="#204f91"/><stop offset="1" stop-color="#102d59"/></linearGradient>
+  <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#8ebcff" stroke-opacity=".06"/></pattern>
+</defs>
+<rect width="1280" height="800" fill="url(#bg)"/><rect width="1280" height="800" fill="url(#grid)"/>
+<circle cx="1178" cy="675" r="287" fill="#1a67bb" opacity=".16"/>
+<g font-family="Arial, sans-serif">
+  <text x="70" y="82" font-size="28" font-weight="700" fill="#a4c7ef">ИНФОШАГ · ЕГЭ · PYTHON</text>
+  <text x="65" y="196" font-size="94" font-weight="700" fill="#fff">Задание 8</text>
+  <text x="65" y="297" font-size="94" font-weight="700" fill="#58ddf5">по шагам</text>
+  <text x="71" y="362" font-size="34" fill="#d3e3f5">34 демонстрации · 6 разборов задач</text>
+  <g transform="translate(75 422)">
+    <path d="M35 59H195M195 59H355" stroke="#58ddf5" stroke-width="4"/>
+    <g fill="url(#tile)" stroke="#68c8ff" stroke-width="2">
+      <rect width="118" height="118" rx="18"/><rect x="150" width="118" height="118" rx="18"/><rect x="300" width="118" height="118" rx="18"/>
+    </g>
+    <g fill="#fff" font-size="66" font-weight="700" text-anchor="middle"><text x="59" y="83">А</text><text x="209" y="83">Б</text><text x="359" y="83">В</text></g>
+    <text x="0" y="168" font-size="27" fill="#a4c7ef">слова → номера → подсчёт</text>
+  </g>
+  <g transform="translate(690 123)">
+    <rect width="516" height="496" rx="24" fill="#07162d" stroke="#366aaa" stroke-width="2"/>
+    <path d="M0 67H516" stroke="#27466e"/>
+    <circle cx="28" cy="32" r="6" fill="#58ddf5"/><circle cx="49" cy="32" r="6" fill="#4775ab"/><circle cx="70" cy="32" r="6" fill="#4775ab"/>
+    <text x="489" y="41" font-size="22" text-anchor="end" fill="#a4c7ef">Python</text>
+    <g font-family="Consolas, monospace" font-size="29">
+      <text x="30" y="127" fill="#80dfff">product()</text><text x="30" y="184" fill="#fff">permutations()</text><text x="30" y="241" fill="#fff">enumerate()</text>
+      <path d="M30 277H486" stroke="#27466e"/>
+      <text x="30" y="329" fill="#80dfff">divmod()</text><text x="30" y="386" fill="#fff">comb()</text><text x="30" y="443" fill="#a4edbd">@cache</text>
+    </g>
+  </g>
+  <path d="M70 665H1206" stroke="#365b88"/>
+  <text x="70" y="719" font-size="31" fill="#fff">Для учителя и показа на проекторе</text>
+  <text x="1206" y="764" font-size="23" text-anchor="end" fill="#a4c7ef">infoshag.ru</text>
+</g>
+</svg>

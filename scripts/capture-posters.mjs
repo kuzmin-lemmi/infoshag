@@ -22,7 +22,7 @@ const AFTER = {
 };
 
 // превью нарисованы отдельно (не снимок игры) — общий запуск их не перезаписывает
-const KEEP = new Set(['ege-27-klastery', 'ege-27-chasticy', 'ege-17-poshagovo']);
+const KEEP = new Set(['ege-27-klastery', 'ege-27-chasticy', 'ege-17-poshagovo', 'ege-8-poshagovo']);
 
 const browsers = [
   process.env.CHROME,

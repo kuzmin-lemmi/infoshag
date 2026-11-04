@@ -1,0 +1,8 @@
+PASS: 70 lab/task programs executed in Python with matching answers; rank/unrank round trips; 4 counting methods match for all small parameters; invalid/big brute inputs rejected.
+t1: 40
+t2: 10
+t3: [22,180]
+t4: ["ЛКМЛ",229]
+t5: 144
+t6: 162
+t6-big: 5854354056

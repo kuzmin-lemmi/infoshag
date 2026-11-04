@@ -1,0 +1,1 @@
+PASS: 108 cases across 22 demonstrations match Python; all displayed programs compile and run; map1–25 complete; invalid/oversized input rejected.

@@ -2,3 +2,14 @@
 @media(max-width:1100px){.top #section-select{max-width:170px;font-size:16px}.top #map-jump{font-size:16px;padding:8px}.course-toolbar{gap:8px}.course-toolbar select{font-size:17px}.course-toolbar button{font-size:16px}.course-grid{gap:14px}.course-grid>section{padding:12px}.course-code{font-size:20px}}
 @media(max-width:700px){.top #section-select{order:0;flex:1;max-width:none;flex-basis:40%}.course-toolbar select{flex-basis:100%;font-size:18px}.course-toolbar button{margin-left:0}.course-grid>section,.course-panel:has(.course-settings) .course-grid>section,.course-panel:has(.course-case) .course-grid>section{max-height:none}.course-grid{grid-template-columns:1fr}.course-condition p{font-size:21px}.course-code{font-size:19px}.course-case select{margin:8px 0 0;display:block}.course-grid .course-question p{font-size:20px}.course-panel .heading h2{font-size:25px}.course-stats strong{font-size:24px}.course-toolbar button{max-width:100%;white-space:normal}.course-panel>.bottom button{font-size:16px}}
 @media print{.course-toolbar,.course-settings,.course-actions,.course-case,.course-panel>.bottom{display:none!important}.course-grid>section{max-height:none!important;overflow:visible}}
+/* Пояснения к коду: что делает каждая строка, и выделенная оговорка «Важно». */
+.code-explain{margin-top:14px}.code-explain .caption{font-weight:700;font-size:calc(var(--size) * .8);margin-bottom:6px}
+.code-explain dl{margin:0;display:grid;gap:6px}.code-explain dl>div{border-top:1px solid var(--line);padding-top:6px}
+.code-explain dt{margin:0}.code-explain dt code{font-family:var(--mono);font-size:calc(var(--size) * .72);background:var(--code);border-radius:6px;padding:1px 6px;white-space:pre-wrap;color:var(--ink)}
+.code-explain dd{margin:0;font-size:calc(var(--size) * .78);line-height:1.38}
+#code-hint{margin:14px 0 0;padding:10px 14px;border-left:4px solid var(--accent);background:var(--tint);border-radius:0 8px 8px 0;font-size:calc(var(--size) * .78);line-height:1.4;color:var(--ink)}
+/* Проектор: код переносится по словам, без вложенной прокрутки колонки кода. */
+.live-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}.live-grid>section:first-child{max-height:none;overflow:visible}
+.code{overflow-wrap:break-word}#live .code{font-size:calc(var(--size) * .86)}
+td{overflow-wrap:break-word}.pane-head button{white-space:nowrap}
+@media(max-width:700px){.live-grid{grid-template-columns:1fr}}

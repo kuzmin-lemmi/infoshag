@@ -5,11 +5,12 @@ import { getCollection } from 'astro:content';
 const all = (await getCollection('items')).sort((a, b) => a.data.order - b.data.order);
 const grades = [...new Set(all.flatMap(i => i.data.grades))].sort((a, b) => a - b);
 ---
-<Base title="Каталог" description="Все игры, тренажёры, курсы и программы">
+<Base title="Каталог игр и тренажёров по информатике" description="Игры, тренажёры и пошаговые разборы по информатике для 5–11 классов. Задания для уроков и самостоятельной работы, подготовка к ОГЭ и ЕГЭ.">
   <section>
     <div class="wrap">
-      <h1>Каталог</h1>
-      <div class="filters">
+      <h1>Каталог материалов по информатике</h1>
+      <p class="muted">Игры, тренажёры и пошаговые разборы для 5–11 классов: школьные темы по информатике, подготовка к ОГЭ и ЕГЭ.</p>
+      <div class="filters" data-nosnippet>
         <div class="row" data-filter="type">
           <button aria-pressed="true" data-v="">Всё</button>
           <button data-v="game">Игры и тренажёры</button>

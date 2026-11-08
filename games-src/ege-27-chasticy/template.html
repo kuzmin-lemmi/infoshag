@@ -1,1082 +1,1109 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Кластеры частиц — задание 27 ЕГЭ-2027 по шагам</title>
-<meta name="description" content="Пошаговый разбор задания 27 ЕГЭ-2027 на Python: энергия частиц, кластеры по энергии, центр кластера, itertools.combinations, Q1 и Q2. Свои данные, проверка на своём файле.">
+<title>Кластеры частиц: задание 27 на уроке</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-<script>try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* Тот же каркас, что у разбора «Кластеры звёзд»: шаг → код по строкам → живой пример → «Проверь себя». Цвет приносят кластеры */
 :root{
-  --bg:#F2F7FD; --surface:#FFFFFF; --ink:#0B1F4D; --soft:#4E5F85; --line:#D6E3F3; --tint:#E3F0FD; --grid:#E6EEF8;
-  --accent:#0A68D6; --accent-ink:#FFFFFF;
-  --c1:#C2610C; --c2:#0B857A; --c3:#6E50C8; --hot:#CF2F57; --ok:#16804F; --idle:#9AA8C4;
-  --code-bg:#EAF1FB; --kw:#6E3FC6; --str:#0B7A4A; --num:#B04A07; --cmt:#6A7896; --fn:#0A5FC4;
-  --display:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
-  --body:'Golos Text','Segoe UI',system-ui,-apple-system,sans-serif;
-  --mono:'JetBrains Mono',ui-monospace,Consolas,'Courier New',monospace;
-  --ease-out:cubic-bezier(.23,1,.32,1);
-  color-scheme:light;
+  --bg:#F2F7FD; --surface:#FFFFFF; --tint:#E3F0FD; --ink:#0B1F4D; --soft:#4E5F85; --line:#D6E3F3;
+  --primary:#0A68D6; --game:#0B857A; --good:#0F8A4B; --bad:#C2342B; --warn:#A35A00;
+  --c1:#0A68D6; --c2:#0B857A; --c3:#7A55C9; --c4:#C0531A; --c5:#B0306A; --dot:#9FB2CF; --hl:#FFF3C4; --hl-ink:#5B4300;
+  --code-bg:#0F2147; --code-ink:#EAF2FF; --code-dim:#7F95C2; --code-hl:#1F3E7A;
+  --font:"Golos Text","Segoe UI",system-ui,sans-serif; --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#081430; --surface:#0F2147; --ink:#EAF2FF; --soft:#9DB0D6; --line:#22386A; --tint:#0D1C40; --grid:#15295A;
-  --accent:#3DA2FF; --accent-ink:#06122B;
-  --c1:#FFA552; --c2:#2FE0CF; --c3:#B49BFF; --hot:#FF7A97; --ok:#5FD69B; --idle:#4A5F8F;
-  --code-bg:#0A1A3D; --kw:#C3A6FF; --str:#7FE3AE; --num:#FFB870; --cmt:#8094BE; --fn:#7CC0FF;
-  color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#081430; --surface:#0F2147; --ink:#EAF2FF; --soft:#9DB0D6; --line:#22386A; --tint:#0D1C40; --grid:#15295A;
-  --accent:#3DA2FF; --accent-ink:#06122B;
-  --c1:#FFA552; --c2:#2FE0CF; --c3:#B49BFF; --hot:#FF7A97; --ok:#5FD69B; --idle:#4A5F8F;
-  --code-bg:#0A1A3D; --kw:#C3A6FF; --str:#7FE3AE; --num:#FFB870; --cmt:#8094BE; --fn:#7CC0FF;
-  color-scheme:dark}
-*,*::before,*::after{box-sizing:border-box}
-[hidden]{display:none!important}
-html{scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--body)}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
-.wrap{max-width:1100px;margin:0 auto;padding-left:max(clamp(16px,4vw,40px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,4vw,40px),env(safe-area-inset-right,0px))}
-.skip{position:absolute;left:12px;top:-60px;z-index:20;background:var(--accent);color:var(--accent-ink);padding:10px 16px;border-radius:12px;font-weight:700;text-decoration:none}
-.skip:focus{top:calc(10px + env(safe-area-inset-top,0px))}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.02em;line-height:1.12;margin:0;text-wrap:balance}
-h1{font-size:clamp(34px,5.4vw,60px);letter-spacing:-.035em}
-h2{font-size:clamp(24px,3.2vw,36px)}
-h3{font-size:clamp(18px,1.8vw,21px)}
-p{margin:0;max-width:68ch}
-code,.mono{font-family:var(--mono);font-size:.9em}
-p code,li code,td code,.note code,.why code,.say code,dd code{background:var(--code-bg);padding:.08em .35em;border-radius:6px;white-space:nowrap}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#081430;--surface:#0F2147;--tint:#16305F;--ink:#EAF2FF;--soft:#9DB0D6;--line:#22386A;
+    --primary:#3DA2FF;--game:#2FE0CF;--good:#4AD48A;--bad:#FF7A70;--warn:#FFB347;
+    --c1:#3DA2FF;--c2:#2FE0CF;--c3:#A891EE;--c4:#FF9A5C;--c5:#FF7EB6;--dot:#3A5384;--hl:#4A3B00;--hl-ink:#FFE28A;
+    --code-bg:#050D22;--code-hl:#1C3A73}
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 20px/1.45 var(--font);display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button{font:inherit;color:inherit;cursor:pointer}
+code,.mono{font-family:var(--mono)}
+/* шапка */
+.top{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font-weight:800;font-size:18px;white-space:nowrap}
+.brand b{color:var(--game)}
+.tasks{display:flex;gap:6px}
+.task{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 14px;font-size:15px;font-weight:600}
+.task[aria-pressed="true"]{background:var(--game);border-color:var(--game);color:#fff}
+.task small{font-weight:400;opacity:.75}
+.dots{display:flex;gap:4px;flex:1;justify-content:center;flex-wrap:wrap}
+.dot{border:0;background:transparent;border-radius:8px;padding:4px 9px;font-size:14px;color:var(--soft);font-weight:600}
+.dot:hover{background:var(--tint)}
+.dot[aria-current="step"]{background:var(--tint);color:var(--primary)}
+.dot.done{color:var(--ink)}
+.tools{display:flex;gap:6px}
+.ibtn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 12px;font-size:15px;font-weight:600}
+.ibtn[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+/* сцена */
+.main{flex:1;display:flex;min-height:0}
+.stage{flex:1;overflow:auto;padding:22px 28px 10px}
+.slide{display:none;max-width:1400px;margin:0 auto}
+.slide.on{display:block;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.kicker{font-size:14px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--game);margin:0 0 4px}
+h1{font-size:clamp(30px,3.4vw,46px);line-height:1.1;margin:0 0 14px;letter-spacing:-.02em}
+h2{font-size:24px;margin:0 0 10px}
+.lead{font-size:22px;color:var(--soft);margin:0 0 18px;max-width:900px}
+.grid.wide{grid-template-columns:minmax(0,1.9fr) minmax(0,1fr)}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:1000px){.grid,.grid.wide{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.slide .note{display:none}
+[data-step]{transition:opacity .25s ease}
+.hidden-step{opacity:0;visibility:hidden}
+.big{font-size:30px;font-weight:800}
 .muted{color:var(--soft)}
-.label{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
-button,select{font:inherit;color:inherit;cursor:pointer}
-:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45em;min-height:44px;border-radius:12px;padding:.55em 1.05em;font-weight:700;font-size:15.5px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);transition:filter 160ms var(--ease-out),transform 160ms var(--ease-out)}
-.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-@media (hover:hover) and (pointer:fine){.btn:hover{filter:brightness(1.05);border-color:var(--accent)}}
-.btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.45;cursor:default}
-
-/* шапка-навигация */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1.5px solid var(--line)}
-.top .wrap{display:flex;align-items:center;gap:12px;padding-block:10px}
-.brand{font-weight:800;letter-spacing:-.02em;white-space:nowrap;font-size:17px}
-.brand span{color:var(--accent)}
-.steps-nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
-.steps-nav::-webkit-scrollbar{display:none}
-.steps-nav a{flex:none;text-decoration:none;color:var(--soft);font-weight:600;font-size:14.5px;padding:.4em .8em;border-radius:10px;white-space:nowrap}
-.steps-nav a b{color:var(--ink);margin-right:.3em}
-.steps-nav a.on{background:var(--tint);color:var(--accent)}
-.steps-nav a.on b{color:var(--accent)}
-.theme{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;padding:0}
-.theme svg{width:20px;height:20px}
-
-/* разделы */
-main{display:flex;flex-direction:column}
-.sec{padding-block:clamp(36px,5vw,60px);border-bottom:1.5px solid var(--line);display:flex;flex-direction:column;gap:20px}
-.sec:last-child{border-bottom:0}
-.sec-head{display:flex;gap:16px;align-items:flex-start}
-.badge{flex:none;width:52px;height:52px;border-radius:14px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:800;font-size:26px;letter-spacing:-.02em}
-.sec-head>div{display:flex;flex-direction:column;gap:8px;min-width:0}
-.lead{font-size:19px;color:var(--soft)}
-.stack{display:flex;flex-direction:column;gap:14px}
-
-/* герой */
-.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(20px,4vw,48px);align-items:start;padding-block:clamp(28px,5vw,56px)}
-.hero>div{display:flex;flex-direction:column;gap:16px;min-width:0}
-.hero figure{margin:0;display:flex;flex-direction:column;gap:8px;padding-top:clamp(0px,6vw,64px)}
-@media (max-width:860px){.hero figure{padding-top:0}}
-.cond{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;font-size:16px}
-.plan{margin:0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:pl}
-.plan li{counter-increment:pl;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:baseline}
-.plan li::before{content:counter(pl);font-weight:800;color:var(--accent);font-size:18px}
-.plan a{color:inherit}
-.goal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.goal>div{background:var(--bg);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.goal b{font-size:18px}
-@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:480px){.goal{grid-template-columns:minmax(0,1fr)}}
-
-/* код по строкам */
-.anno{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:16px;align-items:start}
-@media (max-width:860px){.anno{grid-template-columns:minmax(0,1fr)}}
-.code{list-style:none;margin:0;padding:10px 0;background:var(--code-bg);border-radius:14px;overflow-x:auto;font-family:var(--mono);font-size:15px;line-height:1.5}
-.code li{min-width:max-content}
-.code button{display:grid;grid-template-columns:2.6em auto;width:100%;text-align:left;border:0;background:none;padding:3px 16px 3px 0;white-space:pre;font:inherit;color:var(--ink);border-left:4px solid transparent}
-.code button .ln{color:var(--cmt);text-align:right;padding-right:1em;user-select:none}
-.code button[aria-selected="true"]{background:var(--tint);border-left-color:var(--accent)}
-@media (hover:hover) and (pointer:fine){.code button:hover{background:var(--tint)}}
-.code.static{padding:14px 18px;white-space:pre}
-.tk-kw{color:var(--kw);font-weight:700}.tk-str{color:var(--str)}.tk-num{color:var(--num)}.tk-cmt{color:var(--cmt);font-style:italic}.tk-fn{color:var(--fn)}
-.note{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;position:sticky;top:calc(80px + env(safe-area-inset-top,0px))}
-@media (max-width:860px){.note{position:static}}
-.note h3{font-size:17px}
-.note pre,.why pre,.say pre{margin:0;background:var(--code-bg);border-radius:10px;padding:10px 12px;overflow-x:auto;font-family:var(--mono);font-size:14px;line-height:1.5}
-.note .nav{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:4px;flex-wrap:wrap}
-.note table,.tbl{border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
-.note td,.note th,.tbl td,.tbl th{padding:5px 10px;border-bottom:1.5px solid var(--line);text-align:left}
-.note th,.tbl th{font-size:13px;color:var(--soft);font-weight:600}
-.tbl-wrap{overflow-x:auto}
-.tbl caption{text-align:left;font-size:14px;color:var(--soft);padding-bottom:6px}
-.tbl tr.win td{color:var(--ok);font-weight:700}
-.tbl td.bad{color:var(--hot);font-weight:700}
-.tbl td.good{color:var(--ok);font-weight:700}
-
-/* живые примеры */
-.plate{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:18px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:20px;align-items:start}
-.plate>*{min-width:0}
-.plate.one{grid-template-columns:minmax(0,1fr)}
-@media (max-width:860px){.plate{grid-template-columns:minmax(0,1fr)}}
-.plate-title{display:flex;flex-direction:column;gap:4px;grid-column:1/-1}
-svg.chart{width:100%;height:auto;display:block;max-width:100%;border-radius:12px;background:var(--bg)}
-.side{display:flex;flex-direction:column;gap:12px;font-size:16px}
-.ctrls{display:flex;flex-wrap:wrap;gap:8px}
-.say{background:var(--tint);border-radius:12px;padding:12px 14px;font-size:16px;min-height:5.4em;display:flex;flex-direction:column;gap:6px}
-.say b{font-weight:700}
-.stat{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:15px;margin:0}
-.stat dt{color:var(--soft)}.stat dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums}
-.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--soft)}
-.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
-.kbd{font-family:var(--mono);font-size:12.5px;border:1.5px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 5px}
-.slider{display:flex;flex-direction:column;gap:4px}
-.slider label{font-family:var(--mono);font-size:15px}
-.slider input{width:100%;accent-color:var(--accent);min-height:32px}
-.formula{font-family:var(--mono);font-size:clamp(17px,2.2vw,22px);background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px 18px;overflow-x:auto;white-space:nowrap}
-.formula sup{font-size:.65em}.formula sub{font-size:.65em}
-.idx{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.idx div{background:var(--bg);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}
-.idx b{font-family:var(--mono);color:var(--accent);font-size:17px}
-.idx span{font-size:14px;color:var(--soft)}
-@media (max-width:560px){.idx{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.pairs{display:flex;flex-wrap:wrap;gap:6px}
-.pairs .btn{min-width:72px;font-family:var(--mono)}
-.pairs .btn.seen:not([aria-pressed="true"]){color:var(--soft);border-style:dashed}
-
-/* конвейер строки */
-.pipe{display:flex;flex-direction:column;gap:10px}
-.pipe-row{display:grid;grid-template-columns:minmax(0,17em) minmax(0,1fr);gap:4px 14px;align-items:baseline;padding:10px 12px;border-radius:12px;background:var(--bg)}
-.pipe-row .what{font-family:var(--mono);font-size:14px;color:var(--soft)}
-.pipe-row .val{font-family:var(--mono);font-size:15px;overflow-x:auto;white-space:pre}
-.pipe-row .val i{font-style:normal;color:var(--hot);font-weight:700}
-.pipe-row .val em{font-style:normal;color:var(--str)}
-@media (max-width:620px){.pipe-row{grid-template-columns:1fr}}
-.stepper{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.stepper input[type=number]{width:5.5em;min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 16px var(--mono);padding:0 10px}
-
+.pill{display:inline-block;border-radius:999px;padding:2px 12px;background:var(--tint);font-weight:600;font-size:17px}
+.mark{background:var(--hl);color:var(--hl-ink);border-radius:6px;padding:0 5px}
+.ok{color:var(--good);font-weight:700}.no{color:var(--bad);font-weight:700}
+/* код */
+.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:12px 0;font:400 17px/1.55 var(--mono);overflow-x:auto;margin:0}
+.code .ln{display:block;padding:0 16px;white-space:pre;border-left:4px solid transparent;opacity:.55;transition:background .2s,opacity .2s}
+.code .ln.hl{background:var(--code-hl);border-left-color:var(--c2);opacity:1}
+.code.all .ln{opacity:1}
+.k{color:#FF9EC7}.s{color:#9BE89B}.n{color:#FFD27A}.f{color:#7CC8FF}.c{color:var(--code-dim)}
+/* строка файла */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.chip{display:flex;flex-direction:column;align-items:center;border:2px solid var(--line);border-radius:12px;padding:6px 12px;background:var(--surface);min-width:84px}
+.chip b{font:700 21px var(--mono)}
+.chip span{font-size:14px;color:var(--soft)}
+.chip.t{border-color:var(--c3)}
+.chip.e{border-color:var(--c2);background:color-mix(in srgb,var(--c2) 12%,var(--surface))}
+.raw{font:400 20px/1.5 var(--mono);background:var(--tint);border-radius:10px;padding:8px 12px;word-break:break-all}
+.raw i{font-style:normal;color:var(--c4);font-weight:700}
+.raw u{text-decoration:none;color:var(--soft)}
+.pipe{display:flex;flex-direction:column;gap:12px}
+.pipe .chip{min-width:0;padding:4px 10px}.pipe .chip b{font-size:18px}.pipe .raw{font-size:18px}
+.pipe .stage-row{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center}
+.pipe .op{font:700 16px var(--mono);color:var(--primary)}
+@media (max-width:700px){.pipe .stage-row{grid-template-columns:1fr}}
+/* вопросы Q */
+.qcards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.qcards{grid-template-columns:1fr}}
+.qcard{border-radius:16px;padding:16px 18px;border:2px solid var(--line);background:var(--surface)}
+.qcard h3{margin:0 0 6px;font-size:26px}
+.qcard.q1{border-color:var(--c1)}.qcard.q2{border-color:var(--c3)}
+/* svg */
+svg{display:block;width:100%;height:auto}
+#q1svg{max-height:56vh}
+svg text{fill:var(--soft);font:14px var(--font)}
+.axis{stroke:var(--soft);stroke-width:1.5}
+.gapband{fill:var(--hl);opacity:.9}
+/* ползунки */
+.sliders{display:grid;gap:10px;margin-top:10px}
+.sl{display:grid;grid-template-columns:130px 1fr 70px;gap:10px;align-items:center;font-weight:600}
+.sl input{width:100%;accent-color:var(--bad);height:28px}
+table{border-collapse:collapse;width:100%;font-size:18px}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--soft);font-weight:600;font-size:15px}
+tr.best td{background:color-mix(in srgb,var(--good) 14%,transparent);font-weight:700}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:40px 1fr 44px;align-items:center;gap:8px;font:700 17px var(--mono)}
+.bar div{height:22px;border-radius:6px;background:var(--dot);transition:width .3s}
+.bar.best div{background:var(--good)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tab{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:5px 14px;font-weight:700}
+.tab[aria-pressed="true"]{border-color:currentColor}
+.pairs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pair{font:700 17px var(--mono);border-radius:8px;padding:3px 9px;background:var(--tint)}
+.pair.cur{outline:2px solid var(--primary)}
+.pair.max{background:color-mix(in srgb,var(--good) 22%,var(--surface))}
+.answer{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:800px){.answer{grid-template-columns:1fr}}
+.calc{font:400 20px/1.8 var(--mono)}
+.calc .res{font-size:44px;font-weight:700;color:var(--good);font-family:var(--mono)}
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:16px}
+.trap{border-left:5px solid var(--bad);background:var(--surface);border-radius:10px;padding:10px 14px;font-size:18px}
+.trap b{display:block}
 /* проверь себя */
-.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
-.q{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
-.q h3{font-size:17px;line-height:1.35;letter-spacing:-.01em}
-.q .opts{display:flex;flex-direction:column;gap:8px}
-.q .opt{text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:.6em .9em;min-height:44px;font-size:15.5px;transition:transform 160ms var(--ease-out)}
-.q .opt:active{transform:scale(.98)}
-.q .opt.right{border-color:var(--ok);color:var(--ok);font-weight:700}
-.q .opt.right::before{content:"✓ "}
-.q .opt.wrong{border-color:var(--hot);color:var(--hot)}
-.q .opt.wrong::before{content:"✗ "}
-.why{font-size:15.5px;border-left:4px solid var(--line);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:6px}
-.why.good{border-color:var(--ok)}.why.bad{border-color:var(--hot)}
-.why strong{font-weight:700}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px}
+.qz h3{margin:0 0 10px;font-size:21px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 14px;font:700 19px var(--mono)}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.why{margin-top:10px;font-size:18px}
+/* панель учителя */
+.notes{width:400px;flex:0 0 400px;background:var(--surface);border-left:1px solid var(--line);overflow:auto;padding:18px 20px;font-size:17px;display:none}
+body.show-notes .notes{display:block}
+@media (max-width:1100px){.notes{position:fixed;right:0;top:0;bottom:0;z-index:5;box-shadow:-10px 0 30px rgba(0,0,0,.2);width:min(400px,92vw)}}
+.notes h2{font-size:20px;margin:0 0 4px}
+.notes h3{font-size:14px;text-transform:uppercase;letter-spacing:.08em;margin:16px 0 4px}
+.notes .say h3{color:var(--primary)}.notes .ask h3{color:var(--c3)}.notes .trp h3{color:var(--bad)}
+.notes p,.notes ul{margin:4px 0}.notes ul{padding-left:20px}
+.notes .popout{margin-top:14px;font-size:15px}
+.notes .stepinfo{margin-top:6px;font-size:15px;color:var(--soft)}
+/* подвал */
+.foot{display:flex;align-items:center;gap:12px;padding:10px 18px;border-top:1px solid var(--line);background:var(--surface)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 18px;font-weight:700;font-size:18px;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+.prog{flex:1;height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.prog div{height:100%;background:var(--game);transition:width .25s}
+.hint{font-size:14px;color:var(--soft)}
+.soon{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:50vh;gap:10px}
+@media (max-width:700px){body{font-size:17px}.stage{padding:16px}.hint{display:none}.dot{padding:3px 6px;font-size:13px}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 
-.warn{border-left:4px solid var(--hot);padding:6px 0 6px 14px;max-width:68ch}
-.tip{border-left:4px solid var(--ok);padding:6px 0 6px 14px;max-width:68ch}
-.big{font-weight:800;font-size:clamp(36px,6vw,64px);letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
-.answer{display:flex;flex-wrap:wrap;gap:18px 48px;align-items:flex-end}
-.answer small{display:block;font-size:14px;color:var(--soft);font-family:var(--mono);margin-bottom:6px}
-.calc{display:grid;gap:6px;font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;overflow-x:auto;white-space:nowrap}
-.codebox{position:relative}
-.codebox .btn{position:absolute;top:10px;right:10px}
-details.more{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px 18px}
-details.more summary{cursor:pointer;font-weight:700;font-size:17px;min-height:30px}
-details.more[open] summary{margin-bottom:12px}
-details.more>div{display:flex;flex-direction:column;gap:12px}
+.cmp{display:grid;grid-template-columns:170px 1fr;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:19px}
+.cmp:last-child{border:0}.cmp.ok-row .mono{color:var(--good);font-weight:700}
+.cbars{display:flex;flex-direction:column;gap:14px}
+.cbar{display:grid;grid-template-columns:110px 1fr 60px;gap:10px;align-items:center;font-weight:700;position:relative}
+.cb-track{height:34px;background:var(--tint);border-radius:8px;overflow:hidden}
+.cb-track div{height:100%;border-radius:8px;transition:width .4s}
+.cbar b{font-size:22px}
+.cb-tag{grid-column:2/4;font-size:15px;border-radius:999px;padding:1px 10px;justify-self:start}
+.cb-tag.q1{background:color-mix(in srgb,var(--c1) 18%,var(--surface));color:var(--c1)}
+.cb-tag.q2{background:color-mix(in srgb,var(--c3) 18%,var(--surface));color:var(--c3)}
+.cbar.sel .cb-track{outline:3px solid var(--ink);outline-offset:1px}
+.chain .link{display:flex;flex-direction:column;gap:2px;background:var(--tint);border-radius:12px;padding:10px 14px}
+.chain .link b{font-size:21px;word-break:break-word}
+.chain .res-link b{font-size:30px}
+.chain .arrow{text-align:center;font-size:24px;color:var(--soft);line-height:1.2}
+.plane{max-height:56vh}
 
-/* свой файл */
-.drop{border:2px dashed var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;background:var(--surface)}
-.drop.over{border-color:var(--accent);background:var(--tint)}
-.fields{display:flex;flex-wrap:wrap;gap:10px 18px}
-.field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15.5px}
-.field input,.field select{min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 16px var(--mono);padding:0 10px}
-.field input{width:5.5em}
-.ok-msg{color:var(--ok);font-weight:700}.bad-msg{color:var(--hot);font-weight:700}
-
-footer{padding-block:28px 48px;color:var(--soft);font-size:15px}
-@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}.btn:active,.q .opt:active{transform:none}}
-@media print{.top,.theme,.ctrls,.drop,.quiz,.codebox .btn,.skip{display:none!important}body{background:#fff;font-size:12pt}.plate,.note,.q,.cond{break-inside:avoid}.note{position:static}}
+/* код — главный элемент: всегда чёрным по белому, целиком, без переносов и прокрутки */
+.code{background:#FFFFFF;color:#111111;border:2px solid #C4CFE0;border-radius:14px;padding:14px 0;
+  font:500 21px/1.5 var(--mono);white-space:pre;overflow:visible;width:max-content;max-width:none;margin:0;
+  box-shadow:0 2px 10px rgba(11,31,77,.08)}
+.code .ln{display:block;white-space:pre;padding:0 20px;border-left:6px solid transparent;opacity:1;color:#111111;background:transparent}
+.code.has-hl .ln{opacity:.42}
+.code.has-hl .ln.hl{opacity:1;background:#FFF0B3;border-left-color:#D99A00}
+.code .k{color:#0033B3;font-weight:700}.code .s{color:#067D17}.code .n{color:#1750EB}.code .f{color:#7A3E9D}.code .c{color:#7A7A7A}
+.code.formula{display:block;margin:8px 0 0;padding:8px 0;font-size:24px}
+.codegrid{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:1000px){.codegrid{grid-template-columns:1fr}}
+.codetop{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.fullwrap{display:flex;gap:18px;align-items:flex-start}
+.gone{display:none!important}
+.pipe .stage-row{grid-template-columns:220px 1fr}
+.pipe .op{white-space:nowrap}
+.cond-text{font-size:19px;line-height:1.5;columns:2 520px;column-gap:36px}
+.cond-text p{margin:0 0 10px;break-inside:avoid}
+.lo-steps{margin:0;padding-left:28px;font-size:20px;max-width:560px}
+.lo-steps li{margin:0 0 14px;padding-left:4px}
+.lo-steps li::marker{font-weight:800;color:var(--game)}
+.sheetwrap{padding:8px;overflow:hidden}
+.sheet{font:14px/1.3 var(--font);border-collapse:collapse;width:100%;background:#fff;color:#111}
+.sheet th{background:#E8E8E8;color:#333;font-weight:600;border:1px solid #C8C8C8;padding:2px 6px;text-align:center;font-size:13px}
+.sheet td{border:1px solid #DADADA;padding:2px 6px;text-align:right;white-space:nowrap;font-size:14px}
+.sheet td.tx{text-align:left}
+.sheet .hc{background:#FFF0B3}
+.sheet td.hid{color:transparent}
+.lochart text{fill:#333333}
+.lochart{max-height:34vh}
 </style>
 </head>
 <body>
-<a class="skip" href="#main">К разбору</a>
 <header class="top">
-  <div class="wrap">
-    <div class="brand">Инфо<span>шаг</span></div>
-    <nav class="steps-nav" id="stepsNav" aria-label="Шаги разбора">
-      <a href="#uslovie"><b>0</b>Условие</a>
-      <a href="#fail"><b>1</b>Файл</a>
-      <a href="#klastery"><b>2</b>Кластеры</a>
-      <a href="#centr"><b>3</b>Центр</a>
-      <a href="#pary"><b>4</b>Пары</a>
-      <a href="#q1"><b>5</b>Q1</a>
-      <a href="#q2"><b>6</b>Q2</a>
-      <a href="#kod">Весь код</a>
-      <a href="#svoy-fail">Свой файл</a>
-    </nav>
-    <button class="theme" id="themeBtn" type="button" aria-label="Тёмная тема" aria-pressed="false">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
-    </button>
+  <div class="brand">Инфо<b>шаг</b> · 27</div>
+  <div class="tasks" role="group" aria-label="Задача">
+    <button class="task" type="button" data-task="demo" aria-pressed="true">Демоверсия 2027</button>
+    <button class="task" type="button" data-task="stat" aria-pressed="false">СтатГрад</button>
+  </div>
+  <nav class="dots" id="dots" aria-label="Слайды"></nav>
+  <div class="tools">
+    <button class="ibtn" id="notesBtn" type="button" aria-pressed="false" title="Клавиша T">🗒 Учителю</button>
+    <button class="ibtn" id="fsBtn" type="button" title="Клавиша F">⛶</button>
   </div>
 </header>
 
-<main class="wrap" id="main">
+<div class="main">
+<main class="stage" id="stage">
 
-<section class="hero" id="uslovie">
-  <div>
-    <span class="label">ЕГЭ-2027 · Информатика · Задание 27 · Кластеры частиц</span>
-    <h1>Задание 27 по шагам</h1>
-    <p class="lead">Разберём задачу про частицы медленно: по одному блоку кода и по одной строке. Нажми строку кода — справа появится пояснение. Рядом с каждым блоком живой пример на файле разбора.</p>
-    <div class="cond">
-      <span class="label">Условие · по мотивам задания 27 ЕГЭ-2027</span>
-      <p>Физик записал в файл результаты опыта. В каждой строке одна частица: координаты <i>x</i> и <i>y</i>, проекции скорости <i>v<sub>x</sub></i> и <i>v<sub>y</sub></i>, масса <i>m</i> и признак — римская цифра от I до VI. Дробные числа записаны с запятой.</p>
-      <p>Энергия частицы <b>E = m · (v<sub>x</sub>² + v<sub>y</sub>²) / 2</b>. По энергии частицы делятся на <b>кластеры</b>: каждая частица входит ровно в один кластер, а энергии любых двух частиц одного кластера отличаются не больше чем на <b>R = 2</b>.</p>
-      <p><b>Центр кластера</b> — та его частица, у которой сумма модулей разностей её энергии и энергий всех частиц кластера наименьшая.</p>
-      <div class="goal">
-        <div><span class="label">Q1</span><b>наименьшее расстояние</b><span class="muted">между двумя частицами <b>одного</b> кластера с признаком IV</span></div>
-        <div><span class="label">Q2</span><b>среднее арифметическое</b><span class="muted">энергий центров всех кластеров</span></div>
-      </div>
-      <p>В ответ запиши два числа: целую часть <code>Q1 × 10000</code> и целую часть <code>Q2 × 10000</code>.</p>
-    </div>
-    <div class="stack">
-      <span class="label">План решения</span>
-      <ol class="plan">
-        <li><a href="#fail">Прочитать файл и посчитать энергию каждой частицы.</a></li>
-        <li><a href="#klastery">Разложить частицы по кластерам по энергии.</a></li>
-        <li><a href="#centr">Найти центр каждого кластера.</a></li>
-        <li><a href="#pary">Разобраться, как перебрать все пары.</a></li>
-        <li><a href="#q1">Найти Q1 — самую близкую пару частиц IV.</a></li>
-        <li><a href="#q2">Найти Q2 и записать ответ.</a></li>
-      </ol>
-    </div>
+<!-- ================= ДЕМОВЕРСИЯ ================= -->
+
+<section class="slide" data-task="demo" data-hook="text" data-nav="Задача" data-steps="0">
+  <p class="kicker">Задание 27 · по мотивам демоверсии 2027</p>
+  <h1>Текст задачи <button class="btn" type="button" data-r="dl" style="vertical-align:middle;margin-left:12px">⬇ Файл 27.txt</button></h1>
+  <div class="card cond-text">
+      <p>Рассматриваются частицы на плоскости, обладающие следующими характеристиками: декартовы координаты, вектор скорости, масса, а также признак, характеризующий внутреннее строение частицы, обозначаемый числами от I до VII (в римской системе счисления).</p>
+      <p>Учёный решил провести кластеризацию частиц по значениям их кинетической энергии, то есть разбить их множество на K непересекающихся непустых подмножеств (кластеров), таких, что модуль разности кинетических энергий любых двух частиц каждого подмножества не превосходит значения R. Гарантируется, что такое разбиение существует и единственно для заданного R.</p>
+      <p>Будем называть центром кластера такую его частицу, для которой сумма модулей разности кинетических энергий со всеми остальными частицами этого кластера минимальна. Для каждого кластера гарантируется единственность его центра.</p>
+      <p>В каждой строке текстового файла хранится информация об одной частице: координаты x и y, проекции вектора скорости V<sub>x</sub> и V<sub>y</sub>, масса m и признак. Значения даны в одинаковых для всех частиц единицах измерения, обозначения единиц измерения в файле не приводятся. Значения в строке разделяются одним или несколькими пробелами и/или символами табуляции. Количество строк в файле не превышает 10 000. Абсолютная величина каждого числового значения не превышает 100,0.</p>
+      <p>Известно, что все описанные в файле частицы подразделяются ровно на 4 кластера (K = 4) с R = 2,0 для каждого.</p>
+      <p>Для каждого кластера определите его центр, затем найдите два числа: Q<sub>1</sub> — наибольшее евклидово расстояние между частицами одного кластера, имеющими признак <b>III</b>, и Q<sub>2</sub> — максимальное значение кинетической энергии для центра кластера.</p>
+      <p>В ответе запишите два числа: сначала целую часть произведения Q<sub>1</sub> × 10 000, затем целую часть произведения Q<sub>2</sub> × 10 000.</p>
+      <p class="muted">Для справки: E = ½ · m · (V<sub>x</sub>² + V<sub>y</sub>²); d(A, B) = √((x<sub>2</sub> − x<sub>1</sub>)² + (y<sub>2</sub> − y<sub>1</sub>)²).</p>
   </div>
-  <figure>
-    <svg class="chart" id="plotHero" viewBox="0 0 600 270" role="img" aria-labelledby="heroCap"></svg>
-    <figcaption class="muted" id="heroCap" style="font-size:15px">Энергии всех <span data-v="n"></span> частиц файла: одна точка — одна частица, по горизонтали энергия. Глазами видно три группы. Программа картинку не видит, ей нужно правило.</figcaption>
-  </figure>
+  <aside class="note">
+    <h2>Текст задачи</h2>
+    <div class="say"><h3>Как провести</h3><p>Дайте 2–3 минуты прочитать условие самим. Попросите найти: по какому значению кластеры, сколько их, чему равно R и что именно спрашивают в Q1 и Q2.</p><p>Кнопка «Файл» скачивает файл данных — его можно раздать на компьютеры.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Какие из шести значений строки нам на самом деле понадобятся?»</p></div>
+  </aside>
 </section>
 
-<section class="sec" id="fail">
-  <div class="sec-head"><span class="badge">1</span><div>
-    <h2>Читаем файл и считаем энергию</h2>
-    <p class="lead">Файл — это текст. Каждую строку превращаем в числа и сразу считаем энергию частицы: именно по энергии частицы делятся на кластеры.</p>
-  </div></div>
-  <div class="anno" data-anno="read"></div>
-
-  <div class="plate one">
-    <div class="plate-title"><h3>Что происходит с одной строкой</h3><p class="muted">Выбери номер строки файла и посмотри, как текст по шагам становится числами, а числа — энергией.</p></div>
-    <div class="stepper">
-      <button class="btn" type="button" id="lnMinus" aria-label="Предыдущая строка">−</button>
-      <label for="lnInput" class="label">Строка</label>
-      <input type="number" id="lnInput" min="1" value="1">
-      <button class="btn" type="button" id="lnPlus" aria-label="Следующая строка">+</button>
-    </div>
-    <div class="pipe" id="pipe"></div>
-    <div class="say" id="pipeSay" aria-live="polite" style="min-height:0"></div>
+<section class="slide" data-task="demo" data-hook="cond" data-nav="Условие" data-steps="3">
+  <p class="kicker">Задание 27 · по мотивам демоверсии 2027</p>
+  <h1>Частицы, энергия и 4 кластера</h1>
+  <div class="card">
+    <p class="muted" style="margin:0 0 6px">Одна строка файла — одна частица:</p>
+    <div class="chips" data-r="chips"></div>
   </div>
-  <div class="formula" aria-label="E равно m умножить на сумму квадратов vx и vy, делённую на 2">E = m · (v<sub>x</sub><sup>2</sup> + v<sub>y</sub><sup>2</sup>) / 2 &nbsp;⟶&nbsp; <span class="tk-fn">0.5</span> * m * (vx ** <span class="tk-num">2</span> + vy ** <span class="tk-num">2</span>)</div>
-  <div class="quiz" data-quiz="read"></div>
+  <div data-step="1" class="card" style="margin-top:14px">
+    <span class="big">E = ½ · m · (V<sub>x</sub>² + V<sub>y</sub>²)</span>
+    <span class="muted">&nbsp;— делим частицы <b>по энергии</b>, а не по координатам</span>
+  </div>
+  <div data-step="2" class="card" style="margin-top:14px">
+    <span class="big">4 кластера</span>
+    <span class="muted">&nbsp;— внутри любого кластера энергии отличаются не больше чем на <b>R = 2</b></span>
+  </div>
+  <div data-step="3" class="qcards" style="margin-top:14px">
+    <div class="qcard q1"><h3>Q1</h3>самое <b>большое расстояние</b> между частицами с признаком <b>III</b> одного кластера</div>
+    <div class="qcard q2"><h3>Q2</h3>самая <b>большая энергия</b> среди <b>центров</b> кластеров</div>
+  </div>
+  <aside class="note">
+    <h2>Условие</h2>
+    <div class="say"><h3>Скажите</h3><p>Частица описана шестью значениями. Нам нужны координаты (для Q1), энергия (для кластеров и Q2) и признак.</p><p>Скорость и масса в ответ не идут — из них считаем энергию, и всё.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«По какому значению делим на кластеры?» — ждём: по энергии. Частицы одного кластера могут быть в разных концах плоскости.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Путают признак III с «третьим кластером». Признак — последний столбец строки, кластер — группа по энергии.</p></div>
+  </aside>
 </section>
 
-<section class="sec" id="klastery">
-  <div class="sec-head"><span class="badge">2</span><div>
-    <h2>Раскладываем частицы по кластерам</h2>
-    <p class="lead">Координаты здесь не нужны: кластеры строятся по <b>энергии</b>. На графике энергии лежат тремя группами с пустыми промежутками между ними. Ставим по одной границе в каждый промежуток — и сравниваем с ними энергию каждой частицы.</p>
-  </div></div>
-  <div class="anno" data-anno="split"></div>
-  <p>Каждую частицу запоминаем как список из четырёх значений. Скорость и масса дальше не понадобятся: из них уже получилась энергия.</p>
-  <div class="idx" role="list">
-    <div role="listitem"><b>p[0]</b><span>координата x</span></div>
-    <div role="listitem"><b>p[1]</b><span>координата y</span></div>
-    <div role="listitem"><b>p[2]</b><span>энергия E</span></div>
-    <div role="listitem"><b>p[3]</b><span>признак, текст 'IV'</span></div>
-  </div>
+<section class="slide" data-task="demo" data-hook="line" data-nav="Строка" data-steps="5">
+  <p class="kicker">Шаг 1 · чтение файла</p>
+  <h1>Одна строка → энергия</h1>
+  <div class="codetop"><pre class="code" data-r="code"></pre><button class="btn" type="button" data-r="other">🎲 Другая строка</button></div>
+  <div class="card pipe" data-r="pipe" style="margin-top:14px"></div>
+  <aside class="note">
+    <h2>Строка → энергия</h2>
+    <div class="say"><h3>Скажите</h3><p>Каждое нажатие «Дальше» показывает одно превращение строки и подсвечивает строку кода.</p><ul><li>в файле десятичная <b>запятая</b> — Python её не понимает, меняем на точку;</li><li><code>split()</code> без аргумента режет и по пробелам, и по табуляции;</li><li>признак оставляем строкой — <code>float('III')</code> упадёт.</li></ul></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Что будет, если забыть <code>replace</code>?» — <code>ValueError</code> на первой же строке.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Пишут <code>vx ** 2 + vy ** 2</code> без скобок и умножают на m только первое слагаемое.</p></div>
+  </aside>
+</section>
 
-  <div class="plate">
-    <div class="plate-title"><h3>Двигай границы</h3><p class="muted">Красные пунктиры — границы из программы. Сдвинь их и посмотри, когда кластер перестаёт подходить под условие «разница энергий не больше R = 2».</p></div>
-    <svg class="chart" id="plotSplit" viewBox="0 0 600 270" role="img" aria-label="Энергии частиц и две границы между кластерами"></svg>
-    <div class="side">
-      <div class="slider"><label for="b1">первая граница: E &lt; <b id="b1Val"></b></label><input type="range" id="b1" min="0" max="11" step="0.1" value="4"></div>
-      <div class="slider"><label for="b2">вторая граница: E &lt; <b id="b2Val"></b></label><input type="range" id="b2" min="0" max="11" step="0.1" value="7.5"></div>
-      <div class="say" id="splitSay" aria-live="polite"></div>
-      <button class="btn" type="button" id="bReset">Вернуть 4 и 7,5</button>
-    </div>
-    <div class="tbl-wrap" style="grid-column:1/-1">
-      <table class="tbl">
-        <caption>Кластеры при выбранных границах — посчитано из файла</caption>
-        <thead><tr><th scope="col">кластер</th><th scope="col">частиц</th><th scope="col">E от</th><th scope="col">E до</th><th scope="col">разница</th><th scope="col">не больше 2?</th></tr></thead>
-        <tbody class="mono" id="splitTbl"></tbody>
-      </table>
-    </div>
-  </div>
-  <p class="warn">Чисел 4 и 7,5 в условии нет. Условие обещает только, что кластеры узкие (разница энергий не больше 2) и не пересекаются. Границы мы подобрали по графику: подходит любое число из пустого промежутка между группами.</p>
-  <details class="more">
-    <summary>Как найти промежутки программой, без графика</summary>
+<section class="slide" data-task="demo" data-hook="calc" data-nav="Диаграмма" data-steps="4">
+  <p class="kicker">Шаг 2 · LibreOffice Calc</p>
+  <h1>Диаграмма XY: сколько кластеров и где границы</h1>
+  <div class="codegrid">
+    <ol class="lo-steps">
+      <li>Открыть <b class="mono">27.txt</b> в Calc. Разделитель — <b>табуляция</b>, язык — <b>русский</b> (запятая станет десятичной).</li>
+      <li data-step="1">В <b>G1</b> — энергия, протянуть вниз:<pre class="code formula">=E1*(C1^2+D1^2)/2</pre></li>
+      <li data-step="2">В <b>H1</b> — номер строки, протянуть вниз:<pre class="code formula">=СТРОКА()</pre></li>
+      <li data-step="3">Выделить столбцы <b>G:H</b> → <b>Вставка → Диаграмма</b> → <b>Диаграмма XY</b> → «Только точки» → <b>Готово</b></li>
+      <li data-step="4">По оси X — энергия. <span class="mark">Пустые полосы</span> между группами точек — места для границ.</li>
+    </ol>
     <div>
-      <pre class="code static" id="gapCode"></pre>
-      <p>Сортируем все энергии и смотрим на соседние значения. Внутри группы соседние энергии почти вплотную, а на стыке групп — большой скачок. Для файла разбора программа напечатает:</p>
-      <pre class="code static" id="gapOut"></pre>
-      <p>Значит, первая граница — любое число между первой парой, вторая — между второй. Мы взяли круглые 4 и 7,5.</p>
+      <div class="card sheetwrap" data-step="1"><table class="sheet" data-r="sheet"></table></div>
+      <div class="card" data-step="3" style="margin-top:12px"><svg data-r="chart" class="lochart" viewBox="0 0 660 300" role="img" aria-label="Диаграмма XY: энергия и номер строки"></svg></div>
     </div>
-  </details>
-  <div class="quiz" data-quiz="split"></div>
+  </div>
+  <aside class="note">
+    <h2>Диаграмма XY</h2>
+    <div class="say"><h3>Скажите</h3><p>На экзамене есть LibreOffice. Диаграмма за минуту показывает, сколько кластеров и где между ними промежутки — оттуда берём числа для <code>if E &lt; …</code>.</p><p>По оси Y — просто номер строки, чтобы точки не слились в одну линию.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Сколько групп по оси X? Между какими значениями пусто?»</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>При импорте выбран не тот язык — числа с запятой остаются текстом, и энергия не считается. Язык импорта: «Русский».</p><p>Вместо <code>=СТРОКА()</code> можно ввести 1 и 2 и протянуть.</p></div>
+  </aside>
 </section>
 
-<section class="sec" id="centr">
-  <div class="sec-head"><span class="badge">3</span><div>
-    <h2>Ищем центр кластера</h2>
-    <p class="lead">Центр — это <b>одна из частиц</b> кластера, а не среднее значение. Для каждой частицы-кандидата складываем, насколько её энергия отличается от энергий всех остальных. У кого сумма меньше всего, тот и центр.</p>
-  </div></div>
-  <div class="anno" data-anno="center"></div>
-
-  <div class="plate one">
-    <div class="plate-title"><h3>Пример на пяти частицах</h3><p class="muted">Кластер с энергиями <code>1, 2, 3, 7, 9</code>. В каждой строке — один кандидат и модули разностей его энергии с каждой частицей.</p></div>
-    <div class="tbl-wrap"><table class="tbl" id="miniTbl"></table></div>
-    <p id="miniSay"></p>
-  </div>
-
-  <div class="plate">
-    <div class="plate-title"><h3>Центр на файле разбора</h3><p class="muted">Каждая точка — частица-кандидат: по горизонтали её энергия, по вертикали сумма <code>s</code>. Двигай ползунок по кандидатам и смотри, где сумма меньше всего.</p></div>
-    <svg class="chart" id="plotCenter" viewBox="0 0 600 380" role="img" aria-label="Сумма модулей разностей для каждой частицы кластера"></svg>
-    <div class="side">
-      <div class="ctrls" role="group" aria-label="Кластер">
-        <button class="btn" type="button" data-cl="0" aria-pressed="true">Кластер 1</button>
-        <button class="btn" type="button" data-cl="1" aria-pressed="false">Кластер 2</button>
-        <button class="btn" type="button" data-cl="2" aria-pressed="false">Кластер 3</button>
-      </div>
-      <div class="slider"><label for="cand">кандидат: <b id="candVal"></b></label><input type="range" id="cand" min="0" max="1" step="1" value="0"></div>
-      <div class="say" id="cSay" aria-live="polite"></div>
-      <div class="legend">
-        <span><i class="dot" style="background:var(--ok)"></i>центр — минимум суммы</span>
-        <span><i class="dot" style="background:var(--hot)"></i>выбранный кандидат</span>
-      </div>
-    </div>
-  </div>
-  <p class="tip"><b>Наблюдение.</b> График похож на букву V, а дно — ровно посередине: слева и справа от центра одинаковое число частиц. Центр по такому правилу — это частица со <b>средней по порядку</b> энергией (медиана). Программе это знать не обязательно, но так легко проверить себя.</p>
-  <div class="quiz" data-quiz="center"></div>
+<section class="slide" data-task="demo" data-hook="axis" data-nav="Энергии" data-steps="2">
+  <p class="kicker">Шаг 2 · смотрим на данные</p>
+  <h1>Все <span data-r="n"></span> частиц на оси энергии</h1>
+  <div class="card"><svg data-r="axis" viewBox="0 0 1000 250" role="img" aria-label="Энергии частиц на оси"></svg></div>
+  <p class="lead" style="margin-top:14px" data-step="1">Между группами — <span class="mark">пустые промежутки</span>. Их ровно три, значит групп четыре.</p>
+  <div data-step="2" class="card" data-r="summary"></div>
+  <aside class="note">
+    <h2>Все энергии</h2>
+    <div class="say"><h3>Скажите</h3><p>Каждая точка — одна частица. По горизонтали её энергия, по вертикали точки просто разбросаны, чтобы не слипались.</p><p>Границы кластеров не надо «вычислять» хитрым алгоритмом: достаточно найти пустые промежутки.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Сколько групп видите?» и «Как найти промежутки без картинки?» — отсортировать энергии и посмотреть на большие разности соседей.</p></div>
+    <div class="trp"><h3>Как найти границы на экзамене</h3><p>Вывести <code>sorted(E)</code> и глазами найти скачки или один раз построить точечную диаграмму в Excel.</p></div>
+  </aside>
 </section>
 
-<section class="sec" id="pary">
-  <div class="sec-head"><span class="badge">4</span><div>
-    <h2>Перебираем пары: combinations</h2>
-    <p class="lead">Для Q1 нужно сравнить расстояния у <b>всех пар</b> частиц. Функция <code>combinations(список, 2)</code> из модуля <code>itertools</code> выдаёт каждую пару ровно один раз: A–B есть, а B–A и A–A нет.</p>
-  </div></div>
-  <div class="anno" data-anno="pairs"></div>
-  <div class="plate">
-    <div class="plate-title"><h3>Пары на четырёх точках</h3><p class="muted">Учебный пример, не из файла. Нажимай «Следующая пара»: так же, как цикл, программа берёт пары по очереди и запоминает самое маленькое расстояние.</p></div>
-    <svg class="chart" id="plotPairs" viewBox="0 0 600 380" role="img" aria-label="Четыре точки и текущая пара"></svg>
-    <div class="side">
-      <div class="pairs" id="pairBtns" role="group" aria-label="Пары"></div>
-      <div class="ctrls">
-        <button class="btn primary" type="button" id="pairNext">Следующая пара →</button>
-        <button class="btn" type="button" id="pairReset">Сначала</button>
-      </div>
-      <div class="say" id="pairSay" aria-live="polite"></div>
+<section class="slide" data-task="demo" data-hook="bounds" data-nav="Границы" data-steps="0">
+  <p class="kicker">Шаг 2 · раскладываем по кластерам</p>
+  <h1>Двигай границы</h1>
+  <div class="codegrid">
+    <pre class="code" data-r="code"></pre>
+    <div class="card">
+      <div class="sliders" data-r="sliders"></div>
+      <p style="margin:10px 0 14px"><button class="btn" type="button" data-r="reset">↺ Как в программе</button></p>
+      <table><thead><tr><th>Кластер</th><th>частиц</th><th>энергии</th><th>разница</th></tr></thead><tbody data-r="tbl" class="mono"></tbody></table>
     </div>
   </div>
-  <details class="more">
-    <summary>То же самое двумя обычными циклами</summary>
+  <div class="card" style="margin-top:14px"><svg data-r="axis" viewBox="0 0 1000 250" role="img" aria-label="Границы кластеров"></svg></div>
+  <aside class="note">
+    <h2>Границы</h2>
+    <div class="say"><h3>Скажите</h3><p>Число в <code>if E &lt; …</code> может быть любым из пустого промежутка — ответ не изменится. Поэтому 3,5 / 6 / 8,5 — просто удобные «круглые» числа.</p></div>
+    <div class="ask"><h3>Попросите ученика</h3><p>Выйти к доске и сдвинуть одну границу внутрь группы. Что случилось с разницей энергий? (Стала больше R — разбиение не подходит под условие.)</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Границу берут «на глаз» слишком близко к краю группы, и несколько частиц уходят в чужой кластер. Таблица сразу это показывает.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="demo" data-hook="centerEx" data-nav="Центр" data-steps="7">
+  <p class="kicker">Шаг 3 · центр кластера</p>
+  <h1>Центр — у кого сумма разностей меньше всех</h1>
+  <div class="codegrid">
     <div>
-      <pre class="code static" id="loopCode"></pre>
-      <p>Внутренний цикл начинается с <code>i + 1</code>. Так не получится пара частицы с самой собой (её расстояние 0 испортило бы минимум) и не будет повторов B–A после A–B.</p>
+      <pre class="code" data-r="code"></pre>
+      <div data-step="7" class="card" style="margin-top:12px"><b>Центр — средняя по порядку частица.</b> <span class="muted">На файле:</span><div data-r="real" class="mono" style="margin-top:6px"></div></div>
     </div>
-  </details>
-  <div class="quiz" data-quiz="pairs"></div>
+    <div class="card">
+      <p class="muted" style="margin:0 0 8px">Маленький кластер: энергии <b class="mono">1, 2, 3, 7, 9</b></p>
+      <table><thead data-r="head"></thead><tbody data-r="body" class="mono"></tbody></table>
+      <div class="bars" data-r="bars" style="margin-top:14px"></div>
+    </div>
+  </div>
+  <aside class="note">
+    <h2>Центр</h2>
+    <div class="say"><h3>Скажите</h3><p>Каждое нажатие считает строку таблицы: для одного кандидата складываем модули разностей со всеми частицами кластера.</p><p>Вывод: минимум суммы модулей — у средней по порядку частицы (медианы). Это не среднее арифметическое!</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>До подсчёта: «Кто центр — 3 или 4,4 (среднее)?» Частицы с энергией 4,4 нет, а центр обязан быть частицей.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p><code>min(m)[1]</code> вместо <code>min(m)[1][2]</code> — возвращают всю частицу, а не её энергию, и <code>max(centers)</code> сравнивает списки по первому элементу (по x).</p></div>
+  </aside>
 </section>
 
-<section class="sec" id="q1">
-  <div class="sec-head"><span class="badge">5</span><div>
-    <h2>Q1: самая близкая пара частиц IV</h2>
-    <p class="lead">В каждом кластере отбираем частицы с признаком IV и перебираем их пары. Расстояние считаем по координатам на плоскости — энергия тут уже не участвует. Пары из разных кластеров не сравниваем.</p>
-  </div></div>
-  <div class="anno" data-anno="q1"></div>
-  <div class="plate">
-    <div class="plate-title"><h3>Частицы IV на плоскости</h3><p class="muted">Выбери кластер. Цветные точки — частицы IV этого кластера, серые — остальные его частицы. Линия соединяет самую близкую пару. Нажми на цветную точку — увидишь её ближайшую соседку.</p></div>
-    <svg class="chart" id="plotQ1" viewBox="0 0 600 600" role="img" aria-label="Частицы признака IV выбранного кластера на плоскости"></svg>
-    <div class="side">
-      <div class="ctrls" role="group" aria-label="Кластер">
-        <button class="btn" type="button" data-q="0" aria-pressed="true">Кластер 1</button>
-        <button class="btn" type="button" data-q="1" aria-pressed="false">Кластер 2</button>
-        <button class="btn" type="button" data-q="2" aria-pressed="false">Кластер 3</button>
+<section class="slide" data-task="demo" data-hook="pairs" data-nav="Пары" data-steps="7">
+  <p class="kicker">Шаг 4 · перебор пар</p>
+  <h1>combinations: каждая пара один раз</h1>
+  <div class="codegrid">
+    <div>
+      <pre class="code" data-r="code"></pre>
+      <div class="card" style="margin-top:12px"><div class="pairs" data-r="list"></div><p class="big mono" style="margin:6px 0 0" data-r="max">q1 = 0</p></div>
+    </div>
+    <div class="card"><svg data-r="svg" viewBox="0 0 520 380" role="img" aria-label="Четыре точки и пары"></svg></div>
+  </div>
+  <aside class="note">
+    <h2>combinations</h2>
+    <div class="say"><h3>Скажите</h3><p>Из 4 точек получается 6 пар: AB, AC, AD, BC, BD, CD. Точку с собой не сравниваем, пару BA не повторяем.</p><p><code>max(q1, …)</code> на каждом шаге оставляет большее из двух: то, что уже нашли, и новую пару.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Сколько пар будет из 100 частиц?» — 100·99/2 = 4950. Компьютер справится мгновенно.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Два вложенных цикла <code>for a in g: for b in g:</code> — работает, но пар вдвое больше и есть пары «частица с собой» (для max не страшно, для min — ответ 0).</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="demo" data-hook="q1demo" data-nav="Q1" data-steps="3">
+  <p class="kicker">Шаг 5 · Q1</p>
+  <h1>Самая далёкая пара частиц III</h1>
+  <div class="codegrid">
+    <div>
+      <pre class="code" data-r="code"></pre>
+      <div data-step="3" class="card" style="margin-top:12px"><table><thead><tr><th>Кластер</th><th>частиц III</th><th>макс. расстояние</th></tr></thead><tbody data-r="tbl" class="mono"></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="tabs" data-r="tabs"></div>
+      <svg data-r="svg" class="plane" viewBox="0 0 600 600" role="img" aria-label="Частицы кластера на плоскости"></svg>
+    </div>
+  </div>
+  <aside class="note">
+    <h2>Q1</h2>
+    <div class="say"><h3>Скажите</h3><p>Сначала весь кластер (серые точки), потом только III (цветные), потом — самая далёкая пара. Кластеры переключаются кнопками над картинкой.</p><p>Пары ищем <b>внутри</b> кластера: частицы III из разных кластеров не сравниваем.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Расстояние считаем по каким числам?» — по x и y, а не по энергии. Поэтому <code>dist(p[:2], p1[:2])</code>.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p><code>if 'II' in p[3]</code> ловит и III, и VII, а <code>p[3] in 'III'</code> — ещё I и II. Сравниваем только <code>p[3] == 'III'</code>.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="demo" data-hook="q2demo" data-nav="Q2" data-steps="3">
+  <p class="kicker">Шаг 6 · Q2</p>
+  <h1>Центры кластеров и самый «энергичный»</h1>
+  <div class="codegrid">
+    <pre class="code" data-r="code"></pre>
+    <div data-step="3" class="card" data-r="trap"></div>
+  </div>
+  <div class="card" style="margin-top:14px"><svg data-r="svg" viewBox="0 0 1000 230" role="img" aria-label="Центры кластеров на оси энергии"></svg></div>
+  <aside class="note">
+    <h2>Q2</h2>
+    <div class="say"><h3>Скажите</h3><p>У каждого кластера свой центр (шаг 3). Получаем 4 числа — берём из них наибольшее.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«В каком кластере будет ответ, ещё не считая?» — в последнем, у него самые большие энергии.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Берут максимальную энергию во всём файле или в последнем кластере. Справа видно, насколько это другое число.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="demo" data-hook="answer" data-nav="Ответ" data-steps="2">
+  <p class="kicker">Шаг 7 · ответ</p>
+  <h1>Умножаем на 10 000 и берём целую часть</h1>
+  <div data-until="1"><div class="answer"><div class="card calc" data-r="a1"></div><div class="card calc" data-r="a2"></div></div>
+  <div data-step="1" class="traps">
+    <div class="trap"><b>int, а не round</b>«Целая часть» — отбрасываем дробь. <code>round</code> может прибавить единицу.</div>
+    <div class="trap"><b>Сначала × 10 000</b><code>int(q1) * 10000</code> теряет все знаки после запятой.</div>
+    <div class="trap"><b>Признак строкой</b><code>p[3] == 'III'</code>, без <code>in</code>.</div>
+  </div>
+  </div>
+  <div data-step="2">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><h2 style="margin:0">Вся программа</h2><button class="btn" type="button" data-r="copy">📋 Копировать</button></div>
+    <div class="fullwrap" data-r="code"></div>
+  </div>
+  <aside class="note">
+    <h2>Ответ</h2>
+    <div class="say"><h3>Скажите</h3><p>Ответ — два целых числа через пробел, в том порядке, как просят: Q1, потом Q2.</p><p>Второе нажатие открывает всю программу — её можно скопировать и запустить на уроке.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Чем <code>int(2.9999)</code> отличается от <code>round(2.9999)</code>?» — 2 и 3.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="demo" data-hook="quiz" data-nav="Проверь себя" data-steps="0">
+  <p class="kicker">Закрепление</p>
+  <h1>Проверь себя</h1>
+  <div class="quiz" data-r="quiz"></div>
+  <aside class="note">
+    <h2>Проверь себя</h2>
+    <div class="say"><h3>Как провести</h3><p>Прочитайте вопрос, дайте 20–30 секунд подумать, попросите показать ответ на пальцах (1–4) и только потом нажмите вариант. Под неверным вариантом появится объяснение.</p></div>
+  </aside>
+</section>
+
+<!-- ================= СТАТГРАД ================= -->
+
+<section class="slide" data-task="stat" data-hook="text" data-nav="Задача" data-steps="0">
+  <p class="kicker">Задание 27 · по мотивам СтатГрада</p>
+  <h1>Текст задачи <button class="btn" type="button" data-r="dl" style="vertical-align:middle;margin-left:12px">⬇ Файл 27_2.txt</button></h1>
+  <div class="card cond-text">
+      <p>Рассматриваются частицы на плоскости, обладающие следующими характеристиками: декартовы координаты, вектор скорости, масса, а также признак, характеризующий внутреннее строение частицы, обозначаемый числами от I до VII (в римской системе счисления).</p>
+      <p>Учёный решил провести кластеризацию частиц по значениям их кинетической энергии, то есть разбить их множество на K непересекающихся непустых подмножеств (кластеров), таких, что модуль разности кинетических энергий любых двух частиц каждого подмножества не превосходит значения R. Гарантируется, что такое разбиение существует и единственно для заданного R.</p>
+      <p>Будем называть центром кластера такую его частицу, для которой сумма модулей разности кинетических энергий со всеми остальными частицами этого кластера минимальна. Для каждого кластера гарантируется единственность его центра.</p>
+      <p>В каждой строке текстового файла хранится информация об одной частице: координаты x и y, проекции вектора скорости V<sub>x</sub> и V<sub>y</sub>, масса m и признак. Значения даны в одинаковых для всех частиц единицах измерения, обозначения единиц измерения в файле не приводятся. Значения в строке разделяются одним или несколькими пробелами и/или символами табуляции. Количество строк в файле не превышает 10 000. Абсолютная величина каждого числового значения не превышает 100,0.</p>
+      <p>Известно, что все описанные в файле частицы подразделяются ровно на 5 кластеров (K = 5) с R = 5,61 для каждого.</p>
+      <p>Найдите два числа: Q<sub>1</sub> — кинетическую энергию центра кластера с наименьшим числом частиц с признаком <b>V</b> и Q<sub>2</sub> — расстояние от точки (1; 4,5) до центра кластера с наибольшим числом частиц с признаком <b>V</b>.</p>
+      <p>В ответе запишите два числа: сначала целую часть произведения Q<sub>1</sub> × 10 000, затем целую часть произведения Q<sub>2</sub> × 10 000.</p>
+      <p class="muted">Для справки: E = ½ · m · (V<sub>x</sub>² + V<sub>y</sub>²); d(A, B) = √((x<sub>2</sub> − x<sub>1</sub>)² + (y<sub>2</sub> − y<sub>1</sub>)²).</p>
+  </div>
+  <aside class="note">
+    <h2>Текст задачи</h2>
+    <div class="say"><h3>Как провести</h3><p>Дайте 2–3 минуты прочитать условие самим. Попросите найти: по какому значению кластеры, сколько их, чему равно R и что именно спрашивают в Q1 и Q2.</p><p>Кнопка «Файл» скачивает файл данных — его можно раздать на компьютеры.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Какие из шести значений строки нам на самом деле понадобятся?»</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="stat" data-hook="cond" data-nav="Условие" data-steps="3">
+  <p class="kicker">Задание 27 · по мотивам СтатГрада</p>
+  <h1>Частицы, энергия и 5 кластеров</h1>
+  <div class="card">
+    <p class="muted" style="margin:0 0 6px">Одна строка файла — одна частица (между числами пробелы и табуляции вперемешку):</p>
+    <div class="chips" data-r="chips"></div>
+  </div>
+  <div data-step="1" class="card" style="margin-top:14px">
+    <span class="big">5 кластеров по энергии</span>
+    <span class="muted">&nbsp;— внутри кластера энергии отличаются не больше чем на <b>R = 5,61</b></span>
+  </div>
+  <div data-step="2" class="card" style="margin-top:14px">
+    <span class="big">Считаем частицы V</span>
+    <span class="muted">&nbsp;— в каждом кластере: где их меньше всего, а где больше всего</span>
+  </div>
+  <div data-step="3" class="qcards" style="margin-top:14px">
+    <div class="qcard q1"><h3>Q1</h3><b>энергия</b> центра кластера, где частиц V <b>меньше всего</b></div>
+    <div class="qcard q2"><h3>Q2</h3><b>расстояние</b> от точки <b>A(1; 4,5)</b> до центра кластера, где частиц V <b>больше всего</b></div>
+  </div>
+  <aside class="note">
+    <h2>Условие (СтатГрад)</h2>
+    <div class="say"><h3>Скажите</h3><p>Начало то же, что в демоверсии: энергия → кластеры → центры. Новое — признак V нужен не для пар, а для <b>выбора кластера</b>.</p><p>У центра нам понадобится всё: энергия для Q1 и координаты для Q2.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Чем этот вопрос отличается от демоверсии?» — нет перебора пар; зато центр нужен целиком, и кластер выбирается по количеству частиц V.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Для Q2 считают расстояние от A до самой частицы V или «до энергии» центра. Нужны координаты x, y центра.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="stat" data-hook="line" data-nav="Строка" data-steps="5">
+  <p class="kicker">Шаг 1 · чтение файла</p>
+  <h1>Одна строка → энергия</h1>
+  <div class="codetop"><pre class="code" data-r="code"></pre><button class="btn" type="button" data-r="other">🎲 Другая строка</button></div>
+  <div class="card pipe" data-r="pipe" style="margin-top:14px"></div>
+  <aside class="note">
+    <h2>Строка → энергия</h2>
+    <div class="say"><h3>Скажите</h3><p>Чтение такое же, как в демоверсии. Здесь хорошо видно, зачем <code>split()</code> без аргумента: между числами то несколько пробелов, то табуляция.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Что будет, если написать <code>split(' ')</code>?» — получатся пустые строки и куски с табуляцией, распаковка в 6 переменных упадёт.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="stat" data-hook="calc" data-nav="Диаграмма" data-steps="4">
+  <p class="kicker">Шаг 2 · LibreOffice Calc</p>
+  <h1>Диаграмма XY: сколько кластеров и где границы</h1>
+  <div class="codegrid">
+    <ol class="lo-steps">
+      <li>Открыть <b class="mono">27_2.txt</b> в Calc. Разделители — <b>табуляция</b> и <b>пробел</b>, ✓ <b>«Объединять разделители»</b>, язык — <b>русский</b>.</li>
+      <li data-step="1">В <b>G1</b> — энергия, протянуть вниз:<pre class="code formula">=E1*(C1^2+D1^2)/2</pre></li>
+      <li data-step="2">В <b>H1</b> — номер строки, протянуть вниз:<pre class="code formula">=СТРОКА()</pre></li>
+      <li data-step="3">Выделить столбцы <b>G:H</b> → <b>Вставка → Диаграмма</b> → <b>Диаграмма XY</b> → «Только точки» → <b>Готово</b></li>
+      <li data-step="4">По оси X — энергия. <span class="mark">Пустые полосы</span> между группами точек — места для границ.</li>
+    </ol>
+    <div>
+      <div class="card sheetwrap" data-step="1"><table class="sheet" data-r="sheet"></table></div>
+      <div class="card" data-step="3" style="margin-top:12px"><svg data-r="chart" class="lochart" viewBox="0 0 660 300" role="img" aria-label="Диаграмма XY: энергия и номер строки"></svg></div>
+    </div>
+  </div>
+  <aside class="note">
+    <h2>Диаграмма XY</h2>
+    <div class="say"><h3>Скажите</h3><p>На экзамене есть LibreOffice. Диаграмма за минуту показывает, сколько кластеров и где между ними промежутки — оттуда берём числа для <code>if E &lt; …</code>.</p><p>По оси Y — просто номер строки, чтобы точки не слились в одну линию.</p><p>В этом файле между числами то пробелы, то табуляции — без «Объединять разделители» столбцы съедут.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Сколько групп по оси X? Между какими значениями пусто?»</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>При импорте выбран не тот язык — числа с запятой остаются текстом, и энергия не считается. Язык импорта: «Русский».</p><p>Вместо <code>=СТРОКА()</code> можно ввести 1 и 2 и протянуть.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="stat" data-hook="axis" data-nav="Энергии" data-steps="2">
+  <p class="kicker">Шаг 2 · смотрим на данные</p>
+  <h1>Все <span data-r="n"></span> частиц на оси энергии</h1>
+  <div class="card"><svg data-r="axis" viewBox="0 0 1000 250" role="img" aria-label="Энергии частиц на оси"></svg></div>
+  <p class="lead" style="margin-top:14px" data-step="1">Четыре <span class="mark">пустых промежутка</span> — значит пять групп.</p>
+  <div data-step="2" class="card" data-r="summary"></div>
+  <aside class="note">
+    <h2>Все энергии</h2>
+    <div class="say"><h3>Скажите</h3><p>Частиц много, но картина та же: группы энергии разделены пустыми промежутками шириной около 1,5.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Ширина каждой группы — около 5,5. Почему это согласуется с R = 5,61?»</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="stat" data-hook="bounds" data-nav="Границы" data-steps="0">
+  <p class="kicker">Шаг 2 · раскладываем по кластерам</p>
+  <h1>Четыре границы — пять кластеров</h1>
+  <div class="codegrid">
+    <pre class="code" data-r="code"></pre>
+    <div class="card">
+      <div class="sliders" data-r="sliders"></div>
+      <p style="margin:10px 0 14px"><button class="btn" type="button" data-r="reset">↺ Как в программе</button></p>
+      <table><thead><tr><th>Кластер</th><th>частиц</th><th>энергии</th><th>разница</th></tr></thead><tbody data-r="tbl" class="mono"></tbody></table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px"><svg data-r="axis" viewBox="0 0 1000 250" role="img" aria-label="Границы кластеров"></svg></div>
+  <aside class="note">
+    <h2>Границы</h2>
+    <div class="say"><h3>Скажите</h3><p>Кластеров пять — значит <code>if</code>, три <code>elif</code> и <code>else</code>. Границы 38,5 / 45,5 / 52,5 / 59,5 стоят в пустых промежутках.</p></div>
+    <div class="ask"><h3>Попросите ученика</h3><p>Сдвинуть границу внутрь группы и посмотреть, как разница энергий становится больше 5,61.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="stat" data-hook="centerStat" data-nav="Центр" data-steps="2">
+  <p class="kicker">Шаг 3 · центр кластера</p>
+  <h1>Центр нужен целиком: и энергия, и координаты</h1>
+  <div class="codegrid">
+    <div>
+      <pre class="code" data-r="code"></pre>
+      <div class="card" style="margin-top:12px">
+        <div class="cmp"><span class="mono">min(m)[1][2]</span><span>→ только энергия <span class="muted">(было в демоверсии)</span></span></div>
+        <div class="cmp ok-row"><span class="mono">min(m)[1]</span><span>→ вся частица <b class="mono">[x, y, E, t]</b></span></div>
       </div>
-      <div class="say" id="q1Say" aria-live="polite"></div>
-      <div class="tbl-wrap"><table class="tbl">
-        <thead><tr><th scope="col">кластер</th><th scope="col">частиц IV</th><th scope="col">пар</th><th scope="col">самая близкая пара</th></tr></thead>
-        <tbody class="mono" id="q1Tbl"></tbody>
-      </table></div>
+    </div>
+    <div data-step="1" class="card">
+      <table><thead><tr><th>Центр</th><th>x</th><th>y</th><th>E</th></tr></thead><tbody data-r="tbl" class="mono"></tbody></table>
+      <p data-step="2" style="margin:12px 0 0"><span class="pill">E → для Q1</span> <span class="pill">x, y → для Q2</span></p>
     </div>
   </div>
-  <div class="plate">
-    <div class="plate-title"><h3>Ловушка: с чего начинать минимум</h3><p class="muted">Переключи начальное значение <code>q1</code> и посмотри, что напечатает программа.</p></div>
-    <div class="side">
-      <div class="ctrls" role="group" aria-label="Начальное значение q1">
-        <button class="btn mono" type="button" data-init="inf" aria-pressed="true">q1 = float('inf')</button>
-        <button class="btn mono" type="button" data-init="zero" aria-pressed="false">q1 = 0</button>
+  <aside class="note">
+    <h2>Центр</h2>
+    <div class="say"><h3>Скажите</h3><p>Функция та же, что в демоверсии, меняется только последняя строка: возвращаем частицу целиком, а не одну энергию.</p><p>Если ученики не видели демоверсию — сначала покажите пример с энергиями 1, 2, 3, 7, 9 (слайд «Центр» во вкладке «Демоверсия 2027»).</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Что лежит в <code>min(m)[0]</code>, а что в <code>min(m)[1]</code>?» — сумма s и частица p.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Оставляют <code>[1][2]</code> из демоверсии — и потом для Q2 нет координат центра.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="stat" data-hook="counts" data-nav="Считаем V" data-steps="2">
+  <p class="kicker">Шаг 4 · признак V</p>
+  <h1>Сколько частиц V в каждом кластере</h1>
+  <div class="codegrid">
+    <div>
+      <pre class="code" data-r="code"></pre>
+      <div class="card" style="margin-top:12px">
+        <b>Почему <span class="mono">sum</span> считает штуки?</b>
+        <p class="mono" style="margin:6px 0 0">p[3] == 'V' → True / False<br>True + False + True = 2</p>
       </div>
     </div>
-    <div class="say" id="initSay" aria-live="polite"></div>
+    <div class="card"><div class="cbars" data-r="bars"></div></div>
   </div>
-  <div class="quiz" data-quiz="q1"></div>
+  <aside class="note">
+    <h2>Считаем V</h2>
+    <div class="say"><h3>Скажите</h3><p>В Python <code>True</code> — это 1, <code>False</code> — 0. Поэтому <code>sum(p[3] == 'V' for p in group)</code> — количество частиц V в кластере.</p><p>Если класс не готов к такой записи, расскажите длинный вариант: счётчик <code>k = 0</code> и <code>k += 1</code> в цикле.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Какой кластер пойдёт в Q1, а какой в Q2?» — где столбик короче всех и где длиннее всех.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Путают признак V с номером кластера или считают частицы V во всём файле, а не в каждом кластере.</p></div>
+  </aside>
 </section>
 
-<section class="sec" id="q2">
-  <div class="sec-head"><span class="badge">6</span><div>
-    <h2>Q2 и ответ</h2>
-    <p class="lead">Q2 — среднее арифметическое энергий трёх центров. Не всех частиц файла, а только центров. Потом обе величины умножаем на 10 000 и отбрасываем дробную часть.</p>
-  </div></div>
-  <div class="anno" data-anno="q2"></div>
-  <div class="plate one">
-    <div class="plate-title"><h3>Расчёт для файла разбора</h3><p class="muted">Все числа ниже посчитаны прямо на этой странице из данных файла.</p></div>
-    <div class="calc" id="calc"></div>
-    <div class="answer">
-      <div><small>int(q1 * 10000)</small><span class="big" id="ans1"></span></div>
-      <div><small>int(q2 * 10000)</small><span class="big" id="ans2"></span></div>
-    </div>
+<section class="slide" data-task="stat" data-hook="q1stat" data-nav="Q1" data-steps="3">
+  <p class="kicker">Шаг 5 · Q1</p>
+  <h1>Энергия центра, где частиц V меньше всего</h1>
+  <div class="codegrid">
+    <pre class="code" data-r="code"></pre>
+    <div class="card chain" data-r="chain"></div>
   </div>
-  <div class="tbl-wrap">
-    <table class="tbl">
-      <caption>Почему <code>int</code>, а не <code>round</code></caption>
-      <thead><tr><th scope="col">число</th><th scope="col"><code>int</code> — целая часть</th><th scope="col"><code>round</code> — округление</th></tr></thead>
-      <tbody class="mono" id="intRound"></tbody>
-    </table>
-  </div>
-  <div class="quiz" data-quiz="q2"></div>
+  <aside class="note">
+    <h2>Q1</h2>
+    <div class="say"><h3>Скажите</h3><p>Цепочка из трёх шагов: самое маленькое количество → номер кластера → центр этого кластера → его энергия.</p><p><code>counts.index(min(counts))</code> даёт номер сам — не нужно смотреть глазами и вписывать индекс руками.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Индекс 2 — это какой кластер по счёту?» — третий: индексы с нуля.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Берут <code>min(counts)</code> как ответ (это количество частиц, а не энергия) или энергию самой «редкой» частицы V.</p></div>
+  </aside>
 </section>
 
-<section class="sec" id="kod">
-  <div class="sec-head"><span class="badge" style="font-size:20px">{ }</span><div>
-    <h2>Вся программа</h2>
-    <p class="lead">Положи файл <code>27.txt</code> в одну папку с программой. Для файла разбора она напечатает <code data-v="ans"></code>.</p>
-  </div></div>
-  <div class="codebox">
-    <pre class="code static" id="fullCode"></pre>
-    <button class="btn" type="button" id="copyBtn">Копировать</button>
+<section class="slide" data-task="stat" data-hook="q2stat" data-nav="Q2" data-steps="3">
+  <p class="kicker">Шаг 6 · Q2</p>
+  <h1>От точки A до центра, где частиц V больше всего</h1>
+  <div class="codegrid">
+    <div>
+      <pre class="code" data-r="code"></pre>
+      <div data-step="3" class="card calc" style="margin-top:12px" data-r="calc"></div>
+    </div>
+    <div class="card"><svg data-r="svg" class="plane" viewBox="0 0 600 600" role="img" aria-label="Центры кластеров и точка A на плоскости"></svg></div>
   </div>
-  <div class="ctrls">
-    <button class="btn primary" type="button" id="dlBtn">Скачать файл 27.txt</button>
-  </div>
-  <p class="muted">Файл: <span data-v="n"></span> строк, по шесть значений в строке, числа через запятую. Данные составлены для этого разбора.</p>
+  <aside class="note">
+    <h2>Q2</h2>
+    <div class="say"><h3>Скажите</h3><p>Сначала на плоскости только 5 центров и точка A. Потом выделяем центр кластера, где частиц V больше всего, и проводим отрезок.</p><p><code>[:2]</code> берёт из центра <code>[x, y, E, t]</code> только координаты.</p></div>
+    <div class="ask"><h3>Спросите класс</h3><p>«Почему нельзя <code>dist([1, 4.5], centers[i_max])</code>?» — у точек разное число координат, будет ошибка.</p></div>
+    <div class="trp"><h3>Частая ошибка</h3><p>Перепутан порядок: A(1; 4,5) — x = 1, y = 4,5. И 4,5 в Python пишется <code>4.5</code>.</p></div>
+  </aside>
 </section>
 
-<section class="sec" id="svoy-fail">
-  <div class="sec-head"><span class="badge" style="font-size:22px">✓</span><div>
-    <h2>Проверь на своём файле</h2>
-    <p class="lead">Загрузи файл в том же формате. Страница сама найдёт промежутки между кластерами, центры и обе величины. Файл никуда не отправляется: всё считается на твоём компьютере.</p>
-  </div></div>
-  <div class="drop" id="drop">
-    <p>Перетащи сюда .txt файл или выбери его.</p>
-    <div class="ctrls">
-      <label class="btn primary" for="fileInput" style="cursor:pointer">Выбрать файл</label>
-      <input type="file" id="fileInput" accept=".txt,.csv,text/plain" class="sr">
-      <button class="btn" type="button" id="useOwn">Взять файл разбора</button>
-    </div>
-    <div class="fields">
-      <div class="field"><label for="upK">Кластеров:</label><input type="number" id="upK" value="3" min="1" step="1"></div>
-      <div class="field"><label for="upR">R:</label><input type="number" id="upR" value="2" min="0" step="0.1"></div>
-      <div class="field"><label for="upT">Признак:</label><select id="upT"><option>I</option><option>II</option><option>III</option><option selected>IV</option><option>V</option><option>VI</option><option>VII</option></select></div>
-      <div class="field"><label for="upQ1">Q1 —</label><select id="upQ1"><option value="min" selected>наименьшее расстояние</option><option value="max">наибольшее расстояние</option></select></div>
-      <div class="field"><label for="upQ2">Q2 —</label><select id="upQ2"><option value="avg" selected>среднее энергий центров</option><option value="max">наибольшая энергия центра</option><option value="min">наименьшая энергия центра</option></select></div>
-    </div>
+<section class="slide" data-task="stat" data-hook="answer" data-nav="Ответ" data-steps="2">
+  <p class="kicker">Шаг 7 · ответ</p>
+  <h1>Умножаем на 10 000 и берём целую часть</h1>
+  <div data-until="1"><div class="answer"><div class="card calc" data-r="a1"></div><div class="card calc" data-r="a2"></div></div>
+  <div data-step="1" class="traps">
+    <div class="trap"><b>int, а не round</b>«Целая часть» — отбрасываем дробь.</div>
+    <div class="trap"><b>Индекс, а не количество</b><code>counts.index(min(counts))</code> — номер кластера, <code>min(counts)</code> — количество.</div>
+    <div class="trap"><b>Координаты центра</b><code>centers[i_max][:2]</code>, а не энергия.</div>
   </div>
-  <div class="plate one" id="upPlate" hidden>
-    <div class="say" id="upSay" aria-live="polite"></div>
-    <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th scope="col">кластер</th><th scope="col">частиц</th><th scope="col">E от</th><th scope="col">E до</th><th scope="col">разница ≤ R</th><th scope="col">энергия центра</th><th scope="col">частиц признака</th><th scope="col">Q1 внутри</th></tr></thead>
-      <tbody class="mono" id="upTbl"></tbody>
-    </table></div>
-    <div class="answer">
-      <div><small>int(Q1 * 10000)</small><span class="big" id="up1"></span></div>
-      <div><small>int(Q2 * 10000)</small><span class="big" id="up2"></span></div>
-    </div>
   </div>
+  <div data-step="2">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><h2 style="margin:0">Вся программа</h2><button class="btn" type="button" data-r="copy">📋 Копировать</button></div>
+    <div class="fullwrap" data-r="code"></div>
+  </div>
+  <aside class="note">
+    <h2>Ответ</h2>
+    <div class="say"><h3>Скажите</h3><p>Сравните с программой демоверсии: первая половина (чтение, кластеры, центр) совпадает. Различаются только последние строки — что именно спрашивают.</p></div>
+  </aside>
+</section>
+
+<section class="slide" data-task="stat" data-hook="quiz" data-nav="Проверь себя" data-steps="0">
+  <p class="kicker">Закрепление</p>
+  <h1>Проверь себя</h1>
+  <div class="quiz" data-r="quiz"></div>
+  <aside class="note">
+    <h2>Проверь себя</h2>
+    <div class="say"><h3>Как провести</h3><p>Прочитайте вопрос, дайте 20–30 секунд подумать, попросите показать ответ на пальцах (1–4) и только потом нажмите вариант.</p></div>
+  </aside>
 </section>
 
 </main>
-<footer class="wrap">Инфошаг · материалы для уроков информатики · Задание 27 ЕГЭ-2027, кластеры частиц · условие по мотивам проекта демоверсии 2027, вопросы изменены, данные файла составлены для этого разбора</footer>
+<aside class="notes" id="notes" aria-label="Подсказки учителю"></aside>
+</div>
 
-<script type="text/plain" id="fileData">
-/*DATA*/
-</script>
-<script type="text/plain" id="solution">
-/*SOLUTION*/
-</script>
-<script>(function (G) {
-  // Расчёты разбора отдельно от интерфейса: их же вызывает автотест
-  const ENERGY = (m, vx, vy) => 0.5 * m * (vx ** 2 + vy ** 2);
-  const dist = (a, b) => ((b.x - a.x) ** 2 + (b.y - a.y) ** 2) ** 0.5;
+<footer class="foot">
+  <button class="btn" id="prevBtn" type="button">← Назад</button>
+  <div class="prog"><div id="progBar"></div></div>
+  <span class="hint">→ / пробел — дальше · T — подсказки · F — на весь экран</span>
+  <button class="btn primary" id="nextBtn" type="button">Дальше →</button>
+</footer>
 
-  function parseText(text) {
-    const pts = [], bad = [];
-    text.split(/\r?\n/).forEach((line, k) => {
-      const s = line.replace(/,/g, '.').trim();
-      if (!s) return;
-      const v = s.split(/\s+/);
-      const nums = v.slice(0, 5).map(Number);
-      if (v.length !== 6 || !nums.every(Number.isFinite)) { bad.push(k + 1); return; }
-      const [x, y, vx, vy, m] = nums;
-      pts.push({ id: pts.length, line: k + 1, x, y, vx, vy, m, t: v[5], E: ENERGY(m, vx, vy) });
-    });
-    return { pts, bad };
-  }
-
-  // как if / elif / else в программе: границы по возрастанию
-  function split(pts, borders) {
-    const groups = borders.map(() => []).concat([[]]);
-    for (const p of pts) {
-      let k = borders.findIndex(b => p.E < b);
-      if (k < 0) k = borders.length;
-      groups[k].push(p.id);
-    }
-    return groups;
-  }
-
-  // суммы как в centr(): для каждого кандидата сумма |E - E1| по всему кластеру
-  function sums(pts, ids) {
-    return ids.map(i => { let s = 0; for (const j of ids) s += Math.abs(pts[i].E - pts[j].E); return { i, s }; });
-  }
-  function centr(pts, ids) {
-    let best = null;
-    for (const r of sums(pts, ids)) if (!best || r.s < best.s) best = r;
-    return best;
-  }
-
-  function pairs(pts, ids, type, mode = 'min') {
-    const own = ids.filter(i => pts[i].t === type);
-    let best = null;
-    for (let a = 0; a < own.length; a++) for (let b = a + 1; b < own.length; b++) {
-      const d = dist(pts[own[a]], pts[own[b]]);
-      if (!best || (mode === 'min' ? d < best.d : d > best.d)) best = { d, a: own[a], b: own[b] };
-    }
-    return { own, best, count: own.length * (own.length - 1) / 2 };
-  }
-
-  function solve(pts, borders, type = 'IV') {
-    const groups = split(pts, borders);
-    const centers = groups.map(g => centr(pts, g));
-    const pr = groups.map(g => pairs(pts, g, type));
-    const q1 = Math.min(...pr.map(r => r.best ? r.best.d : Infinity));
-    const q2 = centers.reduce((a, c) => a + pts[c.i].E, 0) / centers.length;
-    return { groups, centers, pr, q1, q2, a1: Math.trunc(q1 * 10000), a2: Math.trunc(q2 * 10000) };
-  }
-
-  // для чужого файла: границы в K−1 самых больших промежутках между соседними энергиями
-  function autoBorders(pts, K) {
-    const es = pts.map(p => p.E).sort((a, b) => a - b);
-    const gaps = [];
-    for (let i = 1; i < es.length; i++) gaps.push({ g: es[i] - es[i - 1], b: (es[i] + es[i - 1]) / 2 });
-    return gaps.sort((a, b) => b.g - a.g).slice(0, Math.max(0, K - 1)).map(x => x.b).sort((a, b) => a - b);
-  }
-
-  // центр за n·log n: после сортировки сумма считается через префиксные суммы
-  function centrFast(pts, ids) {
-    const s = ids.slice().sort((a, b) => pts[a].E - pts[b].E), n = s.length;
-    let total = 0; for (const i of s) total += pts[i].E;
-    let left = 0, best = null;
-    s.forEach((i, k) => {
-      const e = pts[i].E, sum = e * k - left + (total - left - e) - e * (n - k - 1);
-      if (!best || sum < best.s) best = { i, s: sum };
-      left += e;
-    });
-    return best;
-  }
-
-  G.Z27P = { ENERGY, dist, parseText, split, sums, centr, centrFast, pairs, solve, autoBorders };
-})(typeof window !== 'undefined' ? window : globalThis);
-</script>
+<script type="text/plain" id="data-demo">/*DATA_DEMO*/</script>
+<script type="text/plain" id="data-stat">/*DATA_STAT*/</script>
 <script>
-(function(){
 "use strict";
-const $=id=>document.getElementById(id);
-const NS="http://www.w3.org/2000/svg";
-const RAW=$("fileData").textContent.replace(/^\s+|\s+$/g,"");
-const RAW_LINES=RAW.split(/\r?\n/);
-const FULL=$("solution").textContent.replace(/^\s+|\s+$/g,"");
-const {pts:P}=Z27P.parseText(RAW);
-const BORDERS=[4,7.5],TYPE="IV";
-const fmt=(v,n=4)=>v.toFixed(n).replace(".",",");
-const pyNum=v=>Number.isInteger(v)?v+".0":String(v);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const plural=(n,a,b,c)=>n%10===1&&n%100!==11?a:(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?b:c;
-const word=n=>plural(n,"частица","частицы","частиц");
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+const ru = (v, d = 2) => v.toFixed(d).replace('.', ',');
+const fmtB = v => (Math.round(v * 100) / 100).toString();
+const COLORS = ['--c1', '--c2', '--c3', '--c4', '--c5'];
+const col = i => `var(${COLORS[i]})`;
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent, text) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text !== undefined) e.textContent = text; if (parent) parent.appendChild(e); return e; }
 
-/* ---------- все числа на странице считаются из данных ---------- */
-const SOL=Z27P.solve(P,BORDERS,TYPE);
-const G=SOL.groups;
-const L0=RAW_LINES[0].split(/\s+/),P0=P[0];
-const meanAll=P.reduce((a,p)=>a+p.E,0)/P.length;
-const V={n:P.length,ans:SOL.a1+" "+SOL.a2};
-document.querySelectorAll("[data-v]").forEach(e=>e.textContent=V[e.dataset.v]);
+// ---------- программы ----------
+const READ = f => [`for s in open('${f}'):`, "    x, y, vx, vy, m, t = s.replace(',', '.').split()", '    x, y, vx, vy, m = map(float, [x, y, vx, vy, m])', '    E = 0.5 * m * (vx ** 2 + vy ** 2)', '    p = [x, y, E, t]'];
+const IFS = B => [...B.flatMap((b, i) => [`    ${i ? 'elif' : 'if'} E < ${fmtB(b)}:`, `        cl[${i}].append(p)`]), '    else:', `        cl[${B.length}].append(p)`];
+const CENTR = ret => ['def centr(group):', '    m = []', '    for p in group:', '        s = sum(abs(p[2] - p1[2]) for p1 in group)', '        m.append([s, p])', `    return min(m)${ret}`];
+const program = T => [...T.head, '', `cl = [${Array(T.K).fill('[]').join(', ')}]`, ...READ(T.file), ...IFS(T.bounds), '', ...CENTR(T.ret), '', ...T.rest];
 
-/* ---------- тема ---------- */
-const themeBtn=$("themeBtn");
-const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches};
-const syncTheme=()=>{themeBtn.setAttribute("aria-pressed",String(isDark()));themeBtn.setAttribute("aria-label",isDark()?"Светлая тема":"Тёмная тема")};
-themeBtn.addEventListener("click",()=>{const next=isDark()?"light":"dark";document.documentElement.dataset.theme=next;try{localStorage.setItem("theme",next)}catch(e){}syncTheme()});
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change",syncTheme);
-syncTheme();
-
-/* ---------- подсветка Python ---------- */
-const KW=new Set(["import","def","return","for","in","if","elif","else","from","and","or","not"]);
-const FN=new Set(["open","float","print","len","sum","min","max","int","round","map","abs","sorted","zip","combinations","dist","centr","range"]);
-function hl(line){
-  const re=/(#.*$)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)|([^#'"\w]+|.)/g;
-  let out="",m;
-  while((m=re.exec(line))){
-    if(m[1])out+=`<span class="tk-cmt">${esc(m[1])}</span>`;
-    else if(m[2])out+=`<span class="tk-str">${esc(m[2])}</span>`;
-    else if(m[3])out+=`<span class="tk-num">${m[3]}</span>`;
-    else if(m[4])out+=KW.has(m[4])?`<span class="tk-kw">${m[4]}</span>`:FN.has(m[4])?`<span class="tk-fn">${m[4]}</span>`:m[4];
-    else out+=esc(m[5]);
-  }
-  return out;
-}
-const hlBlock=t=>t.split("\n").map(hl).join("\n");
-
-/* ---------- данные для пояснений ---------- */
-const sizes=G.map(g=>g.length);
-const ivCount=SOL.pr.map(r=>r.own.length);
-const cE=SOL.centers.map(c=>P[c.i].E);
-const minCl=SOL.pr.findIndex(r=>r.best&&r.best.d===SOL.q1);
-const exE=fmt(P0.E,6);
-
-/* ---------- код по строкам ---------- */
-const ANNO={
-read:[
- {c:"from itertools import combinations",h:"Подключаем combinations",n:`<p>Из модуля <code>itertools</code> берём одну функцию: она перебирает все пары элементов списка. Понадобится на шаге 4.</p>`},
- {c:"",h:"Пустая строка",n:`<p>Пустые строки Python пропускает. Они нужны людям: так блоки программы легче отличить друг от друга.</p>`},
- {c:"cl = [[], [], []]",h:"Три пустых кластера",n:`<p>Список из трёх пустых списков: <code>cl[0]</code>, <code>cl[1]</code>, <code>cl[2]</code>. В каждый будем складывать частицы одного кластера.</p><p>Почему именно три, видно на графике энергий вверху страницы: групп три.</p>`},
- {c:"for s in open('27.txt'):",h:"Идём по файлу строка за строкой",n:`<p>На каждом шаге в <code>s</code> попадает <b>одна строка файла как текст</b>. Первая строка файла:</p><pre>'${esc(L0.join("\\t"))}\\n'</pre><p><code>\\t</code> — табуляция между значениями, <code>\\n</code> — перевод строки. Файл должен лежать в одной папке с программой.</p>`},
- {c:"    x, y, vx, vy, m, t = s.replace(',', '.').split()",h:"Запятые → точки, режем на шесть частей",n:`<p>Читаем слева направо.</p><p><b>1.</b> <code>s.replace(',', '.')</code> меняет десятичные запятые на точки: <code>${esc(L0[0])}</code> → <code>${esc(L0[0].replace(",","."))}</code>. Python понимает дробные числа только с точкой.</p><p><b>2.</b> <code>.split()</code> режет строку по табуляциям и пробелам. Получается список из шести <b>строк</b>:</p><pre>[${L0.map(v=>"'"+esc(v.replace(",","."))+"'").join(", ")}]</pre><p><b>3.</b> Шесть значений по порядку попадают в шесть переменных. Если в строке окажется не шесть значений, Python выдаст <code>ValueError</code>.</p>`},
- {c:"    x, y, vx, vy, m = map(float, [x, y, vx, vy, m])",h:"Превращаем пять значений в числа",n:`<p><code>map(float, ...)</code> применяет <code>float</code> к каждому элементу списка. То же самое длинно:</p><pre>x = float(x)\ny = float(y)\nvx = float(vx)\nvy = float(vy)\nm = float(m)</pre><p>Признак <code>t</code> не трогаем: <code>'${esc(L0[5])}'</code> — это не число, <code>float('${esc(L0[5])}')</code> дал бы ошибку. Признак так и останется текстом.</p>`},
- {c:"    E = 0.5 * m * (vx ** 2 + vy ** 2)",h:"Энергия частицы",n:`<p>Формула из условия: половина массы на сумму квадратов проекций скорости. <code>**</code> — возведение в степень.</p><p>Для первой строки файла:</p><pre>0.5 * ${pyNum(P0.m)} * (${pyNum(P0.vx)} ** 2 + ${pyNum(P0.vy)} ** 2)\n= ${exE.replace(",",".")}</pre><p>Скобки обязательны: без них <code>0.5 * m * vx ** 2 + vy ** 2</code> посчитает другое.</p>`}
-],
-split:[
- {c:"    if E < 4:",h:"Первая граница",n:`<p>Эта строка и все ниже стоят <b>внутри цикла</b> <code>for</code> (отступ 4 пробела): каждую частицу кладём в кластер сразу после того, как посчитали её энергию.</p><p>Энергия меньше 4 — это первая группа на графике.</p>`},
- {c:"        cl[0].append([x, y, E, t])",h:"Кладём частицу в первый кластер",n:`<p><code>append</code> добавляет в конец списка <code>cl[0]</code> <b>одну запись</b> — список из четырёх значений. Первая строка файла превратится в:</p><pre>[${pyNum(P0.x)}, ${pyNum(P0.y)}, ${exE.replace(",",".")}, '${esc(P0.t)}']</pre><p>Квадратные скобки внутри <code>append</code> важны: без них <code>append</code> получил бы четыре значения и выдал ошибку.</p>`},
- {c:"    elif E < 7.5:",h:"Вторая граница",n:`<p><code>elif</code> проверяется, только если предыдущее условие ложно. Поэтому сюда попадают частицы с <b>4 ≤ E &lt; 7,5</b>, хотя слева от <code>E</code> ничего не написано.</p>`},
- {c:"        cl[1].append([x, y, E, t])",h:"Во второй кластер",n:`<p>Вторая группа на графике.</p>`},
- {c:"    else:",h:"Всё остальное",n:`<p>Сюда попадают частицы с <b>E ≥ 7,5</b>: оба условия выше оказались ложными.</p>`},
- {c:"        cl[2].append([x, y, E, t])",h:"В третий кластер",n:`<p>После цикла в кластерах ${sizes.join(", ")} частиц, всего ${P.length}. Ни одна строка файла не потерялась.</p>`}
-],
-center:[
- {c:"def centr(group):",h:"Функция поиска центра",n:`<p>Функция получает <b>один кластер</b> — список частиц <code>group</code>. Вернёт энергию его центра.</p><p>Параметр назван <code>group</code>, а не <code>cl</code>, чтобы не путать один кластер со списком всех кластеров.</p>`},
- {c:"    m = []",h:"Таблица результатов",n:`<p>Сюда запишем пары <code>[сумма, частица]</code> для каждой частицы кластера. Буква <code>m</code> здесь не масса: внутри функции это своя переменная.</p>`},
- {c:"    for p in group:",h:"Перебираем кандидатов",n:`<p>Каждую частицу <code>p</code> по очереди проверяем как кандидата в центр.</p>`},
- {c:"        s = sum(abs(p[2] - p1[2]) for p1 in group)",h:"Сумма модулей разностей энергий",n:`<p><code>p[2]</code> — энергия кандидата, <code>p1[2]</code> — энергия очередной частицы кластера. <code>abs</code> — модуль: разность всегда неотрицательна.</p><p>То же самое длинно:</p><pre>s = 0\nfor p1 in group:\n    s = s + abs(p[2] - p1[2])</pre><p>Когда <code>p1</code> — сам кандидат, разность 0. Сумму это не меняет, пропускать его не нужно.</p>`},
- {c:"        m.append([s, p])",h:"Записываем пару",n:`<p>Сначала <b>сумма</b>, потом <b>частица</b>. Порядок важен: <code>min</code> в следующей строке сравнивает пары по первому элементу.</p>`},
- {c:"    return min(m)[1][2]",h:"Энергия лучшего кандидата",n:`<p>Читаем слева направо:</p><table><tr><td><code>min(m)</code></td><td>пара с наименьшей суммой: <code>[s, p]</code></td></tr><tr><td><code>[1]</code></td><td>из пары берём частицу <code>p</code></td></tr><tr><td><code>[2]</code></td><td>из частицы — энергию</td></tr></table><p>Функция возвращает <b>одно число</b> — энергию центра. Для кластеров файла: ${cE.map(e=>fmt(e,4)).join("; ")}.</p>`}
-],
-pairs:[
- {c:"names = ['A', 'B', 'C', 'D']",h:"Список из четырёх элементов",n:`<p>Учебный список. В задаче на его месте будет список частиц IV одного кластера.</p>`},
- {c:"for a, b in combinations(names, 2):",h:"Перебираем пары",n:`<p><code>combinations(names, 2)</code> выдаёт пары по очереди: A–B, A–C, A–D, B–C, B–D, C–D. Всего <b>6</b> пар.</p><p>Каждая пара сразу распаковывается в две переменные: <code>a</code> и <code>b</code>. Число 2 означает «по два элемента».</p><p>Для n элементов пар n · (n − 1) / 2: для 4 элементов 4 · 3 / 2 = 6.</p>`},
- {c:"    print(a, b)",h:"Печатаем пару",n:`<p>Программа напечатает шесть строк:</p><pre>A B\nA C\nA D\nB C\nB D\nC D</pre><p>Пар <code>B A</code> и <code>A A</code> нет.</p>`}
-],
-q1:[
- {c:"def dist(p1, p2):",h:"Расстояние между частицами",n:`<p>Функция получает две частицы-записи <code>[x, y, E, t]</code> и возвращает расстояние между ними на плоскости.</p>`},
- {c:"    x1, y1, e1, t1 = p1",h:"Распаковываем первую частицу",n:`<p>Четыре значения записи попадают в четыре переменные. Нужны только <code>x1</code> и <code>y1</code>, но распаковать приходится все четыре: число переменных должно совпасть с длиной записи.</p>`},
- {c:"    x2, y2, e2, t2 = p2",h:"…и вторую",n:`<p>То же для второй частицы.</p>`},
- {c:"    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5",h:"Теорема Пифагора",n:`<p>Разности координат — катеты, расстояние — гипотенуза. <code>** 0.5</code> — квадратный корень.</p><table><tr><th>шаг</th><th>для (0, 0) и (3, 4)</th></tr><tr><td><code>(x2 - x1) ** 2</code></td><td>9</td></tr><tr><td><code>(y2 - y1) ** 2</code></td><td>16</td></tr><tr><td><code>** 0.5</code></td><td>√25 = <b>5.0</b></td></tr></table><p>Энергия <code>e1</code>, <code>e2</code> здесь не нужна.</p>`},
- {c:"",h:"Пустая строка",n:`<p>Функция закончилась. Дальше — основной расчёт.</p>`},
- {c:"q1 = float('inf')",h:"Начинаем с бесконечности",n:`<p><code>float('inf')</code> — бесконечность: любое расстояние меньше её. Поэтому первая же пара заменит это значение.</p><p class="why bad"><strong>Ловушка.</strong> Если начать с <code>q1 = 0</code>, ни одно расстояние не окажется меньше нуля, и программа напечатает 0. Проверь переключателем ниже.</p>`},
- {c:"for group in cl:",h:"По каждому кластеру",n:`<p>Перебираем три кластера по очереди. <code>q1</code> при переходе к следующему кластеру <b>не обнуляется</b>: ищем минимум сразу по всем кластерам.</p>`},
- {c:"    type_IV = [p for p in group if p[3] == 'IV']",h:"Отбираем частицы IV",n:`<p>«Возьми из кластера каждую частицу, у которой признак <code>'IV'</code>». Сравниваем со строкой в кавычках: признак так и остался текстом.</p><pre>type_IV = []\nfor p in group:\n    if p[3] == 'IV':\n        type_IV.append(p)</pre><p>В кластерах файла частиц IV: ${ivCount.join(", ")}.</p><p class="why bad"><strong>Внимание:</strong> сравниваем признак целиком, через <code>==</code>. Проверка <code>'V' in p[3]</code> была бы ошибкой: буква V есть и в <code>'IV'</code>, и в <code>'VI'</code>.</p>`},
- {c:"    for p, p1 in combinations(type_IV, 2):",h:"Все пары частиц IV кластера",n:`<p>Перебираем пары только внутри одного кластера. Для ${ivCount[0]} частиц первого кластера это ${ivCount[0]*(ivCount[0]-1)/2} пар.</p>`},
- {c:"        q1 = min(q1, dist(p, p1))",h:"Запоминаем меньшее",n:`<p>Если расстояние новой пары меньше того, что уже лежит в <code>q1</code>, запоминаем его. То же самое длинно:</p><pre>d = dist(p, p1)\nif d &lt; q1:\n    q1 = d</pre><p>Итог для файла: <b>q1 = ${pyNum(SOL.q1)}</b>, это пара из кластера ${minCl+1}.</p>`}
-],
-q2:[
- {c:"centers = [centr(group) for group in cl]",h:"Энергии трёх центров",n:`<p>Зовём <code>centr</code> для каждого кластера и собираем результаты в список. То же длинно:</p><pre>centers = []\nfor group in cl:\n    centers.append(centr(group))</pre><p>Для файла: <code>[${cE.map(pyNum).join(", ")}]</code>.</p>`},
- {c:"q2 = sum(centers) / len(centers)",h:"Среднее арифметическое",n:`<p>Сумма, делённая на количество. <code>len(centers)</code> равно 3; с <code>len</code> код не нужно править, если кластеров станет больше.</p><p>Q2 = ${pyNum(SOL.q2)}.</p>`},
- {c:"print(int(q1 * 10000), int(q2 * 10000))",h:"Ответ в нужном формате",n:`<p>Умножение на 10 000 сдвигает запятую на 4 знака вправо, <code>int</code> отбрасывает дробную часть.</p><p>Программа напечатает <b>${V.ans}</b>.</p>`}
-]};
-
-document.querySelectorAll("[data-anno]").forEach(box=>{
-  const lines=ANNO[box.dataset.anno];
-  const ol=document.createElement("ol");ol.className="code";ol.setAttribute("role","listbox");ol.setAttribute("aria-label","Код по строкам: стрелки вверх и вниз переключают строку");
-  const note=document.createElement("div");note.className="note";note.setAttribute("aria-live","polite");
-  const btns=lines.map((L,i)=>{
-    const li=document.createElement("li");li.setAttribute("role","presentation");
-    const b=document.createElement("button");b.type="button";b.setAttribute("role","option");
-    b.innerHTML=`<span class="ln">${i+1}</span><span>${L.c?hl(L.c):" "}</span>`;
-    b.addEventListener("click",()=>show(i));
-    b.addEventListener("keydown",e=>{if(e.key==="ArrowDown"){e.preventDefault();show(Math.min(i+1,lines.length-1),true)}if(e.key==="ArrowUp"){e.preventDefault();show(Math.max(i-1,0),true)}});
-    li.appendChild(b);ol.appendChild(li);return b;
-  });
-  const real=lines.map((L,i)=>i).filter(i=>lines[i].c);
-  function show(i,focus){
-    btns.forEach((b,j)=>{b.setAttribute("aria-selected",String(j===i));b.tabIndex=j===i?0:-1});
-    if(focus)btns[i].focus();
-    const L=lines[i],pos=real.indexOf(i);
-    const prev=real[pos-1],next=real[pos+1];
-    note.innerHTML=`<span class="label">Строка ${i+1} из ${lines.length}</span><h3>${L.h}</h3>${L.n}<div class="nav"><button class="btn" type="button" data-go="${prev??""}" ${prev===undefined?"disabled":""}>← Назад</button><button class="btn primary" type="button" data-go="${next??""}" ${next===undefined?"disabled":""}>Следующая строка →</button></div>`;
-    note.querySelectorAll("[data-go]").forEach(x=>x.addEventListener("click",()=>{if(x.dataset.go!=="")show(+x.dataset.go)}));
-  }
-  box.append(ol,note);show(0);
-});
-
-/* ---------- проверь себя ---------- */
-const exQ=SOL.q2*10000;
-const QUIZ={
-read:[
- {q:"Зачем в строке нужен replace(',', '.')?",o:[
-  ["Python понимает дробные числа только с точкой",1,`Верно. <code>float('${esc(L0[0])}')</code> выдаст <code>ValueError</code>, а <code>float('${esc(L0[0].replace(",","."))}')</code> — число.`],
-  ["Чтобы split разрезал строку по запятым",0,"Нет. <code>split()</code> без аргументов режет по пробелам и табуляциям. Запятая стоит внутри числа, а не между числами."],
-  ["Чтобы убрать лишние запятые между значениями",0,"Значения разделены табуляцией. Запятая — это десятичный разделитель внутри каждого числа."]]},
- {q:"Почему в map(float, ...) пять переменных, а не шесть?",o:[
-  ["Шестая — признак, это текст вроде 'IV'",1,"Верно. Признак не число: <code>float('IV')</code> выдал бы ошибку. Его сравнивают как строку."],
-  ["Python не умеет переводить больше пяти значений",0,"<code>map</code> работает со списком любой длины. Дело в самом значении: <code>'IV'</code> не превращается в число."],
-  ["Масса m уже число, её переводить не надо",0,"После <code>split()</code> все шесть значений — строки, и масса тоже. Её мы как раз переводим; не переводим только признак <code>t</code>."]]}
-],
-split:[
- {q:"У частицы E = 4 ровно. Куда её положит программа?",o:[
-  ["В cl[0]",0,"Условие <code>E &lt; 4</code> ложно: 4 не меньше 4. Программа перейдёт к <code>elif</code>."],
-  ["В cl[1]",1,"Верно. <code>E &lt; 4</code> ложно, <code>E &lt; 7.5</code> истинно. В файле разбора таких частиц нет: граница стоит в пустом промежутке."],
-  ["Ни в какой, частица пропадёт",0,"Благодаря <code>else</code> каждая частица попадает ровно в один кластер."]]},
- {q:"Почему границы 4 и 7,5?",o:[
-  ["Так сказано в условии",0,"В условии границ нет. Там сказано только, что кластеры узкие: разница энергий не больше 2."],
-  ["Подходит любое число из пустого промежутка между группами",1,"Верно. Сдвинь ползунок внутри промежутка: кластеры и ответ не меняются."],
-  ["Граница всегда равна минимальной энергии плюс R",0,`Тогда первая граница была бы ${fmt(P[G[0].reduce((a,i)=>P[i].E<P[a].E?i:a,G[0][0])].E+2,2)}. Это случайно попадает в промежуток, но правила такого нет: R только ограничивает ширину кластера.`]]},
- {q:"Первую границу поставили на 3. Что изменится?",o:[
-  ["Ничего",0,"Часть частиц первой группы (с энергией от 3 до "+fmt(Math.max(...G[0].map(i=>P[i].E)),2)+") перейдёт во второй кластер."],
-  ["Во втором кластере разница энергий станет больше 2",1,"Верно. Второй кластер растянется от 3 до "+fmt(Math.max(...G[1].map(i=>P[i].E)),2)+". Условие нарушено, значит, граница неверна."],
-  ["Программа выдаст ошибку",0,"Ошибки не будет: программа тихо разложит частицы неправильно, и ответ получится неверным."]]}
-],
-center:[
- {q:"Что возвращает функция centr(group)?",o:[
-  ["Энергию центральной частицы",1,"Верно. <code>min(m)[1]</code> — частица, а <code>[2]</code> — её энергия."],
-  ["Саму частицу целиком",0,"Частица — это <code>min(m)[1]</code>. Последний индекс <code>[2]</code> достаёт из неё энергию."],
-  ["Минимальную сумму s",0,"Сумма — это <code>min(m)[0]</code>. В коде стоит <code>[1][2]</code>."]]},
- {q:"Энергии кластера: 1, 2, 10. У какой частицы энергия-центр?",o:[
-  ["2",1,"Верно. Суммы: для 1 — 0 + 1 + 9 = 10, для 2 — 1 + 0 + 8 = 9, для 10 — 9 + 8 + 0 = 17. Минимум у 2."],
-  ["4,33 — среднее арифметическое",0,"Среднее (1 + 2 + 10) / 3 ≈ 4,33 не совпадает ни с одной частицей. По условию центр — частица кластера."],
-  ["10 — самая большая энергия",0,"У частицы с энергией 10 сумма самая большая: 9 + 8 + 0 = 17."]]}
-],
-pairs:[
- {q:"Сколько пар выдаст combinations для 5 элементов?",o:[
-  ["10",1,"Верно: 5 · 4 / 2 = 10."],
-  ["20",0,"20 = 5 · 4 — это пары с учётом порядка: A–B и B–A посчитаны дважды. <code>combinations</code> выдаёт каждую пару один раз: 20 / 2 = 10."],
-  ["25",0,"25 = 5 · 5 — сюда попали и пары элемента с самим собой, и повторы. Пар без повторов 10."]]},
- {q:"Почему во втором цикле range(i + 1, n), а не range(n)?",o:[
-  ["Иначе будет пара частицы с самой собой",1,"Верно, и её расстояние 0 сделает минимум нулём. Заодно уходят повторы B–A."],
-  ["Так быстрее, ответ не изменится",0,"Ответ изменится: при <code>j = i</code> расстояние 0, и <code>q1</code> станет 0."],
-  ["Иначе выйдем за границы списка",0,"<code>range(n)</code> не выходит за границы. Проблема в паре i = j с расстоянием 0."]]}
-],
-q1:[
- {q:"Что напечатает программа, если написать q1 = 0?",o:[
-  ["0 "+SOL.a2,1,"Верно. Расстояние не бывает меньше нуля, <code>min</code> всё время оставляет 0. Нужен старт с бесконечности."],
-  [V.ans,0,"Ответ был бы правильным, если бы начали с <code>float('inf')</code>. С нулём <code>min(0, d)</code> всегда равен 0."],
-  ["Ошибку",0,"Ошибки не будет: программа тихо напечатает 0 в первой части ответа."]]},
- {q:"Какие частицы сравнивает combinations(type_IV, 2)?",o:[
-  ["Любые две частицы IV из файла",0,"Список <code>type_IV</code> собирается заново для каждого кластера. Частицы из разных кластеров в одну пару не попадают."],
-  ["Две разные частицы IV одного кластера",1,"Верно. Так и требует условие."],
-  ["Частицу IV и центр кластера",0,"Центр в Q1 не участвует. Он нужен только для Q2."]]},
- {q:"Чем считаем расстояние для Q1?",o:[
-  ["Разностью энергий",0,"Энергия нужна для кластеров и центра. Расстояние в условии — на плоскости, по x и y."],
-  ["По координатам x и y, по теореме Пифагора",1,"Верно. <code>dist</code> берёт <code>x1, y1, x2, y2</code>, энергию не трогает."],
-  ["Разностью номеров строк в файле",0,"Номер строки — просто порядок записи, к расстоянию отношения не имеет."]]}
-],
-q2:[
- {q:"Что такое Q2?",o:[
-  ["Среднее энергий трёх центров",1,`Верно: (${cE.map(e=>fmt(e,4)).join(" + ")}) / 3 ≈ ${fmt(SOL.q2,4)}.`],
-  ["Среднее энергий всех частиц файла",0,`Это другое число: ${fmt(meanAll,4)}. Кластеры разного размера, поэтому среднее по всем частицам не равно среднему по центрам.`],
-  ["Наибольшая энергия центра",0,`Это ${fmt(Math.max(...cE),4)} — энергия центра третьего кластера. В нашем условии нужно среднее.`]]},
- {q:`q2 * 10000 = ${pyNum(exQ)}. Что идёт в ответ?`,o:[
-  [String(Math.trunc(exQ)),1,"Верно. <code>int</code> отбрасывает дробную часть."],
-  [String(Math.trunc(exQ)+1),0,"Это округление вверх. Условие просит целую часть."],
-  [pyNum(exQ),0,"В ответ записывают целое число: <code>int</code> возвращает целое."]]}
-]};
-document.querySelectorAll("[data-quiz]").forEach(box=>{
-  box.insertAdjacentHTML("beforebegin",`<h3>Проверь себя</h3>`);
-  QUIZ[box.dataset.quiz].forEach(Q=>{
-    const card=document.createElement("div");card.className="q";
-    card.innerHTML=`<h3>${esc(Q.q)}</h3><div class="opts"></div><div class="why" aria-live="polite" hidden></div>`;
-    const opts=card.querySelector(".opts"),why=card.querySelector(".why");
-    Q.o.forEach(([t,ok,ex])=>{
-      const b=document.createElement("button");b.type="button";b.className="opt";b.textContent=t;
-      b.addEventListener("click",()=>{
-        opts.querySelectorAll(".opt").forEach(x=>x.classList.remove("wrong"));
-        b.classList.add(ok?"right":"wrong");
-        why.hidden=false;why.className="why "+(ok?"good":"bad");
-        why.innerHTML=`<strong>${ok?"Да!":"Не совсем."}</strong><span>${ex}</span>`;
-      });
-      opts.appendChild(b);
-    });
-    box.appendChild(card);
-  });
-});
-
-/* ---------- графики ---------- */
-function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
-function txt(parent,x,y,s,attrs={}){const t=el("text",Object.assign({x,y,fill:"var(--soft)","font-size":15,"font-family":"var(--mono)"},attrs),parent);t.textContent=s;return t}
-const COL=["var(--c1)","var(--c2)","var(--c3)"];
-const EMAX=Math.ceil(Math.max(...P.map(p=>p.E))+0.5);
-const ex=e=>30+e/EMAX*550;
-// полоса энергий: точка по x — энергия, по y — разброс, чтобы точки не слипались
-function strip(svg,colorOf,borders){
-  svg.innerHTML="";
-  for(let e=0;e<=EMAX;e++){el("line",{x1:ex(e),x2:ex(e),y1:20,y2:232,stroke:"var(--grid)","stroke-width":1},svg);if(e<EMAX)txt(svg,ex(e),258,String(e),{"text-anchor":"middle"})}
-  txt(svg,590,258,"E",{"text-anchor":"end","font-weight":700,fill:"var(--ink)"});
-  const g=el("g",{},svg);
-  const dots=P.map(p=>el("circle",{cx:ex(p.E),cy:32+((p.line*37)%97)/96*190,r:3.4,fill:colorOf(p),opacity:.8},g));
-  const lines=(borders||[]).map(b=>{
-    const l=el("line",{x1:ex(b),x2:ex(b),y1:10,y2:236,stroke:"var(--hot)","stroke-width":2.5,"stroke-dasharray":"7 5"},svg);
-    const t=txt(svg,ex(b)+6,16,fmt(b,1),{fill:"var(--hot)","font-weight":700});
-    return {l,t};
-  });
-  return {dots,lines};
-}
-strip($("plotHero"),()=>"var(--ink)");
-
-/* ---------- конвейер строки ---------- */
-{
-  const inp=$("lnInput");inp.max=RAW_LINES.length;
-  const repr=s=>"'"+esc(s).replace(/\t/g,"<i>\\t</i>")+"<i>\\n</i>'";
-  const listStr=a=>"["+a.map(x=>"<em>'"+esc(x)+"'</em>").join(", ")+"]";
-  function render(){
-    const n=Math.max(1,Math.min(RAW_LINES.length,Math.round(+inp.value)||1));inp.value=n;
-    const raw=RAW_LINES[n-1].replace(/\r$/,""),rep=raw.replace(/,/g,"."),parts=rep.trim().split(/\s+/);
-    const p=P.find(q=>q.line===n),k=G.findIndex(g=>g.includes(p.id));
-    const rows=[
-      ["s",repr(raw)],
-      ["s.replace(',', '.')",repr(rep)],
-      [".split()",listStr(parts)],
-      ["map(float, …) для пяти",`x = ${pyNum(p.x)}, y = ${pyNum(p.y)}, vx = ${pyNum(p.vx)}, vy = ${pyNum(p.vy)}, m = ${pyNum(p.m)}, t = <em>'${esc(p.t)}'</em>`],
-      ["E = 0.5 * m * (vx**2 + vy**2)",pyNum(p.E)],
-      ["в какой кластер",`E ${p.E<4?"&lt; 4":p.E<7.5?"от 4 до 7,5":"≥ 7,5"}  →  cl[${k}]`]];
-    $("pipe").innerHTML=rows.map(([w,v])=>`<div class="pipe-row"><span class="what">${esc(w)}</span><span class="val">${v}</span></div>`).join("");
-    $("pipeSay").innerHTML=`<span>Красным отмечены невидимые символы: табуляция <b>\\t</b> и перевод строки <b>\\n</b>. После <b>replace</b> запятые стали точками, <b>split</b> разрезал строку на шесть кусочков, <b>float</b> превратил пять из них в числа. Признак остался текстом в кавычках.</span>`;
-  }
-  inp.addEventListener("input",render);
-  $("lnMinus").onclick=()=>{inp.value=+inp.value-1;render()};
-  $("lnPlus").onclick=()=>{inp.value=+inp.value+1;render()};
-  render();
-}
-
-/* ---------- границы кластеров ---------- */
-{
-  const b1=$("b1"),b2=$("b2");let S=null;
-  function upd(){
-    let x=+b1.value,y=+b2.value;const bs=[Math.min(x,y),Math.max(x,y)];
-    $("b1Val").textContent=fmt(x,1);$("b2Val").textContent=fmt(y,1);
-    b1.setAttribute("aria-valuetext",fmt(x,1));b2.setAttribute("aria-valuetext",fmt(y,1));
-    const groups=Z27P.split(P,bs);
-    const own=new Array(P.length);groups.forEach((g,k)=>g.forEach(i=>own[i]=k));
-    if(!S)S=strip($("plotSplit"),p=>COL[own[p.id]],bs);
-    S.dots.forEach((d,i)=>d.setAttribute("fill",COL[own[i]]));
-    S.lines.forEach((L,j)=>{L.l.setAttribute("x1",ex(bs[j]));L.l.setAttribute("x2",ex(bs[j]));L.t.setAttribute("x",ex(bs[j])+6);L.t.textContent=fmt(bs[j],1)});
-    const rows=groups.map((g,k)=>{
-      if(!g.length)return {k,n:0};
-      const es=g.map(i=>P[i].E);const lo=Math.min(...es),hi=Math.max(...es);return {k,n:g.length,lo,hi,ok:hi-lo<=2};
-    });
-    $("splitTbl").innerHTML=rows.map(r=>r.n?`<tr><td><span class="dot" style="background:${COL[r.k]}"></span>${r.k+1}</td><td>${r.n}</td><td>${fmt(r.lo,3)}</td><td>${fmt(r.hi,3)}</td><td>${fmt(r.hi-r.lo,3)}</td><td class="${r.ok?"good":"bad"}">${r.ok?"✓ да":"✗ нет"}</td></tr>`:`<tr><td><span class="dot" style="background:${COL[r.k]}"></span>${r.k+1}</td><td>0</td><td colspan="4" class="bad">✗ пустой кластер</td></tr>`).join("");
-    const good=rows.every(r=>r.n&&r.ok);
-    let ans="";
-    if(good){const s=Z27P.solve(P,bs,TYPE);ans=` Ответ при таких границах: <b class="mono">${s.a1} ${s.a2}</b>.`}
-    $("splitSay").innerHTML=good
-      ?`<span class="ok-msg">✓ Все три кластера подходят под условие.</span><span>Каждая граница стоит в пустом промежутке.${ans}</span>`
-      :`<span class="bad-msg">✗ Кластеры не подходят под условие.</span><span>${rows.some(r=>!r.n)?"Один из кластеров пустой: обе границы попали в один промежуток. ":""}${rows.some(r=>r.n&&!r.ok)?"Граница разрезала группу, и в один кластер попали частицы из двух групп: разница энергий больше 2.":""}</span>`;
-  }
-  b1.addEventListener("input",upd);b2.addEventListener("input",upd);
-  $("bReset").onclick=()=>{b1.value=4;b2.value=7.5;upd()};
-  upd();
-  const GAP=`energies = []
-for s in open('27.txt'):
-    x, y, vx, vy, m, t = s.replace(',', '.').split()
-    energies.append(0.5 * float(m) * (float(vx) ** 2 + float(vy) ** 2))
-energies.sort()
-for a, b in zip(energies, energies[1:]):
-    if b - a > 1:
-        print(a, b)`;
-  $("gapCode").innerHTML=hlBlock(GAP);
-  const es=P.map(p=>p.E).sort((a,b)=>a-b),out=[];
-  for(let i=1;i<es.length;i++)if(es[i]-es[i-1]>1)out.push(pyNum(es[i-1])+" "+pyNum(es[i]));
-  $("gapOut").textContent=out.join("\n");
-}
-
-/* ---------- центр: пример на пяти ---------- */
-{
-  const E=[1,2,3,7,9],S=E.map(a=>E.reduce((s,b)=>s+Math.abs(a-b),0)),best=S.indexOf(Math.min(...S));
-  $("miniTbl").innerHTML=`<thead><tr><th scope="col">кандидат</th>${E.map(e=>`<th scope="col">|E − ${e}|</th>`).join("")}<th scope="col">сумма s</th></tr></thead><tbody class="mono">`+
-    E.map((a,i)=>`<tr${i===best?' class="win"':""}><td>E = ${a}</td>${E.map(b=>`<td>${Math.abs(a-b)}</td>`).join("")}<td>${S[i]}${i===best?" ← минимум":""}</td></tr>`).join("")+"</tbody>";
-  $("miniSay").innerHTML=`Центр — частица с энергией <b>${E[best]}</b>: она третья из пяти по порядку. Среднее (1 + 2 + 3 + 7 + 9) / 5 = 4,4 — такой частицы нет, поэтому среднее не может быть центром.`;
-}
-
-/* ---------- центр: файл разбора ---------- */
-{
-  const svg=$("plotCenter"),inp=$("cand");let cur=0,data=null;
-  const btns=[...document.querySelectorAll("[data-cl]")];
-  function build(){
-    const ids=G[cur],ss=Z27P.sums(P,ids).map(r=>({i:r.i,s:r.s,E:P[r.i].E})).sort((a,b)=>a.E-b.E);
-    const best=ss.reduce((a,r)=>r.s<a.s?r:a,ss[0]);
-    data={ss,best,bestK:ss.indexOf(best)};
-    inp.max=ss.length-1;inp.value=data.bestK;
-  }
-  function render(){
-    const {ss,best,bestK}=data,k=+inp.value,c=ss[k];
-    const e0=ss[0].E,e1=ss[ss.length-1].E,smax=Math.max(...ss.map(r=>r.s));
-    const X=e=>60+(e-e0)/(e1-e0)*520,Y=s=>340-s/smax*300;
-    svg.innerHTML="";
-    for(let j=0;j<=4;j++){const s=smax*j/4;el("line",{x1:60,x2:585,y1:Y(s),y2:Y(s),stroke:"var(--grid)"},svg);txt(svg,54,Y(s)+5,String(Math.round(s)),{"text-anchor":"end"})}
-    for(let e=Math.ceil(e0*2)/2;e<=e1;e+=0.5){el("line",{x1:X(e),x2:X(e),y1:30,y2:340,stroke:"var(--grid)"},svg);txt(svg,X(e),364,fmt(e,1),{"text-anchor":"middle"})}
-    txt(svg,64,22,"сумма s",{fill:"var(--ink)","font-weight":700});
-    ss.forEach(r=>el("circle",{cx:X(r.E),cy:Y(r.s),r:3.2,fill:COL[cur],opacity:.75},svg));
-    el("line",{x1:X(c.E),x2:X(c.E),y1:Y(c.s),y2:340,stroke:"var(--hot)","stroke-width":2,"stroke-dasharray":"5 4"},svg);
-    el("circle",{cx:X(best.E),cy:Y(best.s),r:9,fill:"var(--ok)",stroke:"var(--bg)","stroke-width":2},svg);
-    el("circle",{cx:X(c.E),cy:Y(c.s),r:8,fill:"none",stroke:"var(--hot)","stroke-width":3},svg);
-    const left=k,right=ss.length-1-k;
-    $("candVal").textContent=`${k+1} из ${ss.length} по порядку энергии`;
-    inp.setAttribute("aria-valuetext",`кандидат ${k+1} из ${ss.length}, энергия ${fmt(c.E,4)}, сумма ${fmt(c.s,2)}`);
-    $("cSay").innerHTML=`<span>Кандидат: строка ${P[c.i].line}, E = <b class="mono">${fmt(c.E,4)}</b>, сумма s = <b class="mono">${fmt(c.s,3)}</b>.</span><span>Частиц с меньшей энергией: ${left}, с большей: ${right}.</span>`+
-      (k===bestK?`<span class="ok-msg">✓ Это центр: меньшей суммы в кластере нет. Слева и справа поровну.</span>`
-       :`<span>${left<right?"Справа частиц больше: шаг вправо уменьшит сумму.":"Слева частиц больше: шаг влево уменьшит сумму."} У центра (кандидат ${bestK+1}) сумма ${fmt(best.s,3)}.</span>`);
-  }
-  btns.forEach(b=>b.onclick=()=>{cur=+b.dataset.cl;btns.forEach(x=>x.setAttribute("aria-pressed",String(x===b)));build();render()});
-  inp.addEventListener("input",render);
-  build();render();
-}
-
-/* ---------- пары на четырёх точках ---------- */
-{
-  const pts=[{n:"A",x:1,y:2},{n:"B",x:5,y:6},{n:"C",x:9,y:1},{n:"D",x:-2,y:3}];
-  const prs=[];for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)prs.push([pts[i],pts[j]]);
-  const X=x=>60+(x+3)*40,Y=y=>330-y*42,svg=$("plotPairs");
-  let cur=-1;const seen=new Set();
-  const box=$("pairBtns");
-  const pb=prs.map(([a,b],i)=>{const t=document.createElement("button");t.type="button";t.className="btn";t.textContent=a.n+"–"+b.n;t.setAttribute("aria-pressed","false");t.onclick=()=>go(i);box.appendChild(t);return t});
-  const d=([a,b])=>Math.hypot(a.x-b.x,a.y-b.y),sg=v=>v<0?`(−${-v})`:String(v);
-  function go(i){cur=i;seen.add(i);render()}
-  function render(){
-    svg.innerHTML="";
-    for(let x=-3;x<=10;x++){el("line",{x1:X(x),x2:X(x),y1:20,y2:350,stroke:"var(--grid)"},svg);if(x%2===0)txt(svg,X(x)+3,368,String(x))}
-    for(let y=0;y<=7;y++){el("line",{x1:20,x2:590,y1:Y(y),y2:Y(y),stroke:"var(--grid)"},svg);if(y)txt(svg,24,Y(y)-4,String(y))}
-    let best=null;for(const i of seen)if(best===null||d(prs[i])<d(prs[best]))best=i;
-    if(best!==null&&best!==cur){const [a,b]=prs[best];el("line",{x1:X(a.x),y1:Y(a.y),x2:X(b.x),y2:Y(b.y),stroke:"var(--ok)","stroke-width":3,"stroke-dasharray":"8 6"},svg)}
-    if(cur>=0){const [a,b]=prs[cur];
-      el("line",{x1:X(a.x),y1:Y(a.y),x2:X(b.x),y2:Y(a.y),stroke:"var(--soft)","stroke-dasharray":"5 4","stroke-width":2},svg);
-      el("line",{x1:X(b.x),y1:Y(a.y),x2:X(b.x),y2:Y(b.y),stroke:"var(--soft)","stroke-dasharray":"5 4","stroke-width":2},svg);
-      el("line",{x1:X(a.x),y1:Y(a.y),x2:X(b.x),y2:Y(b.y),stroke:"var(--hot)","stroke-width":3.5},svg)}
-    pts.forEach(p=>{const on=cur>=0&&prs[cur].includes(p);el("circle",{cx:X(p.x),cy:Y(p.y),r:10,fill:on?"var(--hot)":"var(--ink)",stroke:"var(--bg)","stroke-width":2},svg);txt(svg,X(p.x),Y(p.y)-16,p.n,{"text-anchor":"middle","font-size":18,"font-weight":700,fill:"var(--ink)"})});
-    pb.forEach((b,i)=>{b.setAttribute("aria-pressed",String(i===cur));b.classList.toggle("seen",seen.has(i))});
-    if(cur<0){$("pairSay").innerHTML=`<span>Пар всего <b>${prs.length}</b>. Сначала <code>q1 = inf</code>. Нажми «Следующая пара».</span>`;return}
-    const [a,b]=prs[cur],v=d(prs[cur]),q=d(prs[best]);
-    $("pairSay").innerHTML=`<span>Пара ${cur+1} из ${prs.length}: <b>${a.n}–${b.n}</b></span><span class="mono">√((${sg(b.x)} − ${sg(a.x)})² + (${sg(b.y)} − ${sg(a.y)})²) = ${fmt(v,3)}</span><span>Самое маленькое из просмотренных: <b class="mono">q1 = ${fmt(q,3)}</b> (${prs[best][0].n}–${prs[best][1].n}, зелёный пунктир).${seen.size===prs.length?" <span class=\"ok-msg\">Все пары просмотрены.</span>":""}</span>`;
-  }
-  $("pairNext").onclick=()=>go((cur+1)%prs.length);
-  $("pairReset").onclick=()=>{cur=-1;seen.clear();render()};
-  render();
-  $("loopCode").innerHTML=hlBlock(`n = len(type_IV)
-for i in range(n):
-    for j in range(i + 1, n):
-        q1 = min(q1, dist(type_IV[i], type_IV[j]))`);
-}
-
-/* ---------- Q1 на плоскости ---------- */
-{
-  const svg=$("plotQ1"),S=600/44,X=x=>(x+22)*S,Y=y=>600-(y+22)*S;let cur=0,sel=null;
-  const btns=[...document.querySelectorAll("[data-q]")];
-  $("q1Tbl").innerHTML=SOL.pr.map((r,k)=>`<tr${k===minCl?' class="win"':""}><td>${k+1}</td><td>${r.own.length}</td><td>${r.count}</td><td>${r.best?fmt(r.best.d,4):"—"}${k===minCl?" ← Q1":""}</td></tr>`).join("");
-  function render(){
-    svg.innerHTML="";
-    for(let v=-20;v<=20;v+=5){el("line",{x1:X(v),x2:X(v),y1:0,y2:600,stroke:"var(--grid)"},svg);el("line",{y1:Y(v),y2:Y(v),x1:0,x2:600,stroke:"var(--grid)"},svg);txt(svg,X(v)+4,592,String(v));if(v>-20)txt(svg,6,Y(v)-5,String(v))}
-    const R=SOL.pr[cur],ids=G[cur],own=new Set(R.own);
-    ids.forEach(i=>{if(!own.has(i))el("circle",{cx:X(P[i].x),cy:Y(P[i].y),r:3,fill:"var(--idle)",opacity:.6},svg)});
-    let pair=R.best,note="";
-    if(sel!==null){let b=null;for(const j of R.own)if(j!==sel){const v=Z27P.dist(P[sel],P[j]);if(!b||v<b.d)b={d:v,a:sel,b:j}}pair=b}
-    if(pair){const a=P[pair.a],b=P[pair.b];
-      el("line",{x1:X(a.x),y1:Y(a.y),x2:X(b.x),y2:Y(b.y),stroke:sel===null?"var(--ok)":"var(--hot)","stroke-width":4,"stroke-linecap":"round"},svg);
-      el("circle",{cx:X((a.x+b.x)/2),cy:Y((a.y+b.y)/2),r:22,fill:"none",stroke:sel===null?"var(--ok)":"var(--hot)","stroke-width":2.5},svg)}
-    R.own.forEach(i=>{const c=el("circle",{cx:X(P[i].x),cy:Y(P[i].y),r:i===sel?9:6.5,fill:COL[cur],stroke:i===sel?"var(--ink)":"var(--bg)","stroke-width":i===sel?3:1.5},svg);
-      c.style.cursor="pointer";const t=el("title",{},c);t.textContent=`строка ${P[i].line}: x = ${fmt(P[i].x,3)}, y = ${fmt(P[i].y,3)}`;
-      c.addEventListener("click",()=>{sel=sel===i?null:i;render()})});
-    if(sel!==null&&pair)note=`<span>Выбрана частица из строки ${P[sel].line}. Её ближайшая соседка IV — строка ${P[pair.b].line}, расстояние <b class="mono">${fmt(pair.d,4)}</b>${pair.d===R.best.d?" — это и есть самая близкая пара кластера.":`. Самая близкая пара кластера ближе: ${fmt(R.best.d,4)}.`} Нажми на точку ещё раз, чтобы снять выбор.</span>`;
-    $("q1Say").innerHTML=`<span>Кластер ${cur+1}: ${ids.length} ${word(ids.length)}, из них с признаком IV — <b>${R.own.length}</b>. Пар: ${R.own.length} · ${R.own.length-1} / 2 = <b>${R.count}</b>.</span>`+
-      (R.best?`<span>Самая близкая пара: строки ${P[R.best.a].line} и ${P[R.best.b].line}, расстояние <b class="mono">${fmt(R.best.d,4)}</b>.${cur===minCl?' <span class="ok-msg">Меньше, чем в других кластерах — это Q1.</span>':""}</span>`:"")+note;
-  }
-  btns.forEach(b=>b.onclick=()=>{cur=+b.dataset.q;sel=null;btns.forEach(x=>x.setAttribute("aria-pressed",String(x===b)));render()});
-  render();
-  const ib=[...document.querySelectorAll("[data-init]")];
-  function init(mode){
-    ib.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.init===mode)));
-    $("initSay").innerHTML=mode==="inf"
-      ?`<span>Первая пара сразу заменяет бесконечность, дальше <code>min</code> оставляет меньшее. Программа печатает <b class="mono">${V.ans}</b>. <span class="ok-msg">Верно.</span></span>`
-      :`<span><code>min(0, ${fmt(SOL.pr[0].best.d,4).replace(",",".")})</code> = 0, и так для каждой из ${SOL.pr.reduce((a,r)=>a+r.count,0)} пар: расстояние не бывает меньше нуля. Программа печатает <b class="mono">0 ${SOL.a2}</b>. <span class="bad-msg">Ошибки нет, а ответ неверный.</span></span><span>Для максимума старт с 0 подходит: любое расстояние больше нуля. Для минимума — только бесконечность или первое расстояние.</span>`;
-  }
-  ib.forEach(b=>b.onclick=()=>init(b.dataset.init));init("inf");
-}
-
-/* ---------- Q2 и ответ ---------- */
-{
-  const c=SOL.centers;
-  $("calc").innerHTML=c.map((r,k)=>`<div>центр кластера ${k+1}: строка ${P[r.i].line}, E = ${pyNum(P[r.i].E)}</div>`).join("")+
-    `<div>q2 = (${cE.map(pyNum).join(" + ")}) / 3 = ${pyNum(SOL.q2)}</div><div>q1 = ${pyNum(SOL.q1)} (кластер ${minCl+1})</div><div>q1 * 10000 = ${pyNum(SOL.q1*10000)}</div><div>q2 * 10000 = ${pyNum(SOL.q2*10000)}</div>`;
-  $("ans1").textContent=SOL.a1;$("ans2").textContent=SOL.a2;
-  $("intRound").innerHTML=[SOL.q1*10000,SOL.q2*10000].map(v=>{const r=Math.round(v),bad=r!==Math.trunc(v);
-    return `<tr><td>${pyNum(v)}</td><td>${Math.trunc(v)}</td><td${bad?' class="bad"':""}>${r}${bad?" ✗ не то":""}</td></tr>`}).join("");
-}
-
-/* ---------- весь код и файл ---------- */
-$("fullCode").innerHTML=hlBlock(FULL);
-$("copyBtn").onclick=async e=>{
-  const b=e.currentTarget;
-  try{await navigator.clipboard.writeText(FULL);b.textContent="Скопировано"}
-  catch(err){const r=document.createRange();r.selectNodeContents($("fullCode"));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Выделено: нажми Ctrl+C"}
-  setTimeout(()=>b.textContent="Копировать",2200);
-};
-$("dlBtn").onclick=()=>{
-  try{const url=URL.createObjectURL(new Blob([RAW_LINES.join("\r\n")+"\r\n"],{type:"text/plain"}));const a=document.createElement("a");a.href=url;a.download="27.txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}catch(e){}
+const TASKS = {
+  demo: {file: '27.txt', K: 4, R: 2, bounds: [3.5, 6, 8.5], tag: 'III', ret: '[1][2]', sliderStep: 0.05,
+    head: ['from itertools import combinations', 'from math import dist'],
+    rest: ['q1 = 0', 'for group in cl:', "    type_III = [p for p in group if p[3] == 'III']", '    for p, p1 in combinations(type_III, 2):', '        q1 = max(q1, dist(p[:2], p1[:2]))', '', 'centers = [centr(group) for group in cl]', 'q2 = max(centers)', 'print(int(q1 * 10000), int(q2 * 10000))']},
+  stat: {file: '27_2.txt', K: 5, R: 5.61, bounds: [38.5, 45.5, 52.5, 59.5], tag: 'V', ret: '[1]', sliderStep: 0.1, A: [1, 4.5],
+    head: ['from math import dist'],
+    rest: ['centers = [centr(group) for group in cl]', "counts = [sum(p[3] == 'V' for p in group) for group in cl]", '', 'i_min = counts.index(min(counts))', 'i_max = counts.index(max(counts))', 'q1 = centers[i_min][2]', 'q2 = dist([1, 4.5], centers[i_max][:2])', 'print(int(q1 * 10000), int(q2 * 10000))']}
 };
 
-/* ---------- свой файл ---------- */
-let lastText=null,lastName="";
-function analyse(text,name){
-  const {pts,bad}=Z27P.parseText(text);
-  $("upPlate").hidden=false;
-  const clear=()=>{$("upTbl").innerHTML="";$("up1").textContent=$("up2").textContent="—"};
-  if(pts.length<2){$("upSay").innerHTML=`<span class="bad-msg">В файле «${esc(name)}» не нашлось частиц.</span><span>В каждой строке должно быть шесть значений: x, y, vx, vy, m и признак.</span>`;clear();return}
-  const K=Math.max(1,Math.round(+$("upK").value)||1),R=Math.max(0,+$("upR").value||0),T=$("upT").value,m1=$("upQ1").value,m2=$("upQ2").value;
-  const groups=Z27P.split(pts,Z27P.autoBorders(pts,K));
-  if(groups.some(g=>!g.length)){$("upSay").innerHTML=`<span class="bad-msg">Частиц меньше, чем кластеров.</span>`;clear();return}
-  const rows=groups.map(g=>{
-    const es=g.map(i=>pts[i].E),lo=Math.min(...es),hi=Math.max(...es);
-    const c=Z27P.centrFast(pts,g),pr=Z27P.pairs(pts,g,T,m1);
-    return {n:g.length,lo,hi,ok:hi-lo<=R+1e-9,cE:pts[c.i].E,own:pr.own.length,d:pr.best?pr.best.d:null};
-  });
-  const ds=rows.map(r=>r.d).filter(d=>d!==null),cs=rows.map(r=>r.cE);
-  const q1=ds.length?(m1==="min"?Math.min(...ds):Math.max(...ds)):null;
-  const q2=m2==="avg"?cs.reduce((a,b)=>a+b,0)/cs.length:m2==="max"?Math.max(...cs):Math.min(...cs);
-  const allOk=rows.every(r=>r.ok);
-  $("upTbl").innerHTML=rows.map((r,k)=>`<tr><td>${k+1}</td><td>${r.n}</td><td>${fmt(r.lo,3)}</td><td>${fmt(r.hi,3)}</td><td class="${r.ok?"good":"bad"}">${r.ok?"✓":"✗"} ${fmt(r.hi-r.lo,3)}</td><td>${fmt(r.cE,6)}</td><td>${r.own}</td><td>${r.d===null?"—":fmt(r.d,5)}</td></tr>`).join("");
-  $("upSay").innerHTML=`<span>Файл «${esc(name)}»: <b>${pts.length}</b> ${word(pts.length)}${bad.length?`, пропущено строк: ${bad.length} (например, строка ${bad[0]})`:""}.</span>`+
-    (allOk?`<span class="ok-msg">✓ Во всех ${K} кластерах разница энергий не больше R = ${fmt(R,1)}.</span>`:`<span class="bad-msg">✗ В каком-то кластере разница энергий больше R.</span><span>Проверь число кластеров: возможно, в файле их другое количество.</span>`)+
-    (q1===null?`<span class="bad-msg">Ни в одном кластере нет двух частиц с признаком ${esc(T)}.</span>`:"");
-  $("up1").textContent=q1===null?"—":Math.trunc(q1*10000);$("up2").textContent=Math.trunc(q2*10000);
+// ---------- расчёты по данным ----------
+function build(T, text) {
+  const D = Object.assign({}, T);
+  D.lines = text.trim().split(/\r?\n/);
+  D.P = D.lines.map(raw => { const a = raw.replace(/,/g, '.').trim().split(/\s+/); const [x, y, vx, vy, m] = a.slice(0, 5).map(Number); return {raw, x, y, vx, vy, m, t: a[5], E: 0.5 * m * (vx ** 2 + vy ** 2)}; });
+  D.Es = D.P.map(p => p.E).sort((a, b) => a - b);
+  D.gaps = D.Es.slice(1).map((e, i) => ({lo: D.Es[i], hi: e, w: e - D.Es[i]})).sort((a, b) => b.w - a.w).slice(0, T.K - 1).sort((a, b) => a.lo - b.lo);
+  D.which = (p, B = T.bounds) => { let i = 0; while (i < B.length && p.E >= B[i]) i++; return i; };
+  D.split = B => { const g = B.map(() => []).concat([[]]); for (const p of D.P) g[D.which(p, B)].push(p); return g; };
+  D.CL = D.split(T.bounds);
+  D.CENTERS = D.CL.map(g => { let best = null, bs = Infinity; for (const p of g) { let s = 0; for (const q of g) s += Math.abs(p.E - q.E); if (s < bs) { bs = s; best = p; } } return best; });
+  D.code = program(T);
+  D.B = T.bounds.slice();
+  D.lineIdx = 0;
+  const lo = D.Es[0], hi = D.Es[D.Es.length - 1];
+  D.tick = hi - lo > 20 ? 5 : 1;
+  D.EMIN = Math.floor(lo / D.tick) * D.tick; D.EMAX = Math.ceil(hi / D.tick) * D.tick;
+  if (D.EMIN > lo - (hi - lo) * 0.03) D.EMIN -= D.tick;
+  let seed = 7; D.jit = D.P.map(() => (seed = (seed * 16807) % 2147483647) / 2147483647);
+  return D;
 }
-const readFile=file=>{const fr=new FileReader();fr.onload=()=>{lastText=String(fr.result);lastName=file.name;analyse(lastText,lastName)};fr.readAsText(file)};
-$("fileInput").addEventListener("change",e=>{const f=e.target.files[0];if(f)readFile(f)});
-$("useOwn").onclick=()=>{lastText=RAW;lastName="27.txt";analyse(lastText,lastName)};
-["upK","upR","upT","upQ1","upQ2"].forEach(id=>$(id).addEventListener("change",()=>{if(lastText)analyse(lastText,lastName)}));
-const drop=$("drop");
-["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
-["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
-drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)readFile(f)});
+const DATA = {demo: build(TASKS.demo, $('data-demo').textContent), stat: build(TASKS.stat, $('data-stat').textContent)};
+{ // демоверсия: Q1 — самая далёкая пара III внутри кластера, Q2 — max энергии центров
+  const D = DATA.demo, dist = (a, b) => Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+  D.FAR = D.CL.map(g => { const t = g.filter(p => p.t === D.tag); let best = {d: 0}; for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) { const d = dist(t[i], t[j]); if (d > best.d) best = {d, a: t[i], b: t[j]}; } return {n: t.length, ...best}; });
+  D.Q1 = Math.max(...D.FAR.map(f => f.d)); D.Q2 = Math.max(...D.CENTERS.map(c => c.E));
+}
+{ // СтатГрад: Q1 — энергия центра, где V меньше всего; Q2 — расстояние от A до центра, где V больше всего
+  const D = DATA.stat;
+  D.counts = D.CL.map(g => g.filter(p => p.t === D.tag).length);
+  D.iMin = D.counts.indexOf(Math.min(...D.counts)); D.iMax = D.counts.indexOf(Math.max(...D.counts));
+  D.Q1 = D.CENTERS[D.iMin].E;
+  const c = D.CENTERS[D.iMax]; D.Q2 = Math.sqrt((c.x - D.A[0]) ** 2 + (c.y - D.A[1]) ** 2);
+}
 
-/* ---------- подсветка шага в навигации ---------- */
-const links=[...document.querySelectorAll("#stepsNav a")];
-if("IntersectionObserver" in window){
-  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>{const on=a.getAttribute("href")==="#"+e.target.id;a.classList.toggle("on",on);if(on){a.setAttribute("aria-current","step");a.scrollIntoView({block:"nearest",inline:"nearest"})}else a.removeAttribute("aria-current")})}})},{rootMargin:"-40% 0px -55% 0px"});
-  links.forEach(a=>{const s=document.querySelector(a.getAttribute("href"));if(s)io.observe(s)});
+// ---------- подсветка Python ----------
+function hlPy(src) {
+  return esc(src).replace(/(#.*$)|('[^']*')|\b(from|import|for|in|if|elif|else|def|return)\b|\b(\d+\.?\d*)\b|\b(open|map|float|sum|abs|min|max|int|print|dist|combinations|len|index)\b/gm,
+    (m, c, s, k, n, f) => c ? `<span class="c">${c}</span>` : s ? `<span class="s">${s}</span>` : k ? `<span class="k">${k}</span>` : n ? `<span class="n">${n}</span>` : `<span class="f">${f}</span>`);
 }
-})();
+function setCode(e, lines, on = []) { e.classList.toggle('has-hl', on.length > 0); e.innerHTML = lines.map((l, i) => `<span class="ln${on.includes(i) ? ' hl' : ''}">${hlPy(l) || ' '}</span>`).join(''); }
+// код всегда целиком: без переносов и прокрутки — если не влезает, уменьшаем шрифт
+function fitCode(s) {
+  const stage = $('stage'), W = s.clientWidth, sTop = stage.getBoundingClientRect().top;
+  s.querySelectorAll('pre.code').forEach(pre => {
+    if (pre.closest('.fullwrap')) return;
+    pre.style.fontSize = '';
+    if (!pre.offsetParent) return;
+    const maxW = pre.closest('.codegrid') ? W * 0.66 : W - 200;
+    const k = maxW / pre.scrollWidth;
+    if (k < 1) pre.style.fontSize = Math.max(12, 21 * k) + 'px';
+  });
+  s.querySelectorAll('.fullwrap').forEach(w => {
+    const pres = [...w.querySelectorAll('pre')]; pres.forEach(p => p.style.fontSize = '');
+    if (!w.offsetParent) return;
+    const top = w.getBoundingClientRect().top - sTop + stage.scrollTop;
+    const maxH = stage.clientHeight - top - 16;
+    const kh = maxH / Math.max(...pres.map(p => p.scrollHeight));
+    const kw = (W - 30) / pres.reduce((a, p) => a + p.scrollWidth, 0);
+    const k = Math.min(1.15, kh, kw);
+    pres.forEach(p => p.style.fontSize = Math.max(12, 21 * k) + 'px');
+  });
+}
+const block = (D, first, n) => { const i = D.code.findIndex(l => l.startsWith(first)); return D.code.slice(i, i + n); };
+
+// ---------- ось энергии ----------
+function drawAxis(D, svg, {bounds = null, gaps = false, colorBy = null, h = 250} = {}) {
+  const ex = e => 40 + (e - D.EMIN) / (D.EMAX - D.EMIN) * 920;
+  svg.innerHTML = '';
+  if (gaps) for (const g of D.gaps) {
+    el('rect', {x: ex(g.lo), y: 10, width: ex(g.hi) - ex(g.lo), height: h - 60, class: 'gapband', rx: 6}, svg);
+    el('text', {x: (ex(g.lo) + ex(g.hi)) / 2, y: 28, 'text-anchor': 'middle', style: 'font-weight:700;fill:var(--hl-ink)'}, svg, 'пусто');
+  }
+  const top = 36, span = h - 100, r = D.P.length > 4000 ? 1.8 : 2.6;
+  D.P.forEach((p, i) => el('circle', {cx: ex(p.E), cy: top + D.jit[i] * span, r, fill: colorBy ? col(colorBy(p)) : 'var(--dot)', opacity: .8}, svg));
+  axisTicks(D, svg, ex, h);
+  if (bounds) bounds.forEach(b => { el('line', {x1: ex(b), x2: ex(b), y1: 4, y2: h - 50, stroke: 'var(--bad)', 'stroke-width': 3, 'stroke-dasharray': '8 5'}, svg); el('text', {x: ex(b), y: 30, 'text-anchor': 'middle', style: 'fill:var(--bad);font-weight:700'}, svg, ru(b, b % 1 ? 1 : 0)); });
+  return ex;
+}
+function axisTicks(D, svg, ex, h) {
+  el('line', {x1: 30, x2: 970, y1: h - 50, y2: h - 50, class: 'axis'}, svg);
+  for (let e = D.EMIN; e <= D.EMAX + 1e-9; e += D.tick) { el('line', {x1: ex(e), x2: ex(e), y1: h - 55, y2: h - 45, class: 'axis'}, svg); el('text', {x: ex(e), y: h - 26, 'text-anchor': 'middle'}, svg, e); }
+  el('text', {x: 970, y: h - 8, 'text-anchor': 'end'}, svg, 'энергия E');
+}
+// плоскость: общий масштаб по всем частицам задачи
+function plane(D, svg) {
+  const xs = D.P.map(p => p.x), ys = D.P.map(p => p.y);
+  if (D.A) { xs.push(D.A[0]); ys.push(D.A[1]); }
+  const x0 = Math.min(...xs), y0 = Math.min(...ys), sp = Math.max(Math.max(...xs) - x0, Math.max(...ys) - y0);
+  svg.innerHTML = '';
+  el('rect', {x: 30, y: 30, width: 540, height: 540, fill: 'none', stroke: 'var(--line)'}, svg);
+  return {px: x => 30 + (x - x0) / sp * 540, py: y => 570 - (y - y0) / sp * 540};
+}
+
+// ---------- слайды ----------
+const HOOKS = {
+  cond(D, q) {
+    const names = ['x', 'y', 'Vx', 'Vy', 'm', 'признак'];
+    q('chips').innerHTML = D.lines[0].trim().split(/\s+/).map((v, i) => `<div class="chip${i === 5 ? ' t' : ''}"><b>${esc(i < 5 && v.length > 10 ? v.slice(0, 9) + '…' : v)}</b><span>${names[i]}</span></div>`).join('');
+  },
+  line(D, q, st) {
+    const p = D.P[D.lineIdx], raw = p.raw.trim(), f = raw.replace(/,/g, '.').split(/\s+/);
+    const names = ['x', 'y', 'vx', 'vy', 'm', 't'], short = v => v.length > 10 ? v.slice(0, 9) + '…' : v;
+    const show = s => esc(s).replace(/\t/g, '<u>⇥</u>').replace(/ /g, '<u>·</u>');
+    const n4 = v => +v.toFixed(4);
+    const rows = [
+      ['строка s', `<div class="raw">${show(raw).replace(/,/g, '<i>,</i>')}</div>`],
+      [".replace(',', '.')", `<div class="raw">${show(raw.replace(/,/g, '.')).replace(/\./g, '<i>.</i>')}</div>`],
+      ['.split()', `<div class="chips">${f.map(v => `<div class="chip"><b>'${esc(short(v))}'</b><span>строка</span></div>`).join('')}</div>`],
+      ['map(float, …)', `<div class="chips">${f.map((v, i) => `<div class="chip${i === 5 ? ' t' : ''}"><b>${i === 5 ? `'${esc(v)}'` : n4(+v)}</b><span>${names[i]}${i === 5 ? ' — строка' : ''}</span></div>`).join('')}</div>`],
+      ['E = …', `<div class="raw" style="background:transparent;padding:0">0.5 · ${n4(p.m)} · (${n4(p.vx)}² + ${p.vy < 0 ? `(${n4(p.vy)})` : n4(p.vy)}²)</div><div class="chips"><div class="chip e"><b>E = ${p.E.toFixed(4)}</b><span>энергия</span></div></div>`],
+      ['p = [x, y, E, t]', `<div class="chips">${[n4(p.x), n4(p.y), p.E.toFixed(4)].map((v, i) => `<div class="chip${i === 2 ? ' e' : ''}"><b>${v}</b><span>${['x', 'y', 'E'][i]}</span></div>`).join('')}<div class="chip t"><b>'${esc(p.t)}'</b><span>t</span></div></div>`]
+    ];
+    q('pipe').innerHTML = `<p class="muted" style="margin:0">Строка ${D.lineIdx + 1} из ${D.P.length}${p.raw.length > 60 ? ' · числа на карточках округлены' : ''}</p>` + rows.map((r, i) => `<div class="stage-row${i > st ? ' hidden-step' : ''}"><span class="op">${esc(r[0])}</span><div>${r[1]}</div></div>`).join('');
+    setCode(q('code'), READ(D.file), [[0], [1], [1], [2], [3], [4]][st]);
+    q('other').onclick = () => { D.lineIdx = Math.floor(Math.random() * D.P.length); render(); };
+  },
+  axis(D, q, st) {
+    q('n').textContent = D.P.length;
+    drawAxis(D, q('axis'), {gaps: st >= 1, colorBy: st >= 2 ? p => D.which(p) : null});
+    q('summary').innerHTML = `<div class="chips">${D.CL.map((g, i) => `<div class="chip" style="border-color:${col(i)}"><b style="color:${col(i)}">${g.length}</b><span>кластер ${i + 1}: ${ru(Math.min(...g.map(p => p.E)))}…${ru(Math.max(...g.map(p => p.E)))}</span></div>`).join('')}</div>`;
+  },
+  bounds(D, q) {
+    const box = q('sliders');
+    if (!box.children.length) {
+      box.innerHTML = D.B.map((b, i) => `<label class="sl">Граница ${i + 1}<input type="range" min="${D.EMIN}" max="${D.EMAX}" step="${D.sliderStep}" value="${b}" data-i="${i}"><output class="mono">${fmtB(b)}</output></label>`).join('');
+      box.addEventListener('input', e => { D.B[+e.target.dataset.i] = +e.target.value; D.B.sort((a, b) => a - b); render(); });
+      q('reset').onclick = () => { D.B = D.bounds.slice(); render(); };
+    }
+    [...box.querySelectorAll('input')].forEach((inp, i) => { inp.value = D.B[i]; inp.nextElementSibling.textContent = fmtB(D.B[i]); });
+    drawAxis(D, q('axis'), {bounds: D.B, colorBy: p => D.which(p, D.B)});
+    setCode(q('code'), IFS(D.B), D.B.map((_, i) => 2 * i));
+    q('tbl').innerHTML = D.split(D.B).map((c, i) => {
+      if (!c.length) return `<tr><td style="color:${col(i)}">● ${i + 1}</td><td>0</td><td>—</td><td class="no">пусто ✗</td></tr>`;
+      const lo = Math.min(...c.map(p => p.E)), hi = Math.max(...c.map(p => p.E)), ok = hi - lo <= D.R;
+      return `<tr><td style="color:${col(i)}">● ${i + 1}</td><td>${c.length}</td><td>${ru(lo)} … ${ru(hi)}</td><td class="${ok ? 'ok' : 'no'}" style="white-space:nowrap">${ru(hi - lo)} ${ok ? '✓' : '✗'}</td></tr>`;
+    }).join('');
+  },
+  answer(D, q) {
+    const row = (name, v, color) => `<div class="kicker" style="color:${color}">${name}</div><div>${name.toLowerCase()} = ${v.toFixed(6)}…</div><div>× 10 000 = ${(v * 10000).toFixed(2)}…</div><div>int(…) =</div><div class="res">${Math.trunc(v * 10000)}</div>`;
+    q('a1').innerHTML = row('Q1', D.Q1, 'var(--c1)'); q('a2').innerHTML = row('Q2', D.Q2, 'var(--c3)');
+    // программа в две колонки: делим по пустой строке ближе к середине
+    const blanks = D.code.map((l, i) => l === '' ? i : -1).filter(i => i > 0);
+    const cut = blanks.reduce((a, b) => Math.abs(b - D.code.length / 2) < Math.abs(a - D.code.length / 2) ? b : a);
+    q('code').innerHTML = '<pre class="code"></pre><pre class="code"></pre>';
+    const [c1, c2] = q('code').querySelectorAll('pre');
+    setCode(c1, D.code.slice(0, cut)); setCode(c2, D.code.slice(cut + 1));
+    const b = q('copy'); b.onclick = async () => { try { await navigator.clipboard.writeText(D.code.join('\n')); b.textContent = '✓ Скопировано'; } catch { b.textContent = 'Выдели и скопируй вручную'; } };
+  },
+  quiz(D, q) {
+    const box = q('quiz'); if (box.children.length) return;
+    box.innerHTML = D.quiz.map((Q, qi) => `<div class="card qz"><h3>${qi + 1}. ${Q.q}</h3><div class="opts">${Q.o.map((o, i) => [o, i]).sort((a, b) => ((a[1] * 7 + qi * 3) % 4) - ((b[1] * 7 + qi * 3) % 4)).map(([o, i]) => `<button type="button" class="opt" data-q="${qi}" data-i="${i}">${o[0]}</button>`).join('')}</div><div class="why" aria-live="polite"></div></div>`).join('');
+    box.addEventListener('click', e => {
+      const b = e.target.closest('.opt'); if (!b) return;
+      const Q = D.quiz[b.dataset.q], o = Q.o[b.dataset.i], why = b.closest('.qz').querySelector('.why');
+      if (o[1] === null) { b.classList.add('right'); why.innerHTML = `<span class="ok">${Q.right}</span>`; }
+      else { b.classList.add('wrong'); why.innerHTML = `<span class="no">Нет.</span> ${o[1]}`; }
+    });
+  },
+
+  text(D, q) {
+    q('dl').onclick = () => {
+      const blob = new Blob([D.lines.join('\r\n') + '\r\n'], {type: 'text/plain'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = D.file; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+  },
+  calc(D, q, st) {
+    // таблица как в Calc: первые строки файла, G — энергия, H — номер строки
+    const cell = v => { const s = (+v).toPrecision(8); return String(+s).replace('.', ','); };
+    const head = '<tr><th></th>' + 'ABCDEFGH'.split('').map(c => `<th class="${c === 'G' && st >= 1 ? 'hc' : ''}${c === 'H' && st >= 2 ? 'hc' : ''}">${c}</th>`).join('') + '</tr>';
+    const rows = D.P.slice(0, 6).map((p, i) => {
+      const f = p.raw.trim().split(/\s+/);
+      return `<tr><th>${i + 1}</th>${f.slice(0, 5).map(v => `<td>${esc(cell(v.replace(',', '.')))}</td>`).join('')}<td class="tx">${esc(f[5])}</td><td class="${st >= 1 ? 'hc' : 'hid'}">${i === 0 && st === 1 ? '=E1*(C1^2+D1^2)/2' : cell(p.E)}</td><td class="${st >= 2 ? 'hc' : 'hid'}">${i + 1}</td></tr>`;
+    }).join('');
+    q('sheet').innerHTML = head + rows + '<tr><th>…</th><td colspan="8" class="muted" style="text-align:left">ещё ' + (D.P.length - 6) + ' строк</td></tr>';
+    // диаграмма XY: X — энергия, Y — номер строки
+    const svg = q('chart'); svg.innerHTML = '';
+    const X0 = D.tick > 1 ? D.EMIN : 0, X1 = D.EMAX, N = D.P.length, ystep = N > 5000 ? 2000 : 500, Y1 = Math.ceil(N / ystep) * ystep;
+    const cx = e => 60 + (e - X0) / (X1 - X0) * 580, cy = r => 270 - r / Y1 * 250;
+    el('rect', {x: 0, y: 0, width: 660, height: 300, fill: '#FFFFFF', rx: 8}, svg);
+    for (let y = 0; y <= Y1; y += ystep) { el('line', {x1: 60, x2: 640, y1: cy(y), y2: cy(y), stroke: '#DDDDDD'}, svg); el('text', {x: 54, y: cy(y) + 5, 'text-anchor': 'end'}, svg, y); }
+    for (let e = X0; e <= X1 + 1e-9; e += D.tick) el('text', {x: cx(e), y: 292, 'text-anchor': 'middle'}, svg, e);
+    if (st >= 4) for (const g of D.gaps) el('rect', {x: cx(g.lo), y: 20, width: cx(g.hi) - cx(g.lo), height: 250, fill: '#FFD84D', opacity: .45}, svg);
+    D.P.forEach((p, i) => el('rect', {x: cx(p.E) - 1.5, y: cy(i + 1) - 1.5, width: 3, height: 3, fill: '#1F4E8C'}, svg));
+    el('line', {x1: 60, x2: 640, y1: 270, y2: 270, stroke: '#888888'}, svg);
+  },
+
+  // --- только демоверсия ---
+  centerEx(D, q, st) {
+    const CE = [1, 2, 3, 7, 9], sums = CE.map(a => CE.reduce((s, b) => s + Math.abs(a - b), 0)), mn = Math.min(...sums), mx = Math.max(...sums);
+    q('head').innerHTML = `<tr><th>кандидат</th>${CE.map(e => `<th>|… − ${e}|</th>`).join('')}<th>сумма s</th></tr>`;
+    q('body').innerHTML = CE.map((a, i) => i < st ? `<tr class="${st >= 6 && sums[i] === mn ? 'best' : ''}"><td>${a}</td>${CE.map(b => `<td>${Math.abs(a - b)}</td>`).join('')}<td><b>${sums[i]}</b></td></tr>` : `<tr class="hidden-step"><td>${a}</td>${CE.map(() => '<td>·</td>').join('')}<td>·</td></tr>`).join('');
+    q('bars').innerHTML = CE.map((a, i) => `<div class="bar${st >= 6 && sums[i] === mn ? ' best' : ''}"><span>${a}</span><div style="width:${i < st ? sums[i] / mx * 100 : 0}%"></div><span>${i < st ? sums[i] : ''}</span></div>`).join('');
+    setCode(q('code'), CENTR(D.ret), st === 0 ? [0] : st <= 5 ? [2, 3, 4] : [5]);
+    q('real').innerHTML = D.CENTERS.map((c, i) => `<div><span style="color:${col(i)}">●</span> кластер ${i + 1}: центр E = ${c.E.toFixed(4)}</div>`).join('');
+  },
+  pairs(D, q, st) {
+    const PTS = [['A', 1, 1], ['B', 4, 5], ['C', 6, 2], ['D', 2, 4]], PAIRS = [];
+    for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) PAIRS.push([i, j]);
+    const d = ([i, j]) => Math.hypot(PTS[i][1] - PTS[j][1], PTS[i][2] - PTS[j][2]);
+    const svg = q('svg'); svg.innerHTML = '';
+    const sx = x => 40 + x * 70, sy = y => 340 - y * 55;
+    for (let g = 0; g <= 7; g++) el('line', {x1: sx(g), x2: sx(g), y1: sy(0), y2: sy(6), stroke: 'var(--line)'}, svg);
+    for (let g = 0; g <= 6; g++) el('line', {x1: sx(0), x2: sx(7), y1: sy(g), y2: sy(g), stroke: 'var(--line)'}, svg);
+    let best = -1, mx = 0;
+    PAIRS.slice(0, Math.min(st, 6)).forEach((pr, k) => { if (d(pr) > mx) { mx = d(pr); best = k; } });
+    PAIRS.forEach(([i, j], k) => {
+      if (k >= st) return;
+      const a = PTS[i], b = PTS[j], cur = k === st - 1 && st <= 6, isBest = k === best;
+      el('line', {x1: sx(a[1]), y1: sy(a[2]), x2: sx(b[1]), y2: sy(b[2]), stroke: isBest ? 'var(--good)' : cur ? 'var(--primary)' : 'var(--dot)', 'stroke-width': isBest || cur ? 5 : 2}, svg);
+    });
+    PTS.forEach(([n, x, y]) => { el('circle', {cx: sx(x), cy: sy(y), r: 11, fill: 'var(--c3)'}, svg); el('text', {x: sx(x) + 15, y: sy(y) - 10, style: 'font:800 24px var(--font);fill:var(--ink)'}, svg, n); });
+    q('list').innerHTML = PAIRS.map((pr, k) => `<span class="pair${k === st - 1 && st <= 6 ? ' cur' : ''}${k === best ? ' max' : ''}${k >= st ? ' hidden-step' : ''}">${PTS[pr[0]][0]}${PTS[pr[1]][0]} = ${ru(d(pr), 3)}</span>`).join('');
+    q('max').innerHTML = st === 0 ? 'q1 = 0' : `q1 = ${ru(mx, 3)}${st >= 7 ? ` <span class="ok">← ответ: пара ${PTS[PAIRS[best][0]][0]}${PTS[PAIRS[best][1]][0]}</span>` : ''}`;
+    setCode(q('code'), ['q1 = 0', ...block(D, '    for p, p1', 2).map(l => l.slice(4))], st === 0 ? [0] : st <= 6 ? [1, 2] : [2]);
+  },
+  q1demo(D, q, st) {
+    D.q1c ??= D.K - 1;
+    q('tabs').innerHTML = D.CL.map((g, i) => `<button type="button" class="tab" data-c="${i}" aria-pressed="${i === D.q1c}" style="color:${col(i)}">Кластер ${i + 1}</button>`).join('');
+    q('tabs').onclick = e => { const b = e.target.closest('[data-c]'); if (b) { D.q1c = +b.dataset.c; render(); } };
+    const svg = q('svg'), {px, py} = plane(D, svg), g = D.CL[D.q1c], f = D.FAR[D.q1c];
+    for (const p of g) if (st < 1 || p.t !== D.tag) el('circle', {cx: px(p.x), cy: py(p.y), r: 3, fill: 'var(--dot)', opacity: st >= 1 ? .35 : .9}, svg);
+    if (st >= 1) for (const p of g) if (p.t === D.tag) el('circle', {cx: px(p.x), cy: py(p.y), r: 5, fill: col(D.q1c)}, svg);
+    if (st >= 2 && f.a) {
+      el('line', {x1: px(f.a.x), y1: py(f.a.y), x2: px(f.b.x), y2: py(f.b.y), stroke: 'var(--ink)', 'stroke-width': 3}, svg);
+      for (const p of [f.a, f.b]) el('circle', {cx: px(p.x), cy: py(p.y), r: 9, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 3}, svg);
+      el('text', {x: 300, y: 22, 'text-anchor': 'middle', style: 'font:800 20px var(--font);fill:var(--ink)'}, svg, `самая далёкая пара: ${ru(f.d, 4)}`);
+    } else el('text', {x: 300, y: 22, 'text-anchor': 'middle', style: 'font:700 18px var(--font)'}, svg, st >= 1 ? `частиц III в кластере: ${f.n}` : `все частицы кластера: ${g.length}`);
+    q('tbl').innerHTML = D.FAR.map((r, i) => `<tr class="${r.d === D.Q1 ? 'best' : ''}"><td style="color:${col(i)}">● ${i + 1}</td><td>${r.n}</td><td>${ru(r.d, 4)}</td></tr>`).join('');
+    setCode(q('code'), block(D, 'q1 = 0', 5), [[1], [2], [3, 4], [3, 4]][st]);
+  },
+  q2demo(D, q, st) {
+    const svg = q('svg'), h = 230; svg.innerHTML = '';
+    const ex = e => 40 + (e - D.EMIN) / (D.EMAX - D.EMIN) * 920;
+    axisTicks(D, svg, ex, h);
+    D.CL.forEach((g, i) => {
+      const lo = Math.min(...g.map(p => p.E)), hi = Math.max(...g.map(p => p.E));
+      el('rect', {x: ex(lo), y: 66, width: ex(hi) - ex(lo), height: 80, rx: 10, fill: col(i), opacity: .16}, svg);
+      el('text', {x: (ex(lo) + ex(hi)) / 2, y: 58, 'text-anchor': 'middle', style: `fill:${col(i)};font-weight:700`}, svg, `кластер ${i + 1}`);
+      if (st >= 2) {
+        const c = D.CENTERS[i], top = c.E === D.Q2 && st >= 3;
+        el('line', {x1: ex(c.E), x2: ex(c.E), y1: 66, y2: 146, stroke: col(i), 'stroke-width': top ? 6 : 4}, svg);
+        el('text', {x: ex(c.E), y: 168, 'text-anchor': 'middle', style: `fill:var(--ink);font:700 ${top ? 20 : 16}px var(--mono)`}, svg, c.E.toFixed(4));
+        if (top) el('text', {x: ex(c.E), y: 36, 'text-anchor': 'middle', style: 'fill:var(--good);font:800 18px var(--font)'}, svg, '▼ max = Q2');
+      }
+    });
+    setCode(q('code'), block(D, 'centers', 2), st >= 3 ? [1] : st >= 2 ? [0] : []);
+    q('trap').innerHTML = `<b>Ловушка.</b> Максимальная энергия во всём файле — <span class="mono no">${D.Es[D.Es.length - 1].toFixed(4)}</span>, а нам нужен центр: <span class="mono ok">${D.Q2.toFixed(4)}</span>.`;
+  },
+
+  // --- только СтатГрад ---
+  centerStat(D, q, st) {
+    setCode(q('code'), CENTR(D.ret), [5]);
+    q('tbl').innerHTML = D.CENTERS.map((c, i) => `<tr><td style="color:${col(i)}">● ${i + 1}</td><td${st >= 2 ? ' class="mark"' : ''}>${c.x.toFixed(4)}</td><td${st >= 2 ? ' class="mark"' : ''}>${c.y.toFixed(4)}</td><td${st >= 2 ? ' class="mark"' : ''}>${c.E.toFixed(4)}</td></tr>`).join('');
+  },
+  counts(D, q, st) {
+    const mx = Math.max(...D.counts);
+    q('bars').innerHTML = D.counts.map((n, i) => {
+      const tag = st >= 2 && i === D.iMin ? '<span class="cb-tag q1">меньше всего → Q1</span>' : st >= 2 && i === D.iMax ? '<span class="cb-tag q2">больше всего → Q2</span>' : '';
+      return `<div class="cbar${st >= 2 && (i === D.iMin || i === D.iMax) ? ' sel' : ''}"><span style="color:${col(i)}">кластер ${i + 1}</span><div class="cb-track"><div style="width:${st >= 1 ? n / mx * 100 : 0}%;background:${col(i)}"></div></div><b class="mono">${st >= 1 ? n : '?'}</b>${tag}</div>`;
+    }).join('');
+    setCode(q('code'), [block(D, 'counts', 1)[0]], st >= 1 ? [0] : []);
+  },
+  q1stat(D, q, st) {
+    const c = D.CENTERS[D.iMin], m = Math.min(...D.counts);
+    const cnt = D.counts.map((n, i) => i === D.iMin && st >= 1 ? `<span class="mark">${n}</span>` : n).join(', ');
+    q('chain').innerHTML = [
+      `<div class="link"><span class="muted">counts</span><b class="mono">[${cnt}]</b></div>`,
+      `<div class="link"><span class="muted">номер кластера</span><b class="mono">counts.index(${m}) = ${D.iMin}</b><span class="muted">индекс ${D.iMin} — это кластер ${D.iMin + 1}</span></div>`,
+      `<div class="link"><span class="muted">его центр</span><b class="mono">[${c.x.toFixed(3)}, ${c.y.toFixed(3)}, <span class="mark">${c.E.toFixed(4)}</span>, '${c.t}']</b></div>`,
+      `<div class="link res-link"><span class="muted">q1 = centers[${D.iMin}][2]</span><b class="mono ok">${D.Q1.toFixed(6)}…</b></div>`
+    ].map((h, i) => `<div class="${i > st ? 'hidden-step' : ''}">${h}${i < 3 ? '<div class="arrow">↓</div>' : ''}</div>`).join('');
+    setCode(q('code'), [block(D, 'i_min', 1)[0], block(D, 'q1 =', 1)[0]], st === 0 ? [] : st === 1 ? [0] : [1]);
+  },
+  q2stat(D, q, st) {
+    const svg = q('svg'), c = D.CENTERS[D.iMax], A = D.A; svg.innerHTML = '';
+    const xs = [...D.CENTERS.map(p => p.x), A[0]], ys = [...D.CENTERS.map(p => p.y), A[1]];
+    const x0 = Math.min(...xs) - 1, y0 = Math.min(...ys) - 1, sp = Math.max(Math.max(...xs) - x0, Math.max(...ys) - y0) + 1;
+    const px = x => 40 + (x - x0) / sp * 520, py = y => 570 - (y - y0) / sp * 520;
+    for (let g = Math.ceil(x0); g <= x0 + sp; g++) el('line', {x1: px(g), x2: px(g), y1: 50, y2: 570, stroke: 'var(--line)'}, svg);
+    for (let g = Math.ceil(y0); g <= y0 + sp; g++) el('line', {x1: 40, x2: 560, y1: py(g), y2: py(g), stroke: 'var(--line)'}, svg);
+    D.CENTERS.forEach((p, i) => {
+      el('circle', {cx: px(p.x), cy: py(p.y), r: i === D.iMax && st >= 2 ? 14 : 10, fill: col(i), opacity: st >= 2 && i !== D.iMax ? .35 : 1}, svg);
+      el('text', {x: px(p.x), y: py(p.y) + 40, 'text-anchor': 'middle', style: `fill:${col(i)};font:800 26px var(--font)`}, svg, `${i + 1}`);
+    });
+    if (st >= 1) {
+      if (st >= 2) {
+        el('line', {x1: px(A[0]), y1: py(A[1]), x2: px(c.x), y2: py(c.y), stroke: 'var(--ink)', 'stroke-width': 3}, svg);
+        el('text', {x: (2 * px(A[0]) + px(c.x)) / 3, y: (2 * py(A[1]) + py(c.y)) / 3 - 18, 'text-anchor': 'middle', style: 'font:800 28px var(--mono);fill:var(--ink)'}, svg, ru(D.Q2, 4));
+      }
+      el('circle', {cx: px(A[0]), cy: py(A[1]), r: 9, fill: 'var(--ink)'}, svg);
+      el('text', {x: px(A[0]), y: py(A[1]) + 42, 'text-anchor': 'middle', style: 'font:800 28px var(--font);fill:var(--ink)'}, svg, 'A(1; 4,5)');
+    }
+    el('text', {x: 300, y: 30, 'text-anchor': 'middle', style: 'font:800 24px var(--font);fill:var(--ink)'}, svg, st >= 2 ? `центр кластера ${D.iMax + 1} — частиц V больше всего` : 'центры кластеров 1–5 и точка A');
+    setCode(q('code'), [block(D, 'i_max', 1)[0], block(D, 'q2 =', 1)[0]], st === 0 ? [] : st === 1 ? [0] : [1]);
+    q('calc').innerHTML = `<div>центр: x = ${c.x.toFixed(4)}, y = ${c.y.toFixed(4)}</div><div>√((${c.x.toFixed(4)} − 1)² + (${c.y.toFixed(4)} − 4.5)²)</div><div class="res">${ru(D.Q2, 6)}…</div>`;
+  }
+};
+
+// ---------- вопросы «Проверь себя» ----------
+{
+  const D = DATA.demo, g0 = D.gaps[0], t10 = v => Math.round(v * 10) / 10;
+  D.quiz = [
+    {q: `Какая граница между 1 и 2 кластером НЕ подойдёт? (промежуток от ${ru(g0.lo)} до ${ru(g0.hi)})`,
+     o: [[ru(Math.ceil(g0.lo * 10 + 1) / 10, 1), 'Это число внутри пустого промежутка — подходит.'], [ru(t10((g0.lo + g0.hi) / 2), 1), 'Середина промежутка — подходит.'], [ru(Math.floor(g0.hi * 10 - 1) / 10, 1), 'Ещё внутри промежутка — подходит.'], [ru(Math.ceil(g0.hi * 10 + 1) / 10, 1), null]],
+     right: 'Верно: эта граница больше начала второй группы — несколько её частиц уйдут в первый кластер.'},
+    {q: 'Энергии кластера: 2, 4, 5, 6, 10. Какая частица — центр?',
+     o: [['5', null], ['5,4', 'Это среднее арифметическое. Такой частицы нет, а центр — одна из частиц.'], ['10', 'У крайней частицы сумма разностей самая большая.'], ['4', 'Сумма для 4: 2+0+1+2+6 = 11, а для 5: 3+1+0+1+5 = 10.']],
+     right: 'Верно: средняя по порядку частица, сумма 3+1+0+1+5 = 10 — меньше всех.'},
+    {q: 'Программа нашла q1 = 12,345678. Что записать в ответ?',
+     o: [['123456', null], ['123457', 'Это round. «Целая часть» — отбрасываем дробь: int(123456,78) = 123456.'], ['120000', 'Это int(q1) * 10000: сначала отбросили дробь, потом умножили.'], ['12', 'Забыли умножить на 10 000.']],
+     right: 'Верно: 12,345678 × 10 000 = 123456,78, целая часть — 123456.'},
+    {q: 'Сколько пар даст combinations для 5 частиц?',
+     o: [['10', null], ['25', 'Это 5 × 5 — с парами «частица сама с собой» и повторами AB/BA.'], ['20', 'Это 5 × 4 — пары AB и BA посчитаны дважды.'], ['5', 'Пар больше, чем частиц: каждая сравнивается с четырьмя другими.']],
+     right: 'Верно: 5 · 4 / 2 = 10.'}
+  ];
+  DATA.stat.quiz = [
+    {q: '<code>counts = [12, 7, 15, 9, 11]</code>. Чему равно <code>counts.index(max(counts))</code>?',
+     o: [['2', null], ['3', 'Это номер кластера «по-человечески». Индексы в Python начинаются с 0.'], ['15', 'Это само max(counts) — количество, а не номер.'], ['1', 'Индекс 1 — у числа 7, это минимум.']],
+     right: 'Верно: 15 стоит на месте с индексом 2 (третий кластер).'},
+    {q: 'В списке <code>m</code> лежат пары <code>[s, p]</code>. Что вернёт <code>min(m)[1]</code>?',
+     o: [['частицу p', null], ['сумму s', 'Сумма — это min(m)[0].'], ['энергию E', 'Энергия — это min(m)[1][2], так было в демоверсии.'], ['номер частицы', 'Номера в списке нет — там сумма и сама частица.']],
+     right: 'Верно: вся частица [x, y, E, t] с наименьшей суммой s.'},
+    {q: 'Что подставить в <code>dist([1, 4.5], …)</code> для Q2?',
+     o: [['centers[i_max][:2]', null], ['centers[i_max]', 'В центре 4 элемента [x, y, E, t], а в точке A — 2. dist выдаст ошибку.'], ['centers[i_max][2]', 'Это энергия — одно число, а не точка.'], ['counts[i_max]', 'Это количество частиц V, а не координаты.']],
+     right: 'Верно: [:2] — это [x, y] центра.'},
+    {q: 'Что посчитает <code>sum(p[3] == \'V\' for p in group)</code>?',
+     o: [['сколько частиц V', null], ['сумму энергий V', 'Энергии здесь не складываются — складываются True и False.'], ['True или False', 'sum складывает много True/False и даёт число.'], ['ошибку', 'Ошибки нет: True считается как 1, False — как 0.']],
+     right: 'Верно: каждое True добавляет 1.'}
+  ];
+}
+
+// ---------- навигация ----------
+const ALL = [...document.querySelectorAll('.slide')];
+let task = 'demo', idx = 0, win = null;
+const list = () => ALL.filter(s => s.dataset.task === task);
+const state = new Map(ALL.map(s => [s, 0]));
+function render() {
+  const L = list(), s = L[idx], st = state.get(s), steps = +s.dataset.steps;
+  ALL.forEach(x => x.classList.toggle('on', x === s));
+  s.querySelectorAll('[data-step]').forEach(e => e.classList.toggle('hidden-step', +e.dataset.step > st));
+  s.querySelectorAll('[data-until]').forEach(e => e.classList.toggle('gone', st > +e.dataset.until));
+  const h = HOOKS[s.dataset.hook]; if (h) h(DATA[task], r => s.querySelector(`[data-r="${r}"]`), st);
+  fitCode(s);
+  $('dots').innerHTML = L.map((x, i) => `<button type="button" class="dot${i < idx ? ' done' : ''}" data-i="${i}" ${i === idx ? 'aria-current="step"' : ''}>${i + 1}. ${x.dataset.nav}</button>`).join('');
+  const note = s.querySelector('.note');
+  const html = (note ? note.innerHTML : '') + (steps ? `<p class="stepinfo">Шаг ${st} из ${steps} на этом слайде</p>` : '');
+  $('notes').innerHTML = html + '<button type="button" class="ibtn popout" id="popBtn">⧉ Вынести в отдельное окно</button><p class="stepinfo">Отдельное окно перетащите на экран ноутбука — ученики на проекторе его не увидят.</p>';
+  $('popBtn').onclick = popOut;
+  if (win && !win.closed) win.document.getElementById('n').innerHTML = `<p class="stepinfo">${task === 'demo' ? 'Демоверсия' : 'СтатГрад'} · слайд ${idx + 1} из ${L.length} · следующий: ${L[idx + 1] ? L[idx + 1].dataset.nav : '—'}</p>` + html;
+  $('prevBtn').disabled = idx === 0 && st === 0;
+  $('nextBtn').disabled = idx === L.length - 1 && st >= steps;
+  $('nextBtn').textContent = st < steps ? 'Показать дальше ↓' : 'Следующий слайд →';
+  $('progBar').style.width = ((idx + (steps ? st / steps : 1)) / L.length * 100) + '%';
+  try { localStorage.setItem('urok27', JSON.stringify({task, idx})); } catch {}
+}
+function next() { const L = list(), s = L[idx], st = state.get(s); if (st < +s.dataset.steps) state.set(s, st + 1); else if (idx < L.length - 1) idx++; render(); if (state.get(list()[idx]) === 0) $('stage').scrollTop = 0; }
+function prev() { const L = list(), s = L[idx], st = state.get(s); if (st > 0) state.set(s, st - 1); else if (idx > 0) idx--; render(); }
+function setTask(t) { task = t; document.querySelectorAll('.task').forEach(x => x.setAttribute('aria-pressed', x.dataset.task === t)); }
+$('nextBtn').onclick = next; $('prevBtn').onclick = prev;
+$('dots').onclick = e => { const b = e.target.closest('[data-i]'); if (b) { idx = +b.dataset.i; render(); } };
+document.querySelectorAll('.task').forEach(b => b.onclick = () => { setTask(b.dataset.task); idx = 0; render(); });
+function popOut() {
+  win = window.open('', 'urok27notes', 'width=520,height=760');
+  if (!win) return;
+  const css = document.querySelector('style').textContent;
+  win.document.open();
+  win.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Подсказки учителю · 27</title><style>${css}body{display:block}.notes{display:block;width:auto;border:0;position:static;box-shadow:none}</style></head><body><div class="notes" id="n"></div><p class="hint" style="padding:0 20px">← → в этом окне тоже листают слайды</p></body></html>`);
+  win.document.close();
+  win.document.addEventListener('keydown', onKey);
+  document.body.classList.remove('show-notes'); $('notesBtn').setAttribute('aria-pressed', false);
+  render();
+}
+const toggleNotes = () => { const on = document.body.classList.toggle('show-notes'); $('notesBtn').setAttribute('aria-pressed', on); };
+$('notesBtn').onclick = toggleNotes;
+const fs = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); };
+$('fsBtn').onclick = fs;
+function onKey(e) {
+  if (e.target.matches && e.target.matches('input')) return;
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+  else if (e.code === 'KeyT') toggleNotes();
+  else if (e.code === 'KeyF') fs();
+  else if (e.key === 'Escape') { document.body.classList.remove('show-notes'); $('notesBtn').setAttribute('aria-pressed', false); }
+}
+document.addEventListener('keydown', onKey);
+addEventListener('resize', () => fitCode(list()[idx]));
+document.addEventListener('fullscreenchange', () => setTimeout(() => fitCode(list()[idx]), 100));
+try { const s = JSON.parse(localStorage.getItem('urok27')); if (s && TASKS[s.task]) { setTask(s.task); if (s.idx < list().length) idx = s.idx; } } catch {}
+render();
 </script>
-
-</body></html>
+</body>
+</html>

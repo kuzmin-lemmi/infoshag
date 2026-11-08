@@ -27,7 +27,7 @@ test('Справочник содержит 27 номеров проекта Е�
     assert.ok(!seen.has(key)); seen.add(key);
   }
   assert.match(bindings.find(b => b.itemId === 'ege-27-klastery').notice, /2027/);
-  assert.match(bindings.find(b => b.itemId === 'ege-27-chasticy').notice, /вопросы изменены/);
+  assert.match(bindings.find(b => b.itemId === 'ege-27-chasticy').notice, /признак в вопросах изменён/);
 });
 
 test('Разделение по классам не перенумеровывает задания и не ограничивает привязки классом карточки', () => {

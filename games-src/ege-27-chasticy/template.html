@@ -14,12 +14,18 @@
   --code-bg:#0F2147; --code-ink:#EAF2FF; --code-dim:#7F95C2; --code-hl:#1F3E7A;
   --font:"Golos Text","Segoe UI",system-ui,sans-serif; --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
 }
+/* тема: по системе, кнопка ◐ переключает и запоминает выбор */
 @media (prefers-color-scheme: dark){
-  :root{--bg:#081430;--surface:#0F2147;--tint:#16305F;--ink:#EAF2FF;--soft:#9DB0D6;--line:#22386A;
+  :root:not([data-theme="light"]){color-scheme:dark;--bg:#081430;--surface:#0F2147;--tint:#16305F;--ink:#EAF2FF;--soft:#9DB0D6;--line:#22386A;
     --primary:#3DA2FF;--game:#2FE0CF;--good:#4AD48A;--bad:#FF7A70;--warn:#FFB347;
     --c1:#3DA2FF;--c2:#2FE0CF;--c3:#A891EE;--c4:#FF9A5C;--c5:#FF7EB6;--dot:#3A5384;--hl:#4A3B00;--hl-ink:#FFE28A;
     --code-bg:#050D22;--code-hl:#1C3A73}
 }
+:root[data-theme="dark"]{color-scheme:dark;--bg:#081430;--surface:#0F2147;--tint:#16305F;--ink:#EAF2FF;--soft:#9DB0D6;--line:#22386A;
+    --primary:#3DA2FF;--game:#2FE0CF;--good:#4AD48A;--bad:#FF7A70;--warn:#FFB347;
+    --c1:#3DA2FF;--c2:#2FE0CF;--c3:#A891EE;--c4:#FF9A5C;--c5:#FF7EB6;--dot:#3A5384;--hl:#4A3B00;--hl-ink:#FFE28A;
+    --code-bg:#050D22;--code-hl:#1C3A73}
+:root[data-theme="light"]{color-scheme:light}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:400 20px/1.45 var(--font);display:flex;flex-direction:column;
@@ -214,6 +220,7 @@ body.show-notes .notes{display:block}
   <nav class="dots" id="dots" aria-label="Слайды"></nav>
   <div class="tools">
     <button class="ibtn" id="notesBtn" type="button" aria-pressed="false" title="Клавиша T">🗒 Учителю</button>
+    <button class="ibtn" id="themeBtn" type="button" title="Светлая или тёмная тема" aria-label="Переключить тему">◐</button>
     <button class="ibtn" id="fsBtn" type="button" title="Клавиша F">⛶</button>
   </div>
 </header>
@@ -1083,6 +1090,7 @@ function popOut() {
   win.document.open();
   win.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Подсказки учителю · 27</title><style>${css}body{display:block}.notes{display:block;width:auto;border:0;position:static;box-shadow:none}</style></head><body><div class="notes" id="n"></div><p class="hint" style="padding:0 20px">← → в этом окне тоже листают слайды</p></body></html>`);
   win.document.close();
+  win.document.documentElement.dataset.theme = isDark() ? 'dark' : 'light';
   win.document.addEventListener('keydown', onKey);
   document.body.classList.remove('show-notes'); $('notesBtn').setAttribute('aria-pressed', false);
   render();
@@ -1091,6 +1099,16 @@ const toggleNotes = () => { const on = document.body.classList.toggle('show-note
 $('notesBtn').onclick = toggleNotes;
 const fs = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); };
 $('fsBtn').onclick = fs;
+// тема: выбор учителя важнее системной, хранится только для удобства
+const root = document.documentElement;
+const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : !!window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+function applyTheme(th) {
+  if (th) root.dataset.theme = th; else delete root.dataset.theme;
+  $('themeBtn').title = isDark() ? 'Включить светлую тему' : 'Включить тёмную тему';
+  if (win && !win.closed) win.document.documentElement.dataset.theme = isDark() ? 'dark' : 'light';
+}
+try { applyTheme(localStorage.getItem('urok27-theme')); } catch { applyTheme(null); }
+$('themeBtn').onclick = () => { const th = isDark() ? 'light' : 'dark'; applyTheme(th); try { localStorage.setItem('urok27-theme', th); } catch {} render(); };
 function onKey(e) {
   if (e.target.matches && e.target.matches('input')) return;
   if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }

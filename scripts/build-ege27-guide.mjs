@@ -1,11 +1,10 @@
-// Собирает разбор «Кластеры частиц»: в шаблон подставляются файл данных и программа решения.
-// Данные: games-src/ege-27-chasticy/27.txt (генерирует generate.py), программа — solution.py.
+// Собирает урок «Кластеры частиц» (задание 27): в шаблон подставляются два файла данных.
+// 27.txt — по мотивам демоверсии 2027 (generate.py), 27_2.txt — по мотивам СтатГрада (generate_statgrad.py).
+// Программы для слайдов страница собирает сама; solution.py и solution_statgrad.py — те же программы для проверки.
 import {readFileSync, writeFileSync} from 'node:fs';
 const root = new URL('../', import.meta.url);
 const src = path => readFileSync(new URL(`games-src/ege-27-chasticy/${path}`, root), 'utf8').replaceAll('\r\n', '\n');
-const data = src('27.txt').trim();
-// первая строка solution.py — комментарий для автора, на страницу не идёт
-const solution = src('solution.py').split('\n').filter((line, i) => !(i === 0 && line.startsWith('#'))).join('\n').trim();
-const html = src('template.html').replace('/*DATA*/', () => data).replace('/*SOLUTION*/', () => solution);
+const demo = src('27.txt').trim(), stat = src('27_2.txt').trim();
+const html = src('template.html').replace('/*DATA_DEMO*/', () => demo).replace('/*DATA_STAT*/', () => stat);
 writeFileSync(new URL('public/games/ege-27-chasticy.html', root), html);
-console.log(`Собран разбор «Кластеры частиц»: ${data.split('\n').length} строк данных.`);
+console.log(`Собран урок «Кластеры частиц»: ${demo.split('\n').length} + ${stat.split('\n').length} строк данных.`);

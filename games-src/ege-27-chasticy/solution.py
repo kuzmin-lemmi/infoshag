@@ -1,24 +1,21 @@
-# Программа из разбора — в точности как на странице (блок «Вся программа»).
+# Программа из урока — в точности как на слайде «Ответ».
 from itertools import combinations
+from math import dist
 
-cl = [[], [], []]
+cl = [[], [], [], []]
 for s in open('27.txt'):
     x, y, vx, vy, m, t = s.replace(',', '.').split()
     x, y, vx, vy, m = map(float, [x, y, vx, vy, m])
     E = 0.5 * m * (vx ** 2 + vy ** 2)
-    if E < 4:
-        cl[0].append([x, y, E, t])
-    elif E < 7.5:
-        cl[1].append([x, y, E, t])
+    p = [x, y, E, t]
+    if E < 3.5:
+        cl[0].append(p)
+    elif E < 6:
+        cl[1].append(p)
+    elif E < 8.5:
+        cl[2].append(p)
     else:
-        cl[2].append([x, y, E, t])
-
-
-def dist(p1, p2):
-    x1, y1, e1, t1 = p1
-    x2, y2, e2, t2 = p2
-    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-
+        cl[3].append(p)
 
 def centr(group):
     m = []
@@ -27,13 +24,12 @@ def centr(group):
         m.append([s, p])
     return min(m)[1][2]
 
-
-q1 = float('inf')
+q1 = 0
 for group in cl:
-    type_IV = [p for p in group if p[3] == 'IV']
-    for p, p1 in combinations(type_IV, 2):
-        q1 = min(q1, dist(p, p1))
+    type_III = [p for p in group if p[3] == 'III']
+    for p, p1 in combinations(type_III, 2):
+        q1 = max(q1, dist(p[:2], p1[:2]))
 
 centers = [centr(group) for group in cl]
-q2 = sum(centers) / len(centers)
+q2 = max(centers)
 print(int(q1 * 10000), int(q2 * 10000))

@@ -18,7 +18,17 @@ const WAIT = { 'ohota-za-rasshireniyami': 9000 };
 // что сделать в игре перед снимком, чтобы на картинке был виден ход игры, а не пустое поле
 const AFTER = {
   // «Снайпер»: задание формата ОГЭ и точный выстрел — видны полосы частей условия
-  snaiper: `cfg.level = '3'; start(); document.getElementById('shot').value = String(S.task.answer); fire(); scrollTo(0, 0);`
+  snaiper: `cfg.level = '3'; start(); document.getElementById('shot').value = String(S.task.answer); fire(); scrollTo(0, 0);`,
+  // «Задание 6 ЕГЭ»: тема урока включается переключателем, а не prefers-color-scheme —
+  // для тёмного снимка добавляем класс до открытия слайда с живой Черепахой
+  'ege6-cherepaha': `
+    if (matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark'); syncThemeBtn();
+    }
+    document.getElementById('btnLesson').click();
+    showLSlide(3);
+    document.getElementById('speed1').value = '2';
+    S1.playing = true;`
 };
 
 // превью нарисованы отдельно (не снимок игры) — общий запуск их не перезаписывает

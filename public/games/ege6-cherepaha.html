@@ -1,0 +1,1450 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Задание 6 ЕГЭ · Черепаха — урок и самостоятельная работа</title>
+<style>
+  /* ============ токены ============ */
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#1c2333; --muted:#5b6478; --line:#dde2ee;
+    --accent:#2f9e6e; --blue:#3b6fd4; --warn:#d2622a; --bad:#c94f4f; --good:#2f9e6e;
+  }
+  html.dark{
+    --bg:#10141d; --card:#181e2b; --ink:#e8ecf5; --muted:#97a1b8; --line:#2a3245;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg); color:var(--ink);
+    font:20px/1.45 system-ui, 'Segoe UI', Roboto, sans-serif;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  button{ font:inherit; }
+
+  /* ============ общие ============ */
+  .scr{ display:none; min-height:100vh; }
+  .scr.active{ display:block; }
+  header{
+    display:flex; align-items:center; gap:14px;
+    padding:12px clamp(14px,3vw,36px); border-bottom:1px solid var(--line); background:var(--card);
+    position:sticky; top:0; z-index:5;
+  }
+  .logo{ font-weight:800; font-size:clamp(17px,2.2vw,24px); margin-right:auto; }
+  .logo small{ color:var(--muted); font-weight:600; }
+  #slideNum{ color:var(--muted); font-weight:700; min-width:56px; text-align:center; }
+  main{ max-width:1240px; margin:0 auto; padding:clamp(14px,3vw,34px); }
+  footer{
+    text-align:center; color:var(--muted); font-size:16px; padding:12px;
+    border-top:1px solid var(--line); background:var(--card);
+  }
+  h1{ font-size:clamp(30px,4.5vw,52px); line-height:1.15; margin:.2em 0; }
+  h2{ font-size:clamp(23px,3.2vw,36px); line-height:1.2; margin:.1em 0 .5em; }
+  h3{ font-size:clamp(19px,2.4vw,26px); margin:.8em 0 .3em; }
+  .sub{ color:var(--muted); font-size:clamp(17px,2vw,22px); }
+  .grid2{ display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:22px; align-items:start; }
+  @media (max-width:920px){ .grid2{ grid-template-columns:1fr; } }
+  canvas{ width:100%; max-width:580px; height:auto; background:var(--card);
+          border:1px solid var(--line); border-radius:14px; display:block; }
+  .panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+  .panel + .panel{ margin-top:16px; }
+  .row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .btn{
+    font-weight:700; padding:10px 18px; min-height:48px; border-radius:12px;
+    border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer;
+  }
+  .btn.primary, .btn.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.ghost{ background:transparent; }
+  .btn:disabled{ opacity:.4; cursor:default; }
+  .chip{ display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border:1px solid var(--line);
+         border-radius:10px; background:var(--card); font-weight:700; }
+  .chip.on{ border-color:var(--accent); color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); }
+  .chip .lab{ color:var(--muted); font-weight:600; }
+  code{ font-family:ui-monospace, Consolas, monospace; font-size:.92em;
+        background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:2px 8px; }
+  .codeblock{
+    font-family:ui-monospace, Consolas, monospace; font-size:clamp(14px,1.5vw,18px);
+    background:var(--bg); border:1px solid var(--line); border-radius:10px;
+    padding:12px 16px; white-space:pre; overflow-x:auto; line-height:1.5;
+  }
+  .warn{ border-left:5px solid var(--warn); border-radius:8px; padding:12px 16px;
+         background:color-mix(in srgb, var(--warn) 10%, transparent); margin-top:16px; }
+  .note{ color:var(--muted); font-size:.9em; }
+  .bigcount{ font-size:clamp(40px,5vw,60px); font-weight:800; color:var(--accent); line-height:1; }
+  .answer{ margin:.4em 0 0; }
+  .q{ font-weight:700; margin:.2em 0 .6em; }
+  table.tbl{ border-collapse:collapse; width:100%; background:var(--card); border-radius:12px; overflow:hidden; }
+  table.tbl th, table.tbl td{ border:1px solid var(--line); padding:8px 12px; text-align:left; }
+  table.tbl th{ background:var(--bg); }
+  .switch{ position:relative; width:56px; height:30px; flex:none; display:inline-block; }
+  .switch input{ appearance:none; position:absolute; inset:0; border-radius:999px; background:var(--line);
+                 margin:0; cursor:pointer; transition:background .2s; }
+  .switch input:checked{ background:var(--accent); }
+  .switch input::after{ content:''; position:absolute; top:3px; left:3px; width:24px; height:24px;
+                        border-radius:50%; background:#fff; transition:left .2s; box-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .switch input:checked::after{ left:29px; }
+  .counts{ display:flex; flex-wrap:wrap; gap:18px 28px; margin:10px 0; }
+  .counts b{ font-size:30px; display:block; line-height:1.1; }
+  .counts span{ color:var(--muted); font-size:.85em; }
+
+  /* ============ стартовый экран ============ */
+  #scr-start main{ display:grid; gap:20px; max-width:1080px; }
+  .tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
+  .tile{ text-align:left; padding:26px 24px; border-radius:18px; border:1px solid var(--line);
+         background:var(--card); cursor:pointer; min-height:170px; }
+  .tile .em{ font-size:44px; }
+  .tile b{ display:block; font-size:clamp(20px,2.4vw,26px); margin:8px 0 6px; }
+  .tile p{ margin:0; color:var(--muted); font-size:.9em; }
+
+  /* ============ слайды урока ============ */
+  .lslide{ display:none; }
+  .lslide.active{ display:block; }
+  ul.plan{ font-size:clamp(19px,2.2vw,24px); line-height:1.8; }
+  .checkgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+  .checkgrid .panel{ margin:0; }
+
+  /* ============ самостоятельная ============ */
+  .examwrap{ max-width:900px; margin:0 auto; }
+  .field{ width:100%; font:inherit; padding:12px 14px; border-radius:10px;
+          border:1px solid var(--line); background:var(--card); color:var(--ink); }
+  .exhead{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+           background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 16px; }
+  .exhead .timer{ font-weight:800; font-variant-numeric:tabular-nums; font-size:26px; }
+  .exhead .timer.hot{ color:var(--bad); }
+  .dots{ display:flex; gap:8px; margin:14px 0; flex-wrap:wrap; }
+  .dots button{ width:44px; height:44px; border-radius:10px; border:1px solid var(--line);
+                background:var(--card); font-weight:800; cursor:pointer; }
+  .dots button.cur{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .dots button.ans::after{ content:'•'; color:var(--accent); font-size:22px; display:block; line-height:0; }
+  .prog{ font-family:ui-monospace, Consolas, monospace; font-size:clamp(17px,2vw,22px);
+         background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:14px 18px;
+         white-space:pre-wrap; line-height:1.7; }
+  .qtext{ font-size:clamp(18px,2vw,22px); }
+  .ansrow{ display:flex; gap:12px; align-items:center; margin-top:16px; flex-wrap:wrap; }
+  .ansrow input{ width:150px; text-align:center; font-size:26px; padding:10px; }
+  .resline{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px 14px; align-items:center;
+            padding:10px 0; border-bottom:1px dashed var(--line); }
+  .resline:last-child{ border-bottom:none; }
+  .ok{ color:var(--good); font-weight:800; }
+  .no{ color:var(--bad); font-weight:800; }
+  .mark{ font-size:clamp(64px,9vw,110px); font-weight:800; color:var(--accent); line-height:1; }
+  .hidden{ display:none !important; }
+  /* тема: фиксированная кнопка переключения (белая по умолчанию) */
+  #themeBtn{
+    position:fixed; right:16px; bottom:16px; z-index:60;
+    width:56px; height:56px; border-radius:50%; font-size:26px;
+    border:1px solid var(--line); background:var(--card); color:var(--ink);
+    cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.18);
+  }
+  /* разбор условия задания: строка = часть условия + пометка слева */
+  .cond{ border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--card); }
+  .condrow{ display:grid; grid-template-columns:190px minmax(0,1fr); }
+  .condrow + .condrow{ border-top:1px solid var(--line); }
+  .condlab{
+    padding:12px 14px; background:var(--bg); font-weight:800;
+    display:flex; align-items:center; gap:8px; font-size:clamp(15px,1.6vw,18px);
+  }
+  .condtxt{ padding:12px 18px; font-size:clamp(16px,1.9vw,21px); line-height:1.5; }
+  .dot{ width:12px; height:12px; border-radius:50%; display:inline-block; flex:none; }
+  @media (max-width:920px){
+    .condrow{ grid-template-columns:1fr; }
+    .condlab{ border-bottom:1px dashed var(--line); }
+  }
+  /* две программы для списывания: крупно, без скролов, чёрным по белому */
+  .twocol{ display:grid; grid-template-columns:1fr 1.2fr; gap:20px; align-items:start; }
+  @media (max-width:980px){ .twocol{ grid-template-columns:1fr; } }
+  .progtitle{ display:block; font-size:clamp(17px,1.9vw,22px); margin-bottom:10px; }
+  .bigsolo{
+    font-family:ui-monospace, Consolas, monospace;
+    font-size:clamp(19px,2vw,24px); line-height:1.55;
+    padding:14px 20px; background:#fff; color:#000;
+    border:1px solid var(--line); border-radius:12px;
+    white-space:pre; overflow:visible;
+  }
+  /* крупный код Python: построчно с объяснениями; всегда чёрным по белому */
+  .pytable{ border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .pyrow{ display:grid; grid-template-columns:minmax(0,auto) minmax(240px,1fr);
+          border-bottom:1px solid #e8e8e8; }
+  .pyrow:last-child{ border-bottom:none; }
+  .pyrow code{
+    font-family:ui-monospace, Consolas, monospace;
+    font-size:clamp(20px,2.4vw,28px); line-height:1.5;
+    padding:8px 20px; background:#fff; color:#000; white-space:pre;
+  }
+  .pyrow .ex{
+    padding:10px 18px; font-size:clamp(15px,1.7vw,19px); color:#333;
+    background:#fafafa; border-left:1px dashed #d9d9d9;
+    display:flex; align-items:center;
+  }
+  @media (max-width:920px){
+    .pyrow{ grid-template-columns:1fr; }
+    .pyrow .ex{ border-left:none; border-top:1px dashed #d9d9d9; }
+  }
+  @media (prefers-reduced-motion: reduce){ .switch input, .switch input::after{ transition:none; } }
+</style>
+<script>
+/* тема: по умолчанию белая; выбор сохраняется */
+try{
+  if ((localStorage.getItem('ege6-theme') || 'light') === 'dark')
+    document.documentElement.classList.add('dark');
+}catch(e){}
+</script>
+</head>
+<body>
+
+<button id="themeBtn" title="Переключить тему (белая/тёмная)">🌙</button>
+
+<!-- ==================== стартовый экран ==================== -->
+<section class="scr active" id="scr-start">
+  <header>
+    <div class="logo">🐢 Задание 6 ЕГЭ · Черепаха <small>· урок</small></div>
+  </header>
+  <main>
+    <div>
+      <h1>Задание 6: исполнитель Черепаха</h1>
+      <p class="sub">Разбор для проектора + самостоятельная работа на 10 минут с оценкой.
+        Базовый уровень · на экзамене ~4 минуты на задачу.</p>
+    </div>
+    <div class="tiles">
+      <button class="tile" id="btnLesson">
+        <span class="em">📺</span>
+        <b>Разбор для проектора</b>
+        <p>Ведёт учитель: живая Черепаха, ловушки, пересечение и объединение фигур. Листай стрелками ← →.</p>
+      </button>
+      <button class="tile" id="btnExam">
+        <span class="em">📝</span>
+        <b>Самостоятельная · 10 минут</b>
+        <p>5 задач с оценкой. У каждого свои числа. Ошибки объясняются. Требуется фамилия и имя.</p>
+      </button>
+      <button class="tile" id="btnHelp">
+        <span class="em">📖</span>
+        <b>Справка</b>
+        <p>Таблица команд ЕГЭ ↔ КуМир ↔ Python, формулы, чек-лист нюансов. В самостоятельной закрыта.</p>
+      </button>
+    </div>
+  </main>
+  <footer>Инфошаг · infoshag.ru</footer>
+</section>
+
+<!-- ==================== урок (разбор) ==================== -->
+<section class="scr" id="scr-lesson">
+  <header>
+    <button class="btn ghost" id="lhome" title="на главную">⌂</button>
+    <div class="logo">🐢 Задание 6 · разбор</div>
+    <span id="slideNum">1 / 9</span>
+    <button class="btn" id="lprev" title="предыдущий слайд">←</button>
+    <button class="btn primary" id="lnext" title="следующий слайд">→</button>
+  </header>
+  <main id="lmain">
+
+    <!-- слайд 1: обложка -->
+    <div class="lslide active">
+      <h1>Задание 6 ЕГЭ.<br>Исполнитель Черепаха</h1>
+      <p class="sub">Разбор ~15 минут, затем самостоятельная работа 10 минут.</p>
+      <div class="panel" style="margin-top:20px">
+        <b>Что проверяется</b>
+        <ul class="plan">
+          <li>как выглядит задание: читаем настоящее условие;</li>
+          <li>умение выполнить алгоритм для исполнителя — команда за командой;</li>
+          <li>построить фигуру на координатной плоскости;</li>
+          <li>посчитать точки с целыми координатами — внутри, на границе, в пересечении и объединении фигур.</li>
+        </ul>
+      </div>
+      <div class="warn">Четыре ловушки, на которых теряют баллы: <b>стартовое направление</b>, <b>точки на линии</b>,
+        <b>«положительные координаты»</b> и <b>две фигуры</b>. Разберём каждую.</div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn primary" id="lstart">Начать разбор →</button>
+      </div>
+    </div>
+
+    <!-- слайд 2: как выглядит задание -->
+    <div class="lslide">
+      <h2>Как выглядит задание</h2>
+      <p class="sub">Прочитай условие целиком — потом разберём его по частям.
+        Это аналог демоверсии 2023: механика та же, числа изменены — ответ не подсмотришь.</p>
+      <div class="cond">
+        <div class="condrow">
+          <div class="condlab"><span class="dot" style="background:var(--blue)"></span>исполнитель и старт</div>
+          <div class="condtxt">Исполнитель Черепаха действует на плоскости с декартовой системой координат.
+            В начальный момент Черепаха находится в начале координат, её голова направлена вдоль
+            положительного направления <b>оси ординат</b> (вверх), хвост опущен. При опущенном хвосте
+            Черепаха оставляет на поле след в виде линии.</div>
+        </div>
+        <div class="condrow">
+          <div class="condlab"><span class="dot" style="background:var(--accent)"></span>команды</div>
+          <div class="condtxt">У исполнителя существует <b>две команды</b>: <b>Вперёд n</b> (где n — целое число),
+            вызывающая передвижение Черепахи на n единиц в том направлении, куда указывает её голова,
+            и <b>Направо m</b> (где m — целое число), вызывающая изменение направления движения
+            на m градусов по часовой стрелке.</div>
+        </div>
+        <div class="condrow">
+          <div class="condlab"><span class="dot" style="background:var(--warn)"></span>цикл</div>
+          <div class="condtxt">Запись <b>Повтори k [Команда1 Команда2 … КомандаS]</b> означает,
+            что последовательность из S команд повторится k раз.</div>
+        </div>
+        <div class="condrow">
+          <div class="condlab"><span class="dot" style="background:var(--ink)"></span>программа</div>
+          <div class="condtxt">Черепахе был дан для исполнения следующий алгоритм:
+            <div class="codeblock" style="margin:8px 0 0">Повтори 9 [Вперёд 9 Направо 120]</div></div>
+        </div>
+        <div class="condrow">
+          <div class="condlab"><span class="dot" style="background:var(--bad)"></span>вопрос</div>
+          <div class="condtxt">Определите, сколько точек с целочисленными координатами будут находиться
+            внутри области, ограниченной линией, заданной данным алгоритмом.
+            <b>Точки на линии учитывать не следует.</b></div>
+        </div>
+      </div>
+      <div class="warn">⚠ В этом задании команд <b>две</b>. В более новых задачах их <b>шесть</b> — добавляются
+        «Поднять хвост», «Опустить хвост», «Назад» и «Налево». Все команды и их перевод в КуМир и Python —
+        на следующем слайде.</div>
+    </div>
+
+    <!-- слайд 3: команды -->
+    <div class="lslide">
+      <h2>Язык задания — и тот же язык в КуМире и Python</h2>
+      <p>В условии, которое ты только что прочитал, было <b>2 команды</b> (Вперёд, Направо).
+         Бывает и полный набор из <b>6 команд</b> — с хвостом, Назад и Налево. Переводятся один в один:</p>
+      <table class="tbl">
+        <tr><th>Задание ЕГЭ</th><th>КуМир (Черепаха)</th><th>Python (turtle)</th></tr>
+        <tr><td>Вперёд n</td><td>вперед(n)</td><td>forward(n) / fd(n)</td></tr>
+        <tr><td>Назад n</td><td>назад(n)</td><td>back(n) / bk(n)</td></tr>
+        <tr><td>Направо m</td><td>вправо(m)</td><td>right(m) / rt(m)</td></tr>
+        <tr><td>Налево m</td><td>влево(m)</td><td>left(m) / lt(m)</td></tr>
+        <tr><td>Поднять хвост</td><td>поднять хвост</td><td>penup() / up()</td></tr>
+        <tr><td>Опустить хвост</td><td>опустить хвост</td><td>pendown() / down()</td></tr>
+        <tr><td>Повтори k [ … ]</td><td>нц k раз … кц</td><td>for i in range(k):</td></tr>
+      </table>
+      <div class="grid2" style="margin-top:16px">
+        <div class="warn">⚠ Черепаха в КуМире изначально смотрит <b>вправо</b> (восток).
+          Если в условии «голова направлена вдоль оси ординат» — это <b>на север</b>, первой командой добавь влево(90).</div>
+        <div class="panel">Читай старт внимательно: направление (ординат/абсцисс) и хвост (поднят/опущен) —
+          первые две вещи, из-за которых чертёж получается не тем.</div>
+      </div>
+    </div>
+
+    <!-- слайд 4: живая черепаха -->
+    <div class="lslide">
+      <h2>Команда за командой</h2>
+      <div class="grid2">
+        <div>
+          <canvas id="cv1" width="560" height="470"></canvas>
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="btnPlay">▶ Пуск</button>
+            <button class="btn" id="btnStep">Шаг</button>
+            <button class="btn" id="btnReset1">↺ Сначала</button>
+            <label class="note">скорость
+              <select id="speed1" class="btn" style="min-height:48px">
+                <option value="0.5">0,5×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="codeblock">Повтори 9 [Вперёд 9 Направо 120]</div>
+            <div class="row" style="margin-top:12px">
+              <span class="chip" id="chipFd">Вперёд 9</span>
+              <span class="chip" id="chipRt">Направо 120</span>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <span class="chip"><span class="lab">обход:</span> <span id="iter1">1 из 9</span></span>
+              <span class="chip"><span class="lab">курс:</span> <span id="dir1">90° (вверх)</span></span>
+              <span class="chip"><span class="lab">хвост:</span> опущен</span>
+            </div>
+          </div>
+          <div class="panel">
+            <p class="q">❓ Сколько целых точек <b>строго внутри</b> фигуры? Обсудите 30 секунд.</p>
+            <button class="btn primary" id="btnReveal1" disabled>Показать ответ</button>
+            <p class="answer" id="q1" hidden>Внутри <span class="bigcount" id="cnt1"></span> точек
+              <span class="note">(треугольник со стороной 9)</span></p>
+          </div>
+          <div class="warn">⚠ <b>Повтори 9</b>, а для треугольника хватило бы 3: Черепаха обойдёт контур
+            трижды. <b>Фигура от этого не меняется</b>, линия замкнута.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- слайд 5: точки на линии -->
+    <div class="lslide">
+      <h2>Ловушка № 1: точки на линии</h2>
+      <div class="grid2">
+        <div><canvas id="cv2" width="560" height="470"></canvas></div>
+        <div>
+          <div class="panel">
+            <p>В условии бывает <b>по-разному</b>:</p>
+            <p>«…Точки на линии учитывать <b>не следует</b>»<br>
+               «…Точки на линии <b>следует учитывать</b>»<br>
+               «…<b>включая</b> точки на границах»</p>
+            <div class="row" style="margin:14px 0 6px">
+              <span class="switch"><input type="checkbox" id="strict2"></span>
+              <b>Учитывать точки на линии</b>
+            </div>
+            <div class="counts">
+              <div><b id="cntIn2"></b><span>строго внутри</span></div>
+              <div><b id="cntBnd2" style="color:var(--warn)"></b><span>на линии</span></div>
+              <div><b id="cntAll2"></b><span>к ответу задачи</span></div>
+            </div>
+            <p class="note">Переключите тумблер — счётчик изменится на глазах: оранжевые точки левого края
+               то считаются, то нет.</p>
+          </div>
+          <div class="panel">
+            <p><b>Записывается это знаками неравенства:</b></p>
+            <div class="codeblock">y <span id="op2">&gt;</span> x/√3   и   y <span id="op2b">&lt;</span> 9 − x/√3</div>
+            <p class="note" style="margin-top:8px">«не учитывать» → строгие &lt; и &gt;; «учитывать» → нестрогие ≤ и ≥.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- слайд 6: положительные координаты -->
+    <div class="lslide">
+      <h2>Ловушка № 2: «положительные координаты»</h2>
+      <div class="grid2">
+        <div><canvas id="cvPos" width="560" height="420"></canvas></div>
+        <div>
+          <div class="panel">
+            <p>Квадрат 5×5 нарисован так, что он <b>пересекает оси</b>.</p>
+            <div class="row" style="margin:14px 0 6px">
+              <span class="switch"><input type="checkbox" id="chkPos"></span>
+              <b>Только положительные координаты</b>
+            </div>
+            <div class="counts">
+              <div><b id="cntPosAll"></b><span>все точки (с границами)</span></div>
+              <div><b id="cntPosPos"></b><span>с положительными координатами</span></div>
+            </div>
+            <p class="note">Положительные — это строго x &gt; 0 <b>и</b> y &gt; 0.
+               Ряд точек на оси y = 0 выпадает: он не положительный!</p>
+          </div>
+          <div class="warn">⚠ «сколько точек с <b>целочисленными положительными</b> координатами» —
+            первая четверть <b>без осей</b>. Проверь диапазон в программе: не <code>range(0, n)</code>, а <code>range(1, n)</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- слайд 7: пересечение и объединение -->
+    <div class="lslide">
+      <h2>Две фигуры: пересечение и объединение</h2>
+      <div class="grid2">
+        <div><canvas id="cv3" width="560" height="500"></canvas></div>
+        <div>
+          <div class="panel">
+            <p>Между фигурами Черепаха <b>подняла хвост</b> и переехала — значит, нарисованы
+               <b>две отдельные фигуры</b>: A (лесенка) и B (квадрат).</p>
+            <div class="row" style="margin:12px 0">
+              <button class="btn on" data-mode="inter">A ∩ B</button>
+              <button class="btn" data-mode="union">A ∪ B</button>
+              <button class="btn" data-mode="diff">B без A</button>
+            </div>
+            <p id="modeTitle" style="font-weight:700; margin:.2em 0"></p>
+            <p style="font-size:.95em">В выбранной области: <b id="cnt3" style="font-size:32px"></b> точек</p>
+            <p id="formula3" class="note" style="font-size:.95em"></p>
+          </div>
+          <div class="panel">
+            <p class="q">❓ Сколько точек в <b>объединении</b> A ∪ B?</p>
+            <button class="btn primary" id="btnReveal3">Показать ответ</button>
+            <p class="answer" id="q3" hidden>|A∪B| = |A| + |B| − |A∩B| = 57 + 36 − 15 = <b>78</b></p>
+            <p class="note" style="margin-top:8px">Пересечение — «внутри <b>и A, и B</b>» (И).
+               Объединение — «внутри <b>хотя бы одной</b>» (ИЛИ). Формула работает и для площадей.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- слайд 8: списываем программу-рисовалку -->
+    <div class="lslide">
+      <h2>📝 Перепиши программу в тетрадь</h2>
+      <p class="sub">Программа <b>не решает</b> задачу — она <b>рисует картинку</b>: фигуру и сетку целых точек.
+        Ответ ты считаешь сам, по точкам. Сюда подставляются команды из любого задания.</p>
+      <div class="bigsolo">import turtle as t
+k = 30
+t.left(90)              # старт: вдоль оси ординат («на север»)
+t.down()                # хвост опущен
+for i in range(9):      # Повтори 9 раз
+    t.forward(9*k)      # Вперёд 9
+    t.right(120)        # Направо 120
+t.up()                  # дальше — без следа
+for x in range(-2, 12): # сетка точек по горизонтали
+    for y in range(-2, 12):
+        t.goto(x*k, y*k)
+        t.dot(6)
+# рисуй — и считай точки сам</div>
+      <p class="note" style="margin-top:10px">После запуска откроется окно с рисунком — пересчитай точки внутри фигуры.
+        Диапазоны range(-2, 12) подбери так, чтобы сетка накрыла всю фигуру с запасом.</p>
+    </div>
+
+    <!-- слайд 9: программа построчно -->
+    <div class="lslide">
+      <h2>Программа построчно</h2>
+      <div class="pytable">
+        <div class="pyrow"><code>import turtle as t</code><span class="ex">подключаем встроенный модуль «черепашьей графики», коротко — t</span></div>
+        <div class="pyrow"><code>k = 30</code><span class="ex">масштаб: 1 клетка поля = 30 пикселей</span></div>
+        <div class="pyrow"><code>t.left(90)</code><span class="ex">старт «на север» (ось ординат). Если в задании «ось абсцисс» — эта строка не нужна</span></div>
+        <div class="pyrow"><code>t.down()</code><span class="ex">опустить хвост. Если в условии хвост поднят — пиши t.up()</span></div>
+        <div class="pyrow"><code>for i in range(9):</code><span class="ex">«Повтори 9 раз» из условия (для замыкания хватило бы и 3 — фигура та же)</span></div>
+        <div class="pyrow"><code>    t.forward(9*k)</code><span class="ex">«Вперёд 9» — на 9 клеток по курсу</span></div>
+        <div class="pyrow"><code>    t.right(120)</code><span class="ex">«Направо 120» — поворот по часовой стрелке</span></div>
+        <div class="pyrow"><code>t.up()</code><span class="ex">поднять перо: сетку ставим без следа</span></div>
+        <div class="pyrow"><code>for x in range(-2, 12):</code><span class="ex">x от −2 до 11: сетка шире фигуры, с запасом и в минус</span></div>
+        <div class="pyrow"><code>    for y in range(-2, 12):</code><span class="ex">и по y так же — диапазон подбирается под задачу</span></div>
+        <div class="pyrow"><code>        t.goto(x*k, y*k)</code><span class="ex">переезд в точку сетки с координатами (x; y)</span></div>
+        <div class="pyrow"><code>        t.dot(6)</code><span class="ex">крупная точка — по ним и считаем ответ пальцем</span></div>
+        <div class="pyrow"><code># рисуй — и считай сам</code><span class="ex">программа только рисует; точки внутри фигуры считает человек</span></div>
+      </div>
+    </div>
+
+
+
+    <!-- слайд 10: чек-лист -->
+    <div class="lslide">
+      <h2>Чек-лист: 8 нюансов</h2>
+      <div class="checkgrid">
+        <div class="panel"><b>1. Стартовое направление</b><p class="note">«ординат» = вверх, «абсцисс» = вправо. В КуМире старт — вправо.</p></div>
+        <div class="panel"><b>2. Хвост в начале</b><p class="note">Опущен или поднят — читай первую строку условия.</p></div>
+        <div class="panel"><b>3. «Повтори» больше нужного</b><p class="note">7 обходов вместо 3 — фигура та же, не пугайся.</p></div>
+        <div class="panel"><b>4. Точки на линии</b><p class="note">«Не учитывать» = строгие неравенства; «учитывать/включая границы» = нестрогие.</p></div>
+        <div class="panel"><b>5. «Положительные координаты»</b><p class="note">Первая четверть без осей: x &gt; 0 и y &gt; 0.</p></div>
+        <div class="panel"><b>6. Перенос с поднятым хвостом</b><p class="note">«Назад n» — против направления головы, а не «на юг».</p></div>
+        <div class="panel"><b>7. Иррациональные длины</b><p class="note">√3 ≈ 1,73: не округляй до целых, в программе пиши 3**0.5.</p></div>
+        <div class="panel"><b>8. Проверяй дважды</b><p class="note">Рисунок + перебор точек. Два способа сошлись — ответ верный.</p></div>
+      </div>
+    </div>
+
+    <!-- слайд 11: мост к работе -->
+    <div class="lslide">
+      <h2>Проверь себя</h2>
+      <div class="panel" style="max-width:760px">
+        <p><b>Самостоятельная работа: 5 задач на 10 минут.</b></p>
+        <ul>
+          <li>по одной задаче на каждую ловушку из разбора;</li>
+          <li>у каждого свои числа — списать не получится;</li>
+          <li>ровно 10 минут по настоящим часам;</li>
+          <li>каждая ошибка объяснится после завершения.</li>
+        </ul>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="btnGoExam">📝 Начать самостоятельную</button>
+          <button class="btn" id="btnBackHome">На главную</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer>← → — листать · пробел — дальше · Esc — к первому слайду</footer>
+</section>
+
+<!-- ==================== самостоятельная ==================== -->
+<section class="scr" id="scr-exam">
+  <main class="examwrap">
+
+    <!-- старт -->
+    <div id="exIntro">
+      <h1>📝 Самостоятельная работа</h1>
+      <div class="panel">
+        <p><b>Правила</b></p>
+        <ul>
+          <li>5 задач, время — <b>ровно 10 минут</b> по настоящим часам;</li>
+          <li>ответ — целое число, вводи и переключайся стрелками внизу;</li>
+          <li>справка на время работы закрыта;</li>
+          <li>после завершения — оценка и разбор каждой ошибки.</li>
+        </ul>
+        <p style="margin-top:14px"><label for="exName"><b>Фамилия и имя</b> (без них нельзя начать):</label></p>
+        <input class="field" id="exName" placeholder="Иванов Иван" autocomplete="off">
+        <div class="row" style="margin-top:14px">
+          <button class="btn primary" id="exBegin" disabled>Начать работу</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- задачи -->
+    <div id="exTasks" class="hidden">
+      <div class="exhead">
+        <b id="exWho"></b>
+        <span>задача <b id="exProg">1 / 5</b></span>
+        <span class="timer" id="exTimer">10:00</span>
+      </div>
+      <div class="dots" id="exDots"></div>
+      <div class="panel">
+        <p class="qtext" id="exQ"></p>
+        <div class="prog" id="exProgText"></div>
+        <div class="ansrow">
+          <label><b>Ответ:</b> <input class="field" id="exAns" inputmode="numeric" placeholder="…" autocomplete="off"></label>
+          <span class="note">Enter — к следующей задаче</span>
+        </div>
+      </div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn" id="exPrev">← Предыдущая</button>
+        <button class="btn" id="exNext">Следующая →</button>
+        <button class="btn primary" id="exFinish" style="margin-left:auto">Завершить работу</button>
+      </div>
+      <div id="exConfirm" class="panel hidden" style="margin-top:14px; border-color:var(--warn)">
+        <b id="exConfirmText"></b>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="exFinishYes">Да, завершить</button>
+          <button class="btn" id="exFinishNo">Отмена, ещё подумаю</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- результат -->
+    <div id="exResult" class="hidden">
+      <h2>Результат</h2>
+      <div class="panel" style="display:flex; gap:26px; align-items:center; flex-wrap:wrap">
+        <div class="mark" id="exMark"></div>
+        <div>
+          <b id="exMeta"></b>
+          <p class="note" id="exStats"></p>
+        </div>
+      </div>
+      <div class="panel" id="exTable"></div>
+      <div class="panel" id="exAdvice"></div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn primary" id="exAgain">📝 Ещё раз (новые задачи)</button>
+        <button class="btn" id="exToLesson">📺 К разбору</button>
+        <button class="btn" id="exHome">На главную</button>
+      </div>
+    </div>
+
+  </main>
+</section>
+
+<!-- ==================== справка ==================== -->
+<section class="scr" id="scr-help">
+  <header>
+    <button class="btn ghost" id="hHome" title="на главную">⌂</button>
+    <div class="logo">🐢 Задание 6 · справка</div>
+  </header>
+  <main>
+    <h2>Шпаргалка по заданию 6</h2>
+
+    <h3>Команды</h3>
+    <table class="tbl">
+      <tr><th>Задание ЕГЭ</th><th>КуМир</th><th>Python (turtle)</th></tr>
+      <tr><td>Вперёд n / Назад n</td><td>вперед(n) / назад(n)</td><td>fd(n) / bk(n)</td></tr>
+      <tr><td>Направо m / Налево m</td><td>вправо(m) / влево(m)</td><td>rt(m) / lt(m)</td></tr>
+      <tr><td>Поднять / Опустить хвост</td><td>поднять хвост / опустить хвост</td><td>up() / down()</td></tr>
+      <tr><td>Повтори k [ … ]</td><td>нц k раз … кц</td><td>for i in range(k):</td></tr>
+    </table>
+
+    <h3>Строгость границ</h3>
+    <table class="tbl">
+      <tr><th>Формулировка</th><th>Неравенство</th><th>Точки на линии</th></tr>
+      <tr><td>«Точки на линии учитывать не следует»</td><td>строгие &lt; &gt;</td><td>не считаем</td></tr>
+      <tr><td>«Точки на линии следует учитывать», «включая точки на границах»</td><td>нестрогие ≤ ≥</td><td>считаем</td></tr>
+      <tr><td>«положительные координаты»</td><td>x &gt; 0 и y &gt; 0</td><td>первая четверть без осей</td></tr>
+    </table>
+
+    <h3>Две фигуры</h3>
+    <ul>
+      <li><b>Пересечение A ∩ B</b> — точки внутри <b>обеих</b> фигур (логическое И).</li>
+      <li><b>Объединение A ∪ B</b> — точки внутри <b>хотя бы одной</b> (ИЛИ).</li>
+      <li><b>B без A</b> — внутри B, но не внутри A.</li>
+      <li>Формула включений-исключений: <b>|A∪B| = |A| + |B| − |A∩B|</b> (точки и площади).</li>
+      <li>Периметр объединения — по рисунку: внутренняя общая граница <b>не считается</b>.</li>
+    </ul>
+
+    <h3>Другие способы: вручную и КуМир</h3>
+    <p><b>Вручную</b>: выполни алгоритм на листе в клетку, повороты отслеживай стрелкой направления.
+      Риск: точки у наклонных границ «на глаз» не решить (сторона 9 уходит в 4,5√3 ≈ 7,79) —
+      ответ проверь программой.</p>
+    <div class="codeblock">использовать Черепаха
+алг
+нач
+  влево(90)      | старт «на север»
+  опустить хвост
+  нц 9 раз
+    вперед(9)
+    вправо(120)
+  кц
+кон</div>
+    <p class="note">В КуМире включи сетку, 1 шаг = 1 клетка, пересчитай точки внутри.</p>
+
+    <h3>Программа-рисовалка на Python (любая задача)</h3>
+    <div class="codeblock">import turtle as t
+k = 30
+t.left(90)              # старт: вдоль оси ординат
+t.down()
+for i in range(9):      # Повтори из условия
+    t.forward(9*k)      # Вперёд
+    t.right(120)        # Направо
+t.up()
+for x in range(-2, 12): # сетка накрывает фигуру с запасом
+    for y in range(-2, 12):
+        t.goto(x*k, y*k)
+        t.dot(6)</div>
+    <p class="note">Программа только рисует фигуру и сетку точек — ответ считают по рисунку.</p>
+
+    <h3>Чек-лист перед ответом</h3>
+    <ul class="plan">
+      <li>стартовое направление и хвост — из условия;</li>
+      <li>строгость границ — из вопроса;</li>
+      <li>«положительные» — без осей;</li>
+      <li>две фигуры — какая область нужна: ∩, ∪ или разность;</li>
+      <li>проверь вторым способом.</li>
+    </ul>
+  </main>
+  <footer>Инфошаг · infoshag.ru</footer>
+</section>
+
+<script>
+'use strict';
+/* ==================================================================
+   Задание 6 ЕГЭ · Черепаха — урок и самостоятельная работа.
+   Разбор: слайды с живой Черепахой и ловушками.
+   Самостоятельная: генерация задач + встроенный решатель
+   (симуляция Черепахи + лучевый алгоритм принадлежности точки).
+   ================================================================== */
+const SQ3 = Math.sqrt(3);
+const $ = id => document.getElementById(id);
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const rand = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+let C2 = null, CP = null, mode3cur = 'inter';   // для перерисовки холстов при смене темы
+
+/* ---------- экраны ---------- */
+function showScreen(name){
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('active'));
+  $('scr-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+$('btnLesson').onclick = () => { showScreen('lesson'); showLSlide(0); };
+$('btnHelp').onclick = () => showScreen('help');
+$('hHome').onclick = () => showScreen('start');
+$('lhome').onclick = () => showScreen('start');
+$('btnBackHome').onclick = () => showScreen('start');
+$('btnGoExam').onclick = () => { showScreen('exam'); examToIntro(); };
+$('lstart').onclick = () => showLSlide(1);
+
+/* ==================================================================
+   УРОК: слайды
+   ================================================================== */
+const lslides = Array.from(document.querySelectorAll('.lslide'));
+let curL = 0;
+const lInit = {};
+function showLSlide(i){
+  curL = Math.max(0, Math.min(lslides.length - 1, i));
+  lslides.forEach((s, k) => s.classList.toggle('active', k === curL));
+  $('slideNum').textContent = (curL + 1) + ' / ' + lslides.length;
+  const init = { 3: initSlideTurtle, 4: initSlideBound, 5: initSlidePos, 6: initSlideSets }[curL];
+  if (init && !lInit[curL]) { lInit[curL] = true; init(); }
+}
+$('lprev').onclick = () => showLSlide(curL - 1);
+$('lnext').onclick = () => showLSlide(curL + 1);
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (!$('scr-lesson').classList.contains('active')) return;
+  if (e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); showLSlide(curL + 1); }
+  else if (e.key === 'ArrowLeft'){ e.preventDefault(); showLSlide(curL - 1); }
+  else if (e.key === 'Escape'){ showLSlide(0); }
+});
+
+/* ---------- канва: подготовка и координаты ---------- */
+function prep(id){
+  const cv = $(id), W = +cv.getAttribute('width'), H = +cv.getAttribute('height');
+  cv.width = W * 2; cv.height = H * 2;               // ×2 для чёткости на проекторе
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(2, 0, 0, 2, 0, 0);
+  return { ctx, W, H };
+}
+function mapper(W, H, xmin, xmax, ymin, ymax){
+  const pad = 16;
+  const u = Math.min((W - 2 * pad) / (xmax - xmin), (H - 2 * pad) / (ymax - ymin));
+  const cx = (W - u * (xmax - xmin)) / 2, cy = (H - u * (ymax - ymin)) / 2;
+  return { u, X: x => pad + cx + (x - xmin) * u, Y: y => H - pad - cy - (y - ymin) * u };
+}
+function grid(ctx, m, v){
+  const line = cssVar('--line'), muted = cssVar('--muted');
+  for (let x = Math.ceil(v.xmin); x <= Math.floor(v.xmax); x++){
+    ctx.strokeStyle = x === 0 ? muted : line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(m.X(x), m.Y(v.ymin)); ctx.lineTo(m.X(x), m.Y(v.ymax)); ctx.stroke();
+  }
+  for (let y = Math.ceil(v.ymin); y <= Math.floor(v.ymax); y++){
+    ctx.strokeStyle = y === 0 ? muted : line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(m.X(v.xmin), m.Y(y)); ctx.lineTo(m.X(v.xmax), m.Y(y)); ctx.stroke();
+  }
+  ctx.fillStyle = muted; ctx.font = '11px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  for (let x = 2; x <= Math.floor(v.xmax); x += 2) ctx.fillText(x, m.X(x), m.Y(0) + 15);
+  ctx.textAlign = 'right';
+  for (let y = 2; y <= Math.floor(v.ymax); y += 2) ctx.fillText(y, m.X(0) - 6, m.Y(y) + 4);
+}
+function poly(ctx, m, pts, close){
+  ctx.beginPath(); ctx.moveTo(m.X(pts[0][0]), m.Y(pts[0][1]));
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(m.X(pts[i][0]), m.Y(pts[i][1]));
+  if (close) ctx.closePath();
+}
+function dot(ctx, m, x, y, r, fill, stroke){
+  ctx.beginPath(); ctx.arc(m.X(x), m.Y(y), r, 0, 7);
+  if (fill){ ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+}
+function rgba(hex, a){
+  const n = parseInt(hex.slice(1), 16);
+  return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')';
+}
+
+/* ---------- геометрия треугольника со стороной 9 (аналог демо-2023) ---------- */
+const TRI = [[0, 0], [0, 9], [4.5 * SQ3, 4.5]];
+const inTri = (x, y) => x > 0 && y > x / SQ3 && y < 9 - x / SQ3;
+const onTri = (x, y) =>
+  (Math.abs(x) < 1e-9 && y >= 0 && y <= 9) ||
+  Math.abs(y - x / SQ3) < 1e-9 || Math.abs(y - (9 - x / SQ3)) < 1e-9;
+
+/* ---------- слайд 3: живая Черепаха ---------- */
+let S1 = null;
+function initSlideTurtle(){
+  const { ctx, W, H } = prep('cv1');
+  const v = { xmin: -0.9, xmax: 8.7, ymin: -0.9, ymax: 10.4 };
+  S1 = { ctx, m: mapper(W, H, v.xmin, v.xmax, v.ymin, v.ymax), v, W, H,
+         steps: [], idx: 0, prog: 0, playing: false,
+         x: 0, y: 0, ang: 90, trace: [[0, 0]], done: false, revealed: false, last: 0 };
+  for (let k = 0; k < 9; k++){ S1.steps.push({ c: 'fd', n: 9 }); S1.steps.push({ c: 'rt', m: 120 }); }
+  $('btnPlay').onclick  = () => { if (!S1.done){ S1.playing = !S1.playing; sync1(); } };
+  $('btnStep').onclick  = () => { if (!S1.done){ S1.playing = false; doStep1(1e9); sync1(); draw1(); } };
+  $('btnReset1').onclick = reset1;
+  $('btnReveal1').onclick = () => {
+    if (!S1.done) return;
+    S1.revealed = true; $('q1').hidden = false; $('btnReveal1').disabled = true; draw1();
+  };
+  sync1(); draw1();
+  requestAnimationFrame(tick1);
+}
+function reset1(){
+  Object.assign(S1, { idx: 0, prog: 0, playing: false, x: 0, y: 0, ang: 90,
+                      trace: [[0, 0]], done: false, revealed: false });
+  $('q1').hidden = true; $('btnReveal1').disabled = true;
+  sync1(); draw1();
+}
+function speed1(){ return parseFloat($('speed1').value) * (REDUCED ? 3 : 1); }
+function doStep1(frac){
+  const s = S1.steps[S1.idx];
+  if (!s) return;
+  S1.prog = Math.min(1, S1.prog + frac);
+  if (S1.prog < 1) return;
+  if (s.c === 'fd'){
+    const a = S1.ang * Math.PI / 180;
+    S1.x = +(S1.x + s.n * Math.cos(a)).toFixed(6);
+    S1.y = +(S1.y + s.n * Math.sin(a)).toFixed(6);
+    S1.trace.push([S1.x, S1.y]);
+  } else { S1.ang -= s.m; }
+  S1.idx++; S1.prog = 0;
+  if (S1.idx >= S1.steps.length){
+    S1.done = true; S1.playing = false; $('btnReveal1').disabled = false;
+  }
+}
+function tick1(ts){
+  if (S1 && !$('scr-lesson').classList.contains('active')) S1.playing = false;
+  if (S1){
+    if (S1.playing && S1.last && !S1.done){
+      const dur = S1.steps[S1.idx].c === 'fd' ? 850 : 300;
+      doStep1((ts - S1.last) * speed1() / dur);
+      sync1(); draw1();
+    }
+    S1.last = ts;
+  }
+  requestAnimationFrame(tick1);
+}
+function sync1(){
+  $('iter1').textContent = S1.done ? 'готово ✓' : Math.min(9, Math.floor(S1.idx / 2) + 1) + ' из 9';
+  const s = S1.steps[S1.idx];
+  $('chipFd').classList.toggle('on', !!s && s.c === 'fd');
+  $('chipRt').classList.toggle('on', !!s && s.c === 'rt');
+  const a = ((S1.ang % 360) + 360) % 360;
+  $('dir1').textContent = a + '° (' +
+    (a === 90 ? 'вверх' : a === 0 ? 'вправо' : a === 180 ? 'влево' : a === 270 ? 'вниз' : 'поворот') + ')';
+  $('btnPlay').textContent = S1.playing ? '⏸ Пауза' : '▶ Пуск';
+}
+function draw1(){
+  const { ctx, m, v, W, H } = S1;
+  const acc = cssVar('--accent'), ink = cssVar('--ink');
+  ctx.clearRect(0, 0, W, H);
+  grid(ctx, m, v);
+  ctx.strokeStyle = acc; ctx.lineWidth = 3.5; ctx.lineJoin = ctx.lineCap = 'round';
+  poly(ctx, m, S1.trace, false); ctx.stroke();
+  const s = S1.steps[S1.idx];
+  let x = S1.x, y = S1.y;
+  if (s && s.c === 'fd' && S1.prog > 0){
+    const a = S1.ang * Math.PI / 180, f = S1.trace[S1.trace.length - 1];
+    x = f[0] + s.n * S1.prog * Math.cos(a);
+    y = f[1] + s.n * S1.prog * Math.sin(a);
+    ctx.beginPath(); ctx.moveTo(m.X(f[0]), m.Y(f[1])); ctx.lineTo(m.X(x), m.Y(y)); ctx.stroke();
+  }
+  if (S1.revealed){
+    let n = 0;
+    for (let px = 0; px <= 8; px++)
+      for (let py = 0; py <= 9; py++)
+        if (inTri(px, py)){ dot(ctx, m, px, py, 4, acc, null); n++; }
+    $('cnt1').textContent = n;
+  }
+  const a = S1.ang * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a);
+  const rot = (vx, vy, deg) => {
+    const r = deg * Math.PI / 180, c = Math.cos(r), si = Math.sin(r);
+    return [vx * c - vy * si, vx * si + vy * c];
+  };
+  const b1 = rot(dx, dy, 150), b2 = rot(dx, dy, -150);
+  const tri = [[x + 0.55 * dx, y + 0.55 * dy],
+               [x + 0.5 * b1[0], y + 0.5 * b1[1]],
+               [x + 0.5 * b2[0], y + 0.5 * b2[1]]];
+  ctx.beginPath();
+  ctx.moveTo(m.X(tri[0][0]), m.Y(tri[0][1]));
+  ctx.lineTo(m.X(tri[1][0]), m.Y(tri[1][1]));
+  ctx.lineTo(m.X(tri[2][0]), m.Y(tri[2][1]));
+  ctx.closePath();
+  ctx.fillStyle = acc; ctx.fill();
+  ctx.strokeStyle = ink; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+/* ---------- слайд 4: точки на линии ---------- */
+function initSlideBound(){
+  const { ctx, W, H } = prep('cv2');
+  const v = { xmin: -0.9, xmax: 8.7, ymin: -0.9, ymax: 10.4 };
+  const m = mapper(W, H, v.xmin, v.xmax, v.ymin, v.ymax);
+  const draw = () => drawBound(ctx, m, v, W, H, $('strict2').checked);
+  C2 = { draw };
+  $('strict2').onchange = draw;
+  draw();
+}
+function drawBound(ctx, m, v, W, H, strict){
+  const acc = cssVar('--accent'), warn = cssVar('--warn');
+  ctx.clearRect(0, 0, W, H);
+  grid(ctx, m, v);
+  ctx.strokeStyle = acc; ctx.lineWidth = 3.5; ctx.lineJoin = 'round';
+  poly(ctx, m, TRI, true); ctx.stroke();
+  let inside = 0, bound = 0;
+  for (let x = 0; x <= 8; x++)
+    for (let y = 0; y <= 9; y++){
+      if (inTri(x, y)){ dot(ctx, m, x, y, 4, acc, null); inside++; }
+      else if (onTri(x, y)){
+        if (strict) dot(ctx, m, x, y, 4, warn, null);
+        else        dot(ctx, m, x, y, 4, null, warn);
+        bound++;
+      }
+    }
+  $('cntIn2').textContent = inside;
+  $('cntBnd2').textContent = bound;
+  $('cntAll2').textContent = strict ? inside + bound : inside;
+  $('op2').textContent = strict ? '≥' : '>';
+  $('op2b').textContent = strict ? '≤' : '<';
+}
+
+/* ---------- слайд 5: положительные координаты ---------- */
+/* квадрат 5×5, пересекающий оси: [2..7] × [−2..3] */
+const SQ_B = [[2, -2], [2, 3], [7, 3], [7, -2]];
+function initSlidePos(){
+  const { ctx, W, H } = prep('cvPos');
+  const v = { xmin: 0.6, xmax: 8.6, ymin: -3.2, ymax: 4.6 };
+  const m = mapper(W, H, v.xmin, v.xmax, v.ymin, v.ymax);
+  const draw = () => drawPos(ctx, m, v, W, H, $('chkPos').checked);
+  CP = { draw };
+  $('chkPos').onchange = draw;
+  draw();
+}
+function drawPos(ctx, m, v, W, H, onlyPos){
+  const acc = cssVar('--accent'), warn = cssVar('--warn'), muted = rgba(cssVar('--muted'), 0.55);
+  ctx.clearRect(0, 0, W, H);
+  grid(ctx, m, v);
+  if (onlyPos){                                  // подсветка первой четверти
+    ctx.fillStyle = rgba(acc, 0.10);
+    ctx.fillRect(m.X(0), m.Y(v.ymax), (v.xmax) * m.u, (v.ymax) * m.u);
+    ctx.fillRect(m.X(0), m.Y(v.ymax), m.X(v.xmax) - m.X(0), m.Y(0) - m.Y(v.ymax));
+  }
+  ctx.strokeStyle = acc; ctx.lineWidth = 3.5; ctx.lineJoin = 'round';
+  poly(ctx, m, SQ_B, true); ctx.stroke();
+  let all = 0, pos = 0;
+  for (let x = 2; x <= 7; x++)
+    for (let y = -2; y <= 3; y++){
+      all++;
+      const ok = x > 0 && y > 0;
+      if (ok) pos++;
+      dot(ctx, m, x, y, 4, ok ? acc : muted, null);
+      if (!ok && y === 0) dot(ctx, m, x, y, 4.5, null, warn);   // на оси — отдельная отметка
+    }
+  $('cntPosAll').textContent = all;
+  $('cntPosPos').textContent = pos;
+}
+
+/* ---------- слайд 7: пересечение и объединение ---------- */
+/* A — лесенка со ступенями 2 (сторона 8): ступени вырезают верхний левый угол,
+   B — квадрат 5×5. Принадлежность считаем честно, лучевым алгоритмом. */
+let M3 = null;
+const FIG_A = [[0,0],[0,2],[2,2],[2,4],[4,4],[4,6],[6,6],[6,8],[8,8],[8,0]];
+const FIG_B = [[4,-3],[4,2],[9,2],[9,-3]];
+const inA = (x, y) => stateIn(x, y, FIG_A) >= 1;   // с границами
+const inB = (x, y) => x >= 4 && x <= 9 && y >= -3 && y <= 2;
+function initSlideSets(){
+  const { ctx, W, H } = prep('cv3');
+  const v = { xmin: -1.5, xmax: 10.2, ymin: -4.3, ymax: 9.4 };
+  M3 = { ctx, m: mapper(W, H, v.xmin, v.xmax, v.ymin, v.ymax), v, W, H };
+  document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => {
+    document.querySelectorAll('[data-mode]').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    mode3cur = b.dataset.mode;
+    draw3(mode3cur);
+  });
+  $('btnReveal3').onclick = () => { $('q3').hidden = false; $('btnReveal3').disabled = true; };
+  draw3('inter');
+}
+function draw3(mode){
+  const { ctx, m, v, W, H } = M3;
+  const acc = cssVar('--accent'), blue = cssVar('--blue'), ink = cssVar('--ink');
+  ctx.clearRect(0, 0, W, H);
+  grid(ctx, m, v);
+  if (mode === 'union'){
+    poly(ctx, m, FIG_A, true); ctx.fillStyle = rgba(blue, 0.10); ctx.fill();
+    poly(ctx, m, FIG_B, true); ctx.fillStyle = rgba(acc, 0.12);  ctx.fill();
+  } else if (mode === 'inter'){
+    ctx.fillStyle = rgba(acc, 0.18);
+    ctx.fillRect(m.X(4), m.Y(2), 4 * m.u, 2 * m.u);   // прямоугольник [4..8]×[0..2]
+  } else {
+    poly(ctx, m, FIG_B, true); ctx.fillStyle = rgba(acc, 0.15); ctx.fill();
+  }
+  ctx.lineWidth = 3; ctx.lineJoin = 'round';
+  ctx.strokeStyle = blue; poly(ctx, m, FIG_A, true); ctx.stroke();
+  ctx.strokeStyle = acc;  poly(ctx, m, FIG_B, true); ctx.stroke();
+  if (mode === 'diff'){
+    ctx.setLineDash([7, 6]);
+    ctx.strokeStyle = blue; poly(ctx, m, FIG_A, true); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  let cnt = 0, aN = 0, bN = 0, iN = 0;
+  const mutedDot = rgba(cssVar('--muted'), 0.5);
+  for (let x = -1; x <= 9; x++)
+    for (let y = -4; y <= 9; y++){
+      const A = inA(x, y), B = inB(x, y);
+      if (A) aN++; if (B) bN++; if (A && B) iN++;
+      const inRegion = mode === 'inter' ? A && B : mode === 'union' ? A || B : B && !A;
+      if (inRegion){ dot(ctx, m, x, y, 3.5, ink, null); cnt++; }
+      else if (A || B) dot(ctx, m, x, y, 2.5, mutedDot, null);
+    }
+  $('cnt3').textContent = cnt;
+  $('modeTitle').textContent =
+    mode === 'inter' ? 'A ∩ B — точки внутри обеих фигур' :
+    mode === 'union' ? 'A ∪ B — точки хотя бы в одной фигуре' :
+                        'B без A — внутри B, но не внутри A';
+  $('formula3').innerHTML =
+    mode === 'inter' ? '|A∩B| = <b>' + iN + '</b> — логическое И' :
+    mode === 'union' ? '|A∪B| = |A| + |B| − |A∩B| = ' + aN + ' + ' + bN + ' − ' + iN + ' = <b>' + (aN + bN - iN) + '</b>' :
+                        '|B без A| = |B| − |A∩B| = ' + bN + ' − ' + iN + ' = <b>' + (bN - iN) + '</b>';
+}
+
+/* ==================================================================
+   ДВИЖОК: симуляция Черепахи + подсчёт целых точек
+   ================================================================== */
+function runTurtle(cmds, startAngle){
+  const R = v => Math.round(v * 1e6) / 1e6;
+  const figs = []; let cur = null;
+  let x = 0, y = 0, ang = startAngle, pen = true;
+  for (const c of cmds){
+    if (c.c === 'fd' || c.c === 'bk'){
+      const d = (c.c === 'fd' ? 1 : -1) * c.n, a = ang * Math.PI / 180;
+      const nx = R(x + d * Math.cos(a)), ny = R(y + d * Math.sin(a));
+      if (pen){ if (!cur) cur = [[x, y]]; cur.push([nx, ny]); }
+      x = nx; y = ny;
+    } else if (c.c === 'rt') ang -= c.n;
+    else if (c.c === 'lt') ang += c.n;
+    else if (c.c === 'up'){ if (cur){ figs.push(cur); cur = null; } pen = false; }
+    else if (c.c === 'down'){ pen = true; }
+  }
+  if (cur) figs.push(cur);
+  return figs;
+}
+function segsOf(fig){                       // отрезки без дубликатов
+  const seen = new Set(), out = [];
+  const key = p => p[0] + ';' + p[1];
+  for (let i = 0; i + 1 < fig.length; i++){
+    const a = fig[i], b = fig[i + 1];
+    if (a[0] === b[0] && a[1] === b[1]) continue;
+    const k = key(a) < key(b) ? key(a) + '|' + key(b) : key(b) + '|' + key(a);
+    if (!seen.has(k)){ seen.add(k); out.push([a, b]); }
+  }
+  return out;
+}
+function onSeg(px, py, a, b){
+  const [x1, y1] = a, [x2, y2] = b;
+  const cross = (x2 - x1) * (py - y1) - (y2 - y1) * (px - x1);
+  if (Math.abs(cross) > 1e-7) return false;
+  return Math.min(x1, x2) - 1e-9 <= px && px <= Math.max(x1, x2) + 1e-9 &&
+         Math.min(y1, y2) - 1e-9 <= py && py <= Math.max(y1, y2) + 1e-9;
+}
+function stateIn(px, py, fig){              // 0 вне, 1 на границе, 2 строго внутри
+  const segs = segsOf(fig);
+  for (const [a, b] of segs) if (onSeg(px, py, a, b)) return 1;
+  let cnt = 0;
+  for (const [a, b] of segs){
+    const [x1, y1] = a, [x2, y2] = b;
+    if ((y1 > py) !== (y2 > py)){
+      const xin = x1 + (py - y1) * (x2 - x1) / (y2 - y1);
+      if (xin > px) cnt++;
+    }
+  }
+  return cnt % 2 ? 2 : 0;
+}
+function countPoints(figs, opt){            // opt: mode, strict, positive
+  let xs = [], ys = [];
+  figs.forEach(f => f.forEach(p => { xs.push(p[0]); ys.push(p[1]); }));
+  const x0 = Math.floor(Math.min(...xs)) - 1, x1 = Math.ceil(Math.max(...xs)) + 1;
+  const y0 = Math.floor(Math.min(...ys)) - 1, y1 = Math.ceil(Math.max(...ys)) + 1;
+  const ok = s => opt.strict ? s === 2 : s >= 1;
+  let n = 0;
+  for (let x = x0; x <= x1; x++)
+    for (let y = y0; y <= y1; y++){
+      if (opt.positive && (x <= 0 || y <= 0)) continue;
+      const st = figs.map(f => stateIn(x, y, f));
+      const good = opt.mode === 'one' ? ok(st[0])
+                 : opt.mode === 'inter' ? st.every(ok)
+                 : st.some(ok);
+      if (good) n++;
+    }
+  return n;
+}
+
+/* ==================================================================
+   САМОСТОЯТЕЛЬНАЯ: генераторы задач
+   ================================================================== */
+const rep = (k, arr) => { const out = []; for (let i = 0; i < k; i++) out.push(...arr); return out; };
+const fd = n => ({ c: 'fd', n }), bk = n => ({ c: 'bk', n });
+const rt = n => ({ c: 'rt', n }), lt = n => ({ c: 'lt', n });
+const UP = { c: 'up' }, DOWN = { c: 'down' };
+
+const HEAD_E = 'Исполнитель Черепаха действует на плоскости с декартовой системой координат. ' +
+  'В начальный момент Черепаха находится в начале координат, её голова направлена вдоль положительного ' +
+  'направления оси абсцисс, хвост опущен. При опущенном хвосте Черепаха оставляет на поле след в виде линии.';
+const HEAD_N = 'Исполнитель Черепаха действует на плоскости с декартовой системой координат. ' +
+  'В начальный момент Черепаха находится в начале координат, её голова направлена вдоль положительного ' +
+  'направления оси ординат, хвост опущен. При опущенном хвосте Черепаха оставляет на поле след в виде линии.';
+
+/* задача 1: прямоугольник, строго внутри */
+function gen1(){
+  const a = rand(6, 12), b = rand(6, 12);
+  const cmds = rep(2, [fd(a), rt(90), fd(b), rt(90)]);
+  const figs = runTurtle(cmds, 0);
+  const ans = countPoints(figs, { mode: 'one', strict: true });
+  return {
+    topic: 'строго внутри',
+    head: HEAD_E,
+    prog: `Повтори 2 [Вперёд ${a} Направо 90 Вперёд ${b} Направо 90]`,
+    ask: 'Определите, сколько точек с целочисленными координатами будут находиться внутри области, ' +
+         'ограниченной линией, заданной данным алгоритмом. Точки на линии учитывать не следует.',
+    ans,
+    traps: [
+      { v: (a + 1) * (b + 1), why: 'Ты, похоже, посчитал и точки на границе — а в условии «не следует учитывать»: нужны строгие неравенства.' },
+      { v: a * b, why: 'Похоже, ты посчитал единичные клетки, а не точки сетки.' },
+    ],
+    hint: 'Прямоугольник ' + a + '×' + b + ', точки только внутри: (' + a + '−1)·(' + b + '−1).',
+  };
+}
+/* задача 2: шестиугольник, положительные координаты, строго */
+function gen2(){
+  const s = rand(3, 6);
+  const cmds = rep(6, [fd(s), rt(60)]);
+  const figs = runTurtle(cmds, 90);                    // старт «на север»
+  const ans = countPoints(figs, { mode: 'one', strict: true, positive: true });
+  const allStrict = countPoints(figs, { mode: 'one', strict: true });
+  const posClosed = countPoints(figs, { mode: 'one', strict: false, positive: true });
+  return {
+    topic: 'положительные координаты',
+    head: HEAD_N,
+    prog: `Повтори 6 [Вперёд ${s} Направо 60]`,
+    ask: 'Определите, сколько точек с целочисленными положительными координатами будут находиться ' +
+         'внутри области, ограниченной линией, заданной данным алгоритмом. Точки на линии учитывать не следует.',
+    ans,
+    traps: [
+      { v: allStrict, why: 'Не ограничил первой четвертью: нужны только положительные координаты (x > 0 и y > 0), оси не считаются.' },
+      { v: posClosed, why: 'Точки на линиях в этой задаче не учитываются — только строго внутри.' },
+    ],
+    hint: 'Правильный шестиугольник со стороной ' + s + ', часть — ниже оси. Считай только x > 0 и y > 0, строго внутри.',
+  };
+}
+/* задача 3: лесенка, включая границы.
+   ВАЖНО: «Вперёд-Направо-Вперёд-Налево» со старта «восток» рисует ЛЕСЕНКУ —
+   ступени вырезают часть квадрата, полного квадрата нет. Считаем честно. */
+function gen3(){
+  const st = rand(2, 3), k = rand(3, 5), a = st * k;
+  const cmds = [...rep(k, [fd(st), rt(90), fd(st), lt(90)]), rt(180), fd(a), rt(90), fd(a)];
+  const figs = runTurtle(cmds, 0);
+  const ans = countPoints(figs, { mode: 'one', strict: false });
+  const strictCnt = countPoints(figs, { mode: 'one', strict: true });
+  return {
+    topic: 'включая границы',
+    head: HEAD_E,
+    prog: `Повтори ${k} [Вперёд ${st} Направо 90 Вперёд ${st} Налево 90]\nНаправо 180 Вперёд ${a} Направо 90 Вперёд ${a}`,
+    ask: 'Определите, сколько точек с целочисленными координатами будут находиться внутри области, ' +
+         'ограниченной линией, заданной данным алгоритмом, и на самой линии.',
+    ans,
+    traps: [
+      { v: (a + 1) * (a + 1), why: 'Похоже, ты посчитал полный квадрат ' + a + '×' + a + '. Но лесенка занимает не весь квадрат: ступени вырезают угол, считай по столбцам разной высоты.' },
+      { v: strictCnt, why: 'Точки на линиях потеряны: здесь границы УЧИТЫВАЮТСЯ («и на самой линии») — нестрогие неравенства.' },
+    ],
+    hint: 'Лесенка со ступенями ' + st + ': считай по столбцам (высоты столбцов убывают ступенями), границы считаются.',
+  };
+}
+/* задачи 4–5: две фигуры (пересечение / объединение).
+   Все количества считаем честно движком, формулы-фильтры — по честным числам. */
+function genTwo(){
+  for (let tries = 0; tries < 200; tries++){
+    const st = rand(2, 3), k = rand(3, 4), a = st * k;        // фигура A: лесенка
+    const st2 = rand(2, 3), k2 = rand(2, 3), b = st2 * k2;    // фигура B: лесенка
+    const p = rand(1, a - 1);                                  // левый край B
+    const q = rand(-a + 2, -2);                                // нижний край B
+    const m = -q;
+    const cmds = [
+      ...rep(k, [fd(st), rt(90), fd(st), lt(90)]), rt(180), fd(a), rt(90), fd(a),
+      UP, rt(90), fd(p), lt(90), bk(m), DOWN,
+      ...rep(k2, [fd(st2), rt(90), fd(st2), lt(90)]), rt(180), fd(b), rt(90), fd(b),
+    ];
+    const figs = runTurtle(cmds, 0);
+    if (figs.length !== 2) continue;
+    const A = countPoints([figs[0]], { mode: 'one', strict: false });
+    const B = countPoints([figs[1]], { mode: 'one', strict: false });
+    const inter = countPoints(figs, { mode: 'inter', strict: false });
+    const union = countPoints(figs, { mode: 'union', strict: false });
+    if (inter < 6) continue;                                   // пустое/крошечное пересечение
+    if (inter > Math.min(A, B) - 6) continue;                  // фигура почти поглощает другую
+    if (union < 40) continue;                                  // слишком мелкая пара
+    if (union !== A + B - inter) continue;                     // внутренняя согласованность
+    const prog =
+      `Повтори ${k} [Вперёд ${st} Направо 90 Вперёд ${st} Налево 90]\n` +
+      `Направо 180 Вперёд ${a} Направо 90 Вперёд ${a}\n` +
+      `Поднять хвост\n` +
+      `Направо 90 Вперёд ${p} Налево 90 Назад ${m}\n` +
+      `Опустить хвост\n` +
+      `Повтори ${k2} [Вперёд ${st2} Направо 90 Вперёд ${st2} Налево 90]\n` +
+      `Направо 180 Вперёд ${b} Направо 90 Вперёд ${b}`;
+    return { prog, A, B, inter, union };
+  }
+  return null;
+}
+function gen4(){
+  const g = genTwo();
+  return {
+    topic: 'пересечение',
+    head: HEAD_E,
+    prog: g.prog,
+    ask: 'Выполняя этот алгоритм, Черепаха рисует одну за другой две фигуры. Определите, сколько точек ' +
+         'с целочисленными координатами будут находиться внутри пересечения этих фигур, включая точки ' +
+         'на границах этого пересечения.',
+    ans: g.inter,
+    traps: [
+      { v: g.union, why: 'Это объединение — «хотя бы в одной фигуре». Пересечение — точки, которые внутри ОБЕИХ фигур сразу.' },
+      { v: g.A, why: 'Это все точки первой фигуры. Пересечение — только общая часть двух фигур.' },
+    ],
+    hint: 'Пересечение — точки внутри обеих фигур (логическое И), с границами.',
+  };
+}
+function gen5(){
+  const g = genTwo();
+  return {
+    topic: 'объединение',
+    head: HEAD_E,
+    prog: g.prog,
+    ask: 'Выполняя этот алгоритм, Черепаха рисует одну за другой две фигуры. Определите, сколько точек ' +
+         'с целочисленными координатами будут находиться внутри объединения этих фигур, включая точки ' +
+         'на границах этого объединения.',
+    ans: g.union,
+    traps: [
+      { v: g.A + g.B, why: 'Ты сложил обе фигуры, но общие точки посчитались дважды: |A∪B| = |A| + |B| − |A∩B|.' },
+      { v: g.inter, why: 'Это пересечение (общая часть). Объединение — точки хотя бы в одной фигуре.' },
+    ],
+    hint: '|A∪B| = |A| + |B| − |A∩B| = ' + g.A + ' + ' + g.B + ' − ' + g.inter + '.',
+  };
+}
+
+/* ==================================================================
+   САМОСТОЯТЕЛЬНАЯ: параметры и ход работы
+   ================================================================== */
+const EXAM = {
+  timeLimit: 10 * 60 * 1000,          // 10 минут по настоящим часам
+  generators: [gen1, gen2, gen3, gen4, gen5],
+  scorePerTask: 1,
+  thresholds: { 5: 5, 4: 4, 3: 3 },   // баллы → оценка (меньше 3 — «2»)
+  note: 'справка закрыта, уходы со страницы фиксируются',
+};
+let EX = null;                        // состояние текущей работы
+
+function examToIntro(){
+  $('exIntro').classList.remove('hidden');
+  $('exTasks').classList.add('hidden');
+  $('exResult').classList.add('hidden');
+  let saved = '';
+  try { saved = localStorage.getItem('ege6-name') || ''; } catch (e) {}
+  $('exName').value = saved;
+  $('exBegin').disabled = !saved.trim();
+}
+$('exName').addEventListener('input', () => { $('exBegin').disabled = !$('exName').value.trim(); });
+$('exName').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('exBegin').disabled) $('exBegin').click(); });
+$('exBegin').onclick = () => {
+  const name = $('exName').value.trim();
+  if (!name) return;
+  try { localStorage.setItem('ege6-name', name); } catch (e) {}
+  EX = {
+    name,
+    start: Date.now(),
+    end: Date.now() + EXAM.timeLimit,
+    tasks: EXAM.generators.map(g => {
+      const t = g();
+      t.traps = t.traps.filter(tr => tr.v !== t.ans);   // ловушка не должна совпадать с ответом
+      return t;
+    }),
+    cur: 0,
+    answers: [null, null, null, null, null],
+    leaves: 0,
+    done: false,
+  };
+  $('exWho').textContent = name;
+  $('exIntro').classList.add('hidden');
+  $('exResult').classList.add('hidden');
+  $('exTasks').classList.remove('hidden');
+  buildDots();
+  showTask(0);
+  clearInterval(EX.timerId);
+  EX.timerId = setInterval(tickExam, 400);
+};
+function buildDots(){
+  const d = $('exDots');
+  d.innerHTML = '';
+  EX.tasks.forEach((t, i) => {
+    const b = document.createElement('button');
+    b.textContent = i + 1;
+    b.onclick = () => showTask(i);
+    d.appendChild(b);
+  });
+}
+function showTask(i){
+  EX.cur = i;
+  const t = EX.tasks[i];
+  $('exProg').textContent = (i + 1) + ' / ' + EX.tasks.length;
+  $('exQ').innerHTML = t.head + '<br><b>' + t.ask + '</b>';
+  $('exProgText').textContent = t.prog;
+  $('exAns').value = EX.answers[i] === null ? '' : EX.answers[i];
+  [...$('exDots').children].forEach((b, k) => {
+    b.classList.toggle('cur', k === i);
+    b.classList.toggle('ans', EX.answers[k] !== null && EX.answers[k] !== '');
+  });
+  $('exPrev').disabled = i === 0;
+  $('exNext').disabled = i === EX.tasks.length - 1;
+  $('exConfirm').classList.add('hidden');
+  $('exAns').focus();
+}
+$('exAns').addEventListener('input', () => {
+  const v = $('exAns').value.trim();
+  EX.answers[EX.cur] = v === '' ? null : v;
+  [...$('exDots').children][EX.cur].classList.toggle('ans', v !== '');
+});
+$('exAns').addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); if (EX.cur < EX.tasks.length - 1) showTask(EX.cur + 1); }
+});
+$('exPrev').onclick = () => showTask(EX.cur - 1);
+$('exNext').onclick = () => showTask(EX.cur + 1);
+$('exFinish').onclick = () => {
+  const empty = EX.answers.filter(a => a === null || a === '').length;
+  if (empty === 0){ finishExam(); return; }
+  $('exConfirmText').textContent = 'Без ответа осталось задач: ' + empty + '. Незакрытые задачи будут неверными. Завершить?';
+  $('exConfirm').classList.remove('hidden');
+};
+$('exFinishNo').onclick = () => $('exConfirm').classList.add('hidden');
+$('exFinishYes').onclick = finishExam;
+function tickExam(){
+  if (!EX || EX.done) return;
+  const left = Math.max(0, EX.end - Date.now());
+  const mm = Math.floor(left / 60000), ss = Math.floor(left % 60000 / 1000);
+  const el = $('exTimer');
+  el.textContent = mm + ':' + String(ss).padStart(2, '0');
+  el.classList.toggle('hot', left < 60000);
+  if (left <= 0) finishExam();
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && EX && !EX.done && !$('exTasks').classList.contains('hidden')) EX.leaves++;
+});
+function finishExam(){
+  if (!EX || EX.done) return;
+  EX.done = true;
+  clearInterval(EX.timerId);
+  let score = 0;
+  const rows = [];
+  EX.tasks.forEach((t, i) => {
+    const raw = EX.answers[i];
+    const val = raw === null || raw === '' ? null : parseInt(raw, 10);
+    let ok = val !== null && val === t.ans;
+    if (ok) score += EXAM.scorePerTask;
+    let why = '';
+    if (!ok){
+      const trap = val === null ? null : t.traps.find(tr => tr.v === val);
+      why = trap
+        ? trap.why
+        : (val === null ? 'Задача осталась без ответа. ' : '') + 'Верный ответ: ' + t.ans + '. ' + t.hint;
+    }
+    rows.push({ n: i + 1, topic: t.topic, val, ok, why });
+  });
+  const mark = score >= EXAM.thresholds[5] ? 5
+             : score >= EXAM.thresholds[4] ? 4
+             : score >= EXAM.thresholds[3] ? 3 : 2;
+  $('exTasks').classList.add('hidden');
+  $('exResult').classList.remove('hidden');
+
+  const now = new Date();
+  $('exMark').textContent = mark;
+  $('exMeta').textContent = EX.name;
+  $('exStats').textContent =
+    now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) +
+    ' · верных ответов: ' + score + ' из ' + EX.tasks.length +
+    ' · уходов со страницы: ' + EX.leaves;
+
+  const tbl = $('exTable');
+  tbl.innerHTML = '';
+  rows.forEach(r => {
+    const line = document.createElement('div');
+    line.className = 'resline';
+    line.innerHTML =
+      '<b>' + r.n + '</b>' +
+      '<span>' + r.topic + (r.val === null ? ' — <i>нет ответа</i>' : ' — твой ответ: ' + r.val) + '</span>' +
+      '<span>' + (r.ok ? '<span class="ok">верно ✓</span>' : '<span class="no">ошибка</span>') + '</span>' +
+      '<span class="note" style="max-width:520px">' + (r.ok ? '' : r.why) + '</span>';
+    tbl.appendChild(line);
+  });
+
+  const bad = rows.filter(r => !r.ok).map(r => r.topic);
+  const adv = $('exAdvice');
+  if (bad.length === 0){
+    adv.innerHTML = '<b>Над чем поработать</b><p>Всё верно — ловушки пройдены! Загляни в справку перед следующим разом: повторение формул объединения не помешает.</p>';
+  } else {
+    const uniq = [...new Set(bad)];
+    const tips = {
+      'строго внутри': 'перечитай вопрос: «точки на линии учитывать не следует» = строгие неравенства.',
+      'положительные координаты': 'первая четверть без осей: x > 0 и y > 0.',
+      'включая границы': '«и на самой линии» = нестрогие неравенства, границы считаются.',
+      'пересечение': 'пересечение — точки внутри обеих фигур (И).',
+      'объединение': '|A∪B| = |A| + |B| − |A∩B| — общие точки вычитаются.',
+    };
+    adv.innerHTML = '<b>Над чем поработать</b><ul>' +
+      uniq.map(t => '<li><b>' + t + '</b>: ' + tips[t] + '</li>').join('') + '</ul>';
+  }
+}
+$('exAgain').onclick = () => { examToIntro(); $('exBegin').disabled = false; };
+$('exToLesson').onclick = () => { showScreen('lesson'); showLSlide(0); };
+$('exHome').onclick = () => showScreen('start');
+
+/* ==================================================================
+   ТЕМА: белая по умолчанию, тёмная по кнопке; выбор сохраняется
+   ================================================================== */
+function redrawForTheme(){
+  if (S1) draw1();
+  if (C2) C2.draw();
+  if (CP) CP.draw();
+  if (M3) draw3(mode3cur);
+}
+function syncThemeBtn(){
+  $('themeBtn').textContent = document.documentElement.classList.contains('dark') ? '☀' : '🌙';
+}
+$('themeBtn').onclick = () => {
+  document.documentElement.classList.toggle('dark');
+  try{
+    localStorage.setItem('ege6-theme',
+      document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+  }catch(e){}
+  syncThemeBtn();
+  redrawForTheme();
+};
+syncThemeBtn();
+</script>
+</body>
+</html>

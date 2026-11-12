@@ -19,6 +19,8 @@ const WAIT = { 'ohota-za-rasshireniyami': 9000 };
 const AFTER = {
   // «Снайпер»: задание формата ОГЭ и точный выстрел — видны полосы частей условия
   snaiper: `cfg.level = '3'; start(); document.getElementById('shot').value = String(S.task.answer); fire(); scrollTo(0, 0);`,
+  // Разбор задания 2: шаг «Программа по строкам» с тремя выведенными строками трассы
+  'ege-2-poshagovo': `document.getElementById('next').click(); document.getElementById('next').click(); for (let i = 0; i < 3; i++) document.getElementById('trace-skip').click(); scrollTo(0, 0);`,
   // «Задание 6 ЕГЭ»: тема урока включается переключателем, а не prefers-color-scheme —
   // для тёмного снимка добавляем класс до открытия слайда с живой Черепахой
   'ege6-cherepaha': `

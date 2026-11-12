@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101f36"><title>Инфошаг · Задание 2 · Таблица истинности на Python</title>
+<style>
+:root{color-scheme:light;--bg:#edf2f8;--surface:#fff;--ink:#101f36;--soft:#344760;--line:#bac9dd;--accent:#1266d6;--tint:#eaf2ff;--code:#f4f7fb;--good:#08764c;--bad:#b32645;--size:24px;--radius:12px;--mono:Consolas,'Courier New',monospace}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0b1325;--surface:#111e35;--ink:#edf3ff;--soft:#b8c8e0;--line:#435774;--accent:#82bfff;--tint:#182e4d;--code:#0a162a;--good:#78e4b4;--bad:#ff9ab0}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--bg);color:var(--ink);font:var(--size)/1.45 Arial,'Segoe UI',sans-serif}.wrap{max-width:1560px;margin:auto;padding:0 max(24px,env(safe-area-inset-right)) 0 max(24px,env(safe-area-inset-left))}header{position:sticky;top:0;background:var(--surface);border-bottom:2px solid var(--line);z-index:5}.top{min-height:64px;display:flex;gap:10px;align-items:center}.brand{font-size:25px;font-weight:800;text-decoration:none;color:var(--ink);white-space:nowrap}.brand span{color:var(--accent)}.brand small{font-size:20px;color:var(--soft)}button,input,select{font:inherit;color:inherit}button,select{min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}button{cursor:pointer;touch-action:manipulation}button:hover{border-color:var(--accent)}button:disabled{opacity:.43;cursor:default}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.primary{background:var(--accent);color:var(--surface);border-color:var(--accent)}:root[data-theme=dark] .primary{color:#0b1325}.top select{flex:1;min-width:0;font-size:18px;max-width:630px}.top button{font-size:17px;white-space:nowrap}.font-controls{display:flex;align-items:center;gap:4px;margin-left:auto}.font-controls button{min-width:44px;padding:8px}.font-controls span{font:16px var(--mono)}main{padding-top:14px;padding-bottom:24px}.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 28px;min-width:0}h1,h2,h3,p{margin:0}h1{font-size:calc(var(--size)*1.3);line-height:1.2;letter-spacing:-.025em}h2{font-size:calc(var(--size)*1.1);margin-bottom:12px}h3{font-size:calc(var(--size)*1.05)}.heading{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:12px}.eyebrow{font-size:17px;color:var(--accent);font-weight:700}.lead{font-size:calc(var(--size)*.94);max-width:95ch;margin-bottom:14px}.hint{color:var(--soft);font-size:18px;line-height:1.45;margin-top:12px}.expr{font:700 calc(var(--size)*1.15)/1.4 var(--mono);background:var(--tint);border-left:4px solid var(--accent);padding:12px 16px;margin:12px 0;overflow-wrap:anywhere}.stats{display:flex;gap:24px;flex-wrap:wrap;margin:12px 0 16px}.stats small{display:block;font-size:17px;color:var(--soft)}.stats strong{font:700 28px/1.4 var(--mono);overflow-wrap:anywhere}.table-wrap{max-height:340px;overflow:auto;overscroll-behavior:contain}table{width:100%;border-collapse:collapse;font-size:19px}th,td{text-align:center;padding:9px 10px;border-bottom:1px solid var(--line)}th{position:sticky;top:0;background:var(--surface);font-size:17px;font-weight:700}td.q{color:var(--soft);font-weight:700}.plan{display:flex;flex-direction:column;gap:8px;margin:14px 0;max-width:80ch}.plan button{text-align:left;font-size:19px;display:flex;gap:10px;align-items:baseline}.plan button b{color:var(--accent);font-family:var(--mono)}.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}.split>section{min-width:0;padding:16px;border:1px solid var(--line);border-radius:10px}.pane-head{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:18px;color:var(--soft)}.pane-head button{font-size:17px}.code{font:calc(var(--size)*.9)/1.55 var(--mono);background:var(--code);border:1px solid var(--line);border-radius:10px;padding:10px 0;margin:0;overflow-x:auto}.code-line{display:flex;gap:10px;padding:3px 14px;white-space:pre-wrap;overflow-wrap:anywhere;cursor:pointer;border:0;background:none;width:100%;text-align:left;font:inherit;color:inherit;border-radius:0;min-height:0}.code-line:hover{background:var(--tint)}.code-line .ln{color:var(--soft);min-width:24px;text-align:right;user-select:none;font-size:16px}.code-line.current{background:var(--tint);box-shadow:inset 4px 0 var(--accent)}.tiles{display:flex;gap:8px;flex-wrap:wrap;min-height:52px;margin-bottom:12px}.tile{min-width:56px;padding:6px 12px;text-align:center;font:28px/1.4 var(--mono);border:1px solid var(--line);border-radius:8px;background:var(--code)}.tile small{display:block;font:16px Arial,'Segoe UI',sans-serif;color:var(--soft)}.tile.active{background:var(--tint);border-color:var(--accent);box-shadow:inset 0 -3px var(--accent);color:var(--accent)}.tile.bad{border-color:var(--bad);color:var(--bad)}.trace-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}.trace-controls button{font-size:18px}.trace-controls span{font-size:17px;color:var(--soft)}.note{border-left:4px solid var(--accent);background:var(--tint);padding:10px 14px;font-size:calc(var(--size)*.86);margin:10px 0;overflow-wrap:anywhere}.note.soft{border-color:var(--line);background:var(--code)}.ops-table td:first-child,.ops-table th:first-child{font-family:var(--mono);font-weight:700}.ops-table .val{font:700 24px var(--mono)}.ab-controls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:12px 0}.ab-controls button{font:700 24px var(--mono);min-width:64px}.match-table select{width:74px;font:700 20px var(--mono);text-align:center;padding:6px}.feedback{border-left:4px solid var(--line);padding:10px 14px;margin:12px 0;font-size:calc(var(--size)*.9);overflow-wrap:anywhere}.feedback.ok{border-color:var(--good);background:var(--tint)}.feedback.bad{border-color:var(--bad)}.feedback.info{border-color:var(--accent)}.answer{font:700 calc(var(--size)*1.3)/1.4 var(--mono);letter-spacing:.15em;color:var(--good)}.quiz-q{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}.quiz-q h3{margin-bottom:10px;font-size:calc(var(--size)*.95)}.quiz-opts{display:flex;flex-direction:column;gap:8px}.quiz-opts button{text-align:left;font-size:19px;font-family:var(--mono)}.quiz-opts button.ok{border-color:var(--good);background:var(--tint);box-shadow:inset 4px 0 var(--good)}.quiz-opts button.bad{border-color:var(--bad);box-shadow:inset 4px 0 var(--bad)}.quiz-why{font-size:17px;color:var(--soft);margin:6px 0 0 14px;font-family:Arial,'Segoe UI',sans-serif}.quiz-why.ok{color:var(--good)}.quiz-why.bad{color:var(--bad)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.actions button{font-size:18px}details.adv{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:16px}details.adv summary{cursor:pointer;font-size:20px;font-weight:600}.bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}.bottom button{font-size:18px}.keyboard{font-size:14px;line-height:1.4;text-align:center;color:var(--soft)}footer{font-size:14px;color:var(--soft);margin-top:18px;max-width:100ch}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:1100px){.brand{display:none}.wrap{padding:0 18px}.panel{padding:18px 22px}.top{gap:8px}.top select{font-size:17px}.split{gap:14px}.split>section{padding:12px}}
+@media(max-width:700px){body{--size:20px!important}.top{flex-wrap:wrap;padding-top:8px;padding-bottom:8px}.top select{flex-basis:100%;order:-1;max-width:none}.font-controls,#fullscreen{display:none}.top button{font-size:16px}.wrap{padding:0 12px}.panel{padding:16px}.heading{gap:8px}.heading h1{font-size:26px}.split{grid-template-columns:1fr}.keyboard{display:none}.bottom button{font-size:16px}.stats{gap:16px}.tile{min-width:48px;font-size:24px}.match-table select{width:60px;font-size:18px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media print{header,.bottom,.trace-controls,.actions,.plan,footer,.keyboard{display:none!important}.panel{border:0}.split{display:block}body{background:white;color:black;font-size:16px}}
+</style></head><body>
+<header><div class="wrap top"><a class="brand" href="#">Инфо<span>шаг</span> <small>2</small></a><label class="sr" for="step-select">Выбрать шаг разбора</label><select id="step-select"></select><button id="new-task">Новая задача</button><div class="font-controls"><button id="smaller" aria-label="Уменьшить текст">A−</button><span id="font-size">24</span><button id="larger" aria-label="Увеличить текст">A+</button></div><button id="fullscreen">Во весь экран</button><button id="theme" aria-label="Переключить тему">◐</button></div></header>
+<main class="wrap"><article class="panel" id="lesson"><div class="heading"><div class="eyebrow" id="counter"></div><h1 id="title"></h1></div><div id="error" class="feedback bad" role="alert" hidden></div>
+
+<section id="step-1" aria-label="Условие задачи">
+<p class="lead">Логическая функция F задана выражением. Ниже — фрагмент её таблицы истинности: три <b>различные</b> строки, часть клеток пуста. Определи, какому столбцу соответствует каждая переменная, и запиши буквы в порядке столбцов.</p>
+<div class="expr" id="condition-expr"></div>
+<div class="table-wrap" id="fragment-wrap"></div>
+<div class="stats" id="task-stats"></div>
+<h2>План разбора</h2>
+<div class="plan" id="plan"></div>
+<p class="hint">Условие и данные составлены для этого разбора и генерируются заново кнопкой «Новая задача». Это не копия официальной демоверсии.</p>
+</section>
+
+<section id="step-2" aria-label="Логика на Python" hidden>
+<p class="lead">В Python нет отдельных значков для логики — операции записываются словами. Нажимай на значения a и b и смотри, что получится.</p>
+<div class="ab-controls"><span>Проверь на своих значениях:</span><button id="toggle-a" aria-label="Переключить a">a = 0</button><button id="toggle-b" aria-label="Переключить b">b = 0</button></div>
+<div class="table-wrap"><table class="ops-table" id="ops-table"></table></div>
+<div class="note" id="impl-note"></div>
+<div class="note soft">Приоритет операций в Python: сначала <code>not</code>, затем <code>and</code>, затем <code>or</code>. Сравнения <code>==</code>, <code>!=</code>, <code>&lt;=</code> выполняются <b>раньше</b> <code>and</code> и <code>or</code> — поэтому эквивалентность и импликацию в выражениях берут в скобки. В математической логике порядок другой: НЕ, И, ИЛИ, импликация, эквивалентность.</div>
+</section>
+
+<section id="step-3" aria-label="Программа по строкам" hidden>
+<p class="lead">Переборная программа строит часть таблицы истинности: все строки, где F принимает нужное значение. Нажми на строку кода — справа появится пояснение. Кнопки листают выполнение по шагам.</p>
+<div class="split"><section aria-label="Код Python"><div class="pane-head"><span>Python · перебор всех наборов</span><button id="copy-step3">Копировать код</button></div><div class="code" id="code-lines"></div><p class="hint">Четыре вложенных цикла — это то же самое, что один цикл <code>for x, y, z, w in product([0, 1], repeat=4)</code> из модуля itertools.</p></section>
+<section aria-label="Выполнение программы"><div class="pane-head"><span>Текущий набор значений</span></div><div class="tiles" id="tiles"></div><div class="trace-controls"><button id="trace-back" aria-label="Шаг назад">←</button><button id="trace-next">Шаг →</button><button id="trace-play">Автопоказ</button><button id="trace-skip">К строке вывода</button><button id="trace-reset">Сброс</button><span id="trace-pos"></span></div><div class="note" id="line-note"></div><div class="note soft" id="trace-note"></div><div class="pane-head"><span>Вывод программы</span></div><div class="table-wrap" id="out-wrap"></div></section></div>
+</section>
+
+<section id="step-4" aria-label="Сопоставление столбцов" hidden>
+<p class="lead">Сравни фрагмент из условия с выводом программы. Назначь переменную каждому столбцу фрагмента и нажми «Проверить». Пустые клетки программа заполнения проверит сама.</p>
+<h2>Строки решений — вывод программы</h2>
+<div class="table-wrap" id="sol-wrap"></div>
+<h2>Фрагмент из условия</h2>
+<div class="table-wrap" id="match-wrap"></div>
+<div class="actions"><button class="primary" id="match-check">Проверить</button><button id="match-hint">Подсказка</button><button id="match-answer">Показать ответ</button></div>
+<div class="feedback info" id="match-feedback" role="status">Выбери по одной переменной в каждом столбце.</div>
+<div id="match-hints"></div>
+</section>
+
+<section id="step-5" aria-label="Проверь себя" hidden>
+<p class="lead">Пять вопросов по этой задаче. После каждого ответа — объяснение: почему верно или почему нет.</p>
+<div class="stats" id="quiz-stats"></div>
+<div id="quiz"></div>
+<div class="actions"><button id="quiz-reset">Пройти ещё раз</button></div>
+</section>
+
+<section id="step-6" aria-label="Вся программа" hidden>
+<p class="lead">Полная программа для этой задачи: скопируй или скачай и запусти на своём компьютере. Ответ — буквы переменных в порядке столбцов фрагмента.</p>
+<div class="pane-head"><span>Программа разбора</span><span><button id="copy-main">Копировать</button> <button id="download-main">Скачать .py</button></span></div>
+<pre class="code" id="full-code" style="padding:14px;white-space:pre-wrap"></pre>
+<div class="note" id="main-result"></div>
+<details class="adv"><summary>Продвинутый шаг: программа, которая решает всё сама</summary>
+<p class="lead" style="margin-top:12px">Можно не сопоставлять столбцы вручную: программа перебирает все перестановки столбцов и все заполнения пустых клеток, проверяет, что строки не повторяются и функция даёт нужное значение, и печатает единственный подходящий ответ.</p>
+<div class="stats" id="advanced-stats"></div>
+<div class="pane-head"><span>Автоматическое решение</span><span><button id="copy-advanced">Копировать</button> <button id="download-advanced">Скачать .py</button></span></div>
+<pre class="code" id="advanced-code" style="padding:14px;white-space:pre-wrap"></pre>
+<div class="note" id="advanced-result"></div>
+<p class="hint">Имена переменных здесь заданы явно, поэтому программа работает на любой версии Python 3. Приём с автоматическим чтением имён из <code>f.__code__.co_varnames</code> ломается на Python 3.12: генераторы списков попали в общий код функции, и в списке имён появляются лишние переменные.</p>
+</details>
+</section>
+
+<section id="step-7" aria-label="Авторешение по строкам" hidden>
+<p class="lead">Автоматическое решение по строкам: нажми на любую строку кода — появится комментарий. Кнопки листают перебор перестановок и заполнений до единственного ответа.</p>
+<div class="split"><section aria-label="Код авторешения"><div class="pane-head"><span>Python · решает всё само</span><button id="copy-step7">Копировать код</button></div><div class="code" id="adv-lines"></div><p class="hint">Комментарий есть у каждой строки. Перебор останавливается на первом подходящем кандидате: ответ единственный.</p></section>
+<section aria-label="Выполнение авторешения"><div class="pane-head"><span>Текущий кандидат</span></div><div class="note soft" id="adv-cand"></div><div class="trace-controls"><button id="adv-back" aria-label="Шаг назад">←</button><button id="adv-next">Шаг →</button><button id="adv-play">Автопоказ</button><button id="adv-skip">К ответу</button><button id="adv-reset">Сброс</button><span id="adv-pos"></span></div><div class="note" id="adv-line-note"></div><div class="note soft" id="adv-note"></div><div class="pane-head"><span>Фрагмент с заполненными пропусками</span></div><div class="table-wrap" id="adv-rows"></div><div class="pane-head"><span>Ответ программы</span></div><div id="adv-out"></div></section></div>
+</section>
+
+<div class="bottom"><button id="prev">← Предыдущий шаг</button><span class="keyboard">← → шаги · Page Up / Down — строки трассы<br>Esc — остановить автопоказ</span><button class="primary" id="next">Следующий шаг →</button></div></article>
+<footer>Инфошаг · Задание 2 ЕГЭ · Пошаговый разбор программного решения. Таблицы и трасса вычисляются в браузере на JavaScript и сверены отдельными тестами с Python. Произвольный Python-код здесь не исполняется. Материал работает без интернета; условие и данные составлены для разбора.</footer></main>
+<script>
+/*__ENGINE__*/
+/*__UI__*/
+</script></body></html>

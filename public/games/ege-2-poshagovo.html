@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101f36"><title>Инфошаг · Задание 2 · Таблица истинности на Python</title>
+<style>
+:root{color-scheme:light;--bg:#edf2f8;--surface:#fff;--ink:#101f36;--soft:#344760;--line:#bac9dd;--accent:#1266d6;--tint:#eaf2ff;--code:#f4f7fb;--good:#08764c;--bad:#b32645;--size:24px;--radius:12px;--mono:Consolas,'Courier New',monospace}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0b1325;--surface:#111e35;--ink:#edf3ff;--soft:#b8c8e0;--line:#435774;--accent:#82bfff;--tint:#182e4d;--code:#0a162a;--good:#78e4b4;--bad:#ff9ab0}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--bg);color:var(--ink);font:var(--size)/1.45 Arial,'Segoe UI',sans-serif}.wrap{max-width:1560px;margin:auto;padding:0 max(24px,env(safe-area-inset-right)) 0 max(24px,env(safe-area-inset-left))}header{position:sticky;top:0;background:var(--surface);border-bottom:2px solid var(--line);z-index:5}.top{min-height:64px;display:flex;gap:10px;align-items:center}.brand{font-size:25px;font-weight:800;text-decoration:none;color:var(--ink);white-space:nowrap}.brand span{color:var(--accent)}.brand small{font-size:20px;color:var(--soft)}button,input,select{font:inherit;color:inherit}button,select{min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}button{cursor:pointer;touch-action:manipulation}button:hover{border-color:var(--accent)}button:disabled{opacity:.43;cursor:default}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.primary{background:var(--accent);color:var(--surface);border-color:var(--accent)}:root[data-theme=dark] .primary{color:#0b1325}.top select{flex:1;min-width:0;font-size:18px;max-width:630px}.top button{font-size:17px;white-space:nowrap}.font-controls{display:flex;align-items:center;gap:4px;margin-left:auto}.font-controls button{min-width:44px;padding:8px}.font-controls span{font:16px var(--mono)}main{padding-top:14px;padding-bottom:24px}.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 28px;min-width:0}h1,h2,h3,p{margin:0}h1{font-size:calc(var(--size)*1.3);line-height:1.2;letter-spacing:-.025em}h2{font-size:calc(var(--size)*1.1);margin-bottom:12px}h3{font-size:calc(var(--size)*1.05)}.heading{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:12px}.eyebrow{font-size:17px;color:var(--accent);font-weight:700}.lead{font-size:calc(var(--size)*.94);max-width:95ch;margin-bottom:14px}.hint{color:var(--soft);font-size:18px;line-height:1.45;margin-top:12px}.expr{font:700 calc(var(--size)*1.15)/1.4 var(--mono);background:var(--tint);border-left:4px solid var(--accent);padding:12px 16px;margin:12px 0;overflow-wrap:anywhere}.stats{display:flex;gap:24px;flex-wrap:wrap;margin:12px 0 16px}.stats small{display:block;font-size:17px;color:var(--soft)}.stats strong{font:700 28px/1.4 var(--mono);overflow-wrap:anywhere}.table-wrap{max-height:340px;overflow:auto;overscroll-behavior:contain}table{width:100%;border-collapse:collapse;font-size:19px}th,td{text-align:center;padding:9px 10px;border-bottom:1px solid var(--line)}th{position:sticky;top:0;background:var(--surface);font-size:17px;font-weight:700}td.q{color:var(--soft);font-weight:700}.plan{display:flex;flex-direction:column;gap:8px;margin:14px 0;max-width:80ch}.plan button{text-align:left;font-size:19px;display:flex;gap:10px;align-items:baseline}.plan button b{color:var(--accent);font-family:var(--mono)}.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}.split>section{min-width:0;padding:16px;border:1px solid var(--line);border-radius:10px}.pane-head{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:18px;color:var(--soft)}.pane-head button{font-size:17px}.code{font:calc(var(--size)*.9)/1.55 var(--mono);background:var(--code);border:1px solid var(--line);border-radius:10px;padding:10px 0;margin:0;overflow-x:auto}.code-line{display:flex;gap:10px;padding:3px 14px;white-space:pre-wrap;overflow-wrap:anywhere;cursor:pointer;border:0;background:none;width:100%;text-align:left;font:inherit;color:inherit;border-radius:0;min-height:0}.code-line:hover{background:var(--tint)}.code-line .ln{color:var(--soft);min-width:24px;text-align:right;user-select:none;font-size:16px}.code-line.current{background:var(--tint);box-shadow:inset 4px 0 var(--accent)}.tiles{display:flex;gap:8px;flex-wrap:wrap;min-height:52px;margin-bottom:12px}.tile{min-width:56px;padding:6px 12px;text-align:center;font:28px/1.4 var(--mono);border:1px solid var(--line);border-radius:8px;background:var(--code)}.tile small{display:block;font:16px Arial,'Segoe UI',sans-serif;color:var(--soft)}.tile.active{background:var(--tint);border-color:var(--accent);box-shadow:inset 0 -3px var(--accent);color:var(--accent)}.tile.bad{border-color:var(--bad);color:var(--bad)}.trace-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}.trace-controls button{font-size:18px}.trace-controls span{font-size:17px;color:var(--soft)}.note{border-left:4px solid var(--accent);background:var(--tint);padding:10px 14px;font-size:calc(var(--size)*.86);margin:10px 0;overflow-wrap:anywhere}.note.soft{border-color:var(--line);background:var(--code)}.ops-table td:first-child,.ops-table th:first-child{font-family:var(--mono);font-weight:700}.ops-table .val{font:700 24px var(--mono)}.ab-controls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:12px 0}.ab-controls button{font:700 24px var(--mono);min-width:64px}.match-table select{width:74px;font:700 20px var(--mono);text-align:center;padding:6px}.feedback{border-left:4px solid var(--line);padding:10px 14px;margin:12px 0;font-size:calc(var(--size)*.9);overflow-wrap:anywhere}.feedback.ok{border-color:var(--good);background:var(--tint)}.feedback.bad{border-color:var(--bad)}.feedback.info{border-color:var(--accent)}.answer{font:700 calc(var(--size)*1.3)/1.4 var(--mono);letter-spacing:.15em;color:var(--good)}.quiz-q{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}.quiz-q h3{margin-bottom:10px;font-size:calc(var(--size)*.95)}.quiz-opts{display:flex;flex-direction:column;gap:8px}.quiz-opts button{text-align:left;font-size:19px;font-family:var(--mono)}.quiz-opts button.ok{border-color:var(--good);background:var(--tint);box-shadow:inset 4px 0 var(--good)}.quiz-opts button.bad{border-color:var(--bad);box-shadow:inset 4px 0 var(--bad)}.quiz-why{font-size:17px;color:var(--soft);margin:6px 0 0 14px;font-family:Arial,'Segoe UI',sans-serif}.quiz-why.ok{color:var(--good)}.quiz-why.bad{color:var(--bad)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.actions button{font-size:18px}details.adv{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:16px}details.adv summary{cursor:pointer;font-size:20px;font-weight:600}.bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}.bottom button{font-size:18px}.keyboard{font-size:14px;line-height:1.4;text-align:center;color:var(--soft)}footer{font-size:14px;color:var(--soft);margin-top:18px;max-width:100ch}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:1100px){.brand{display:none}.wrap{padding:0 18px}.panel{padding:18px 22px}.top{gap:8px}.top select{font-size:17px}.split{gap:14px}.split>section{padding:12px}}
+@media(max-width:700px){body{--size:20px!important}.top{flex-wrap:wrap;padding-top:8px;padding-bottom:8px}.top select{flex-basis:100%;order:-1;max-width:none}.font-controls,#fullscreen{display:none}.top button{font-size:16px}.wrap{padding:0 12px}.panel{padding:16px}.heading{gap:8px}.heading h1{font-size:26px}.split{grid-template-columns:1fr}.keyboard{display:none}.bottom button{font-size:16px}.stats{gap:16px}.tile{min-width:48px;font-size:24px}.match-table select{width:60px;font-size:18px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media print{header,.bottom,.trace-controls,.actions,.plan,footer,.keyboard{display:none!important}.panel{border:0}.split{display:block}body{background:white;color:black;font-size:16px}}
+</style></head><body>
+<header><div class="wrap top"><a class="brand" href="#">Инфо<span>шаг</span> <small>2</small></a><label class="sr" for="step-select">Выбрать шаг разбора</label><select id="step-select"></select><button id="new-task">Новая задача</button><div class="font-controls"><button id="smaller" aria-label="Уменьшить текст">A−</button><span id="font-size">24</span><button id="larger" aria-label="Увеличить текст">A+</button></div><button id="fullscreen">Во весь экран</button><button id="theme" aria-label="Переключить тему">◐</button></div></header>
+<main class="wrap"><article class="panel" id="lesson"><div class="heading"><div class="eyebrow" id="counter"></div><h1 id="title"></h1></div><div id="error" class="feedback bad" role="alert" hidden></div>
+
+<section id="step-1" aria-label="Условие задачи">
+<p class="lead">Логическая функция F задана выражением. Ниже — фрагмент её таблицы истинности: три <b>различные</b> строки, часть клеток пуста. Определи, какому столбцу соответствует каждая переменная, и запиши буквы в порядке столбцов.</p>
+<div class="expr" id="condition-expr"></div>
+<div class="table-wrap" id="fragment-wrap"></div>
+<div class="stats" id="task-stats"></div>
+<h2>План разбора</h2>
+<div class="plan" id="plan"></div>
+<p class="hint">Условие и данные составлены для этого разбора и генерируются заново кнопкой «Новая задача». Это не копия официальной демоверсии.</p>
+</section>
+
+<section id="step-2" aria-label="Логика на Python" hidden>
+<p class="lead">В Python нет отдельных значков для логики — операции записываются словами. Нажимай на значения a и b и смотри, что получится.</p>
+<div class="ab-controls"><span>Проверь на своих значениях:</span><button id="toggle-a" aria-label="Переключить a">a = 0</button><button id="toggle-b" aria-label="Переключить b">b = 0</button></div>
+<div class="table-wrap"><table class="ops-table" id="ops-table"></table></div>
+<div class="note" id="impl-note"></div>
+<div class="note soft">Приоритет операций в Python: сначала <code>not</code>, затем <code>and</code>, затем <code>or</code>. Сравнения <code>==</code>, <code>!=</code>, <code>&lt;=</code> выполняются <b>раньше</b> <code>and</code> и <code>or</code> — поэтому эквивалентность и импликацию в выражениях берут в скобки. В математической логике порядок другой: НЕ, И, ИЛИ, импликация, эквивалентность.</div>
+</section>
+
+<section id="step-3" aria-label="Программа по строкам" hidden>
+<p class="lead">Переборная программа строит часть таблицы истинности: все строки, где F принимает нужное значение. Нажми на строку кода — справа появится пояснение. Кнопки листают выполнение по шагам.</p>
+<div class="split"><section aria-label="Код Python"><div class="pane-head"><span>Python · перебор всех наборов</span><button id="copy-step3">Копировать код</button></div><div class="code" id="code-lines"></div><p class="hint">Четыре вложенных цикла — это то же самое, что один цикл <code>for x, y, z, w in product([0, 1], repeat=4)</code> из модуля itertools.</p></section>
+<section aria-label="Выполнение программы"><div class="pane-head"><span>Текущий набор значений</span></div><div class="tiles" id="tiles"></div><div class="trace-controls"><button id="trace-back" aria-label="Шаг назад">←</button><button id="trace-next">Шаг →</button><button id="trace-play">Автопоказ</button><button id="trace-skip">К строке вывода</button><button id="trace-reset">Сброс</button><span id="trace-pos"></span></div><div class="note" id="line-note"></div><div class="note soft" id="trace-note"></div><div class="pane-head"><span>Вывод программы</span></div><div class="table-wrap" id="out-wrap"></div></section></div>
+</section>
+
+<section id="step-4" aria-label="Сопоставление столбцов" hidden>
+<p class="lead">Сравни фрагмент из условия с выводом программы. Назначь переменную каждому столбцу фрагмента и нажми «Проверить». Пустые клетки программа заполнения проверит сама.</p>
+<h2>Строки решений — вывод программы</h2>
+<div class="table-wrap" id="sol-wrap"></div>
+<h2>Фрагмент из условия</h2>
+<div class="table-wrap" id="match-wrap"></div>
+<div class="actions"><button class="primary" id="match-check">Проверить</button><button id="match-hint">Подсказка</button><button id="match-answer">Показать ответ</button></div>
+<div class="feedback info" id="match-feedback" role="status">Выбери по одной переменной в каждом столбце.</div>
+<div id="match-hints"></div>
+</section>
+
+<section id="step-5" aria-label="Проверь себя" hidden>
+<p class="lead">Пять вопросов по этой задаче. После каждого ответа — объяснение: почему верно или почему нет.</p>
+<div class="stats" id="quiz-stats"></div>
+<div id="quiz"></div>
+<div class="actions"><button id="quiz-reset">Пройти ещё раз</button></div>
+</section>
+
+<section id="step-6" aria-label="Вся программа" hidden>
+<p class="lead">Полная программа для этой задачи: скопируй или скачай и запусти на своём компьютере. Ответ — буквы переменных в порядке столбцов фрагмента.</p>
+<div class="pane-head"><span>Программа разбора</span><span><button id="copy-main">Копировать</button> <button id="download-main">Скачать .py</button></span></div>
+<pre class="code" id="full-code" style="padding:14px;white-space:pre-wrap"></pre>
+<div class="note" id="main-result"></div>
+<details class="adv"><summary>Продвинутый шаг: программа, которая решает всё сама</summary>
+<p class="lead" style="margin-top:12px">Можно не сопоставлять столбцы вручную: программа перебирает все перестановки столбцов и все заполнения пустых клеток, проверяет, что строки не повторяются и функция даёт нужное значение, и печатает единственный подходящий ответ.</p>
+<div class="stats" id="advanced-stats"></div>
+<div class="pane-head"><span>Автоматическое решение</span><span><button id="copy-advanced">Копировать</button> <button id="download-advanced">Скачать .py</button></span></div>
+<pre class="code" id="advanced-code" style="padding:14px;white-space:pre-wrap"></pre>
+<div class="note" id="advanced-result"></div>
+<p class="hint">Имена переменных здесь заданы явно, поэтому программа работает на любой версии Python 3. Приём с автоматическим чтением имён из <code>f.__code__.co_varnames</code> ломается на Python 3.12: генераторы списков попали в общий код функции, и в списке имён появляются лишние переменные.</p>
+</details>
+</section>
+
+<section id="step-7" aria-label="Авторешение по строкам" hidden>
+<p class="lead">Автоматическое решение по строкам: нажми на любую строку кода — появится комментарий. Кнопки листают перебор перестановок и заполнений до единственного ответа.</p>
+<div class="split"><section aria-label="Код авторешения"><div class="pane-head"><span>Python · решает всё само</span><button id="copy-step7">Копировать код</button></div><div class="code" id="adv-lines"></div><p class="hint">Комментарий есть у каждой строки. Перебор останавливается на первом подходящем кандидате: ответ единственный.</p></section>
+<section aria-label="Выполнение авторешения"><div class="pane-head"><span>Текущий кандидат</span></div><div class="note soft" id="adv-cand"></div><div class="trace-controls"><button id="adv-back" aria-label="Шаг назад">←</button><button id="adv-next">Шаг →</button><button id="adv-play">Автопоказ</button><button id="adv-skip">К ответу</button><button id="adv-reset">Сброс</button><span id="adv-pos"></span></div><div class="note" id="adv-line-note"></div><div class="note soft" id="adv-note"></div><div class="pane-head"><span>Фрагмент с заполненными пропусками</span></div><div class="table-wrap" id="adv-rows"></div><div class="pane-head"><span>Ответ программы</span></div><div id="adv-out"></div></section></div>
+</section>
+
+<div class="bottom"><button id="prev">← Предыдущий шаг</button><span class="keyboard">← → шаги · Page Up / Down — строки трассы<br>Esc — остановить автопоказ</span><button class="primary" id="next">Следующий шаг →</button></div></article>
+<footer>Инфошаг · Задание 2 ЕГЭ · Пошаговый разбор программного решения. Таблицы и трасса вычисляются в браузере на JavaScript и сверены отдельными тестами с Python. Произвольный Python-код здесь не исполняется. Материал работает без интернета; условие и данные составлены для разбора.</footer></main>
+<script>
+(()=>{'use strict';
+// Движок разбора задания 2 ЕГЭ: логические выражения, таблицы истинности,
+// трасса программы, генерация собственных задач, проверка сопоставления столбцов.
+// Все числа для страницы считаются здесь, а не пишутся вручную.
+
+const VARS = ['x', 'y', 'z', 'w'];
+
+// Детерминированный генератор случайных чисел (mulberry32) — задача воспроизводится по seed.
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const v = name => ({op: 'var', name});
+const not = a => ({op: 'not', a});
+const bin = (op, a, b) => ({op, a, b});
+const and = (a, b) => bin('and', a, b);
+const or = (a, b) => bin('or', a, b);
+const impl = (a, b) => bin('impl', a, b);
+const eq = (a, b) => bin('eq', a, b);
+const xor = (a, b) => bin('xor', a, b);
+
+function evalAst(node, env) {
+  switch (node.op) {
+    case 'var': return env[node.name];
+    case 'not': return 1 - evalAst(node.a, env);
+    case 'and': return evalAst(node.a, env) & evalAst(node.b, env);
+    case 'or': return evalAst(node.a, env) | evalAst(node.b, env);
+    case 'impl': return (1 - evalAst(node.a, env)) | evalAst(node.b, env);
+    case 'eq': return evalAst(node.a, env) === evalAst(node.b, env) ? 1 : 0;
+    case 'xor': return evalAst(node.a, env) !== evalAst(node.b, env) ? 1 : 0;
+  }
+  throw Error('Неизвестная операция: ' + node.op);
+}
+
+function toPython(node) {
+  switch (node.op) {
+    case 'var': return node.name;
+    case 'not': return `(not ${toPython(node.a)})`;
+    case 'and': return `(${toPython(node.a)} and ${toPython(node.b)})`;
+    case 'or': return `(${toPython(node.a)} or ${toPython(node.b)})`;
+    case 'impl': return `((not ${toPython(node.a)}) or ${toPython(node.b)})`;
+    case 'eq': return `(${toPython(node.a)} == ${toPython(node.b)})`;
+    case 'xor': return `(${toPython(node.a)} != ${toPython(node.b)})`;
+  }
+  throw Error('Неизвестная операция: ' + node.op);
+}
+
+function toMath(node, top = true) {
+  const sym = {and: '∧', or: '∨', impl: '→', eq: '≡', xor: '⊕'};
+  let s;
+  if (node.op === 'var') s = node.name;
+  else if (node.op === 'not') s = `¬${toMath(node.a, false)}`;
+  else s = `(${toMath(node.a, false)} ${sym[node.op]} ${toMath(node.b, false)})`;
+  return top && s.startsWith('(') && s.endsWith(')') ? s.slice(1, -1) : s;
+}
+
+function rename(node, map) {
+  if (node.op === 'var') return v(map[node.name]);
+  if (node.op === 'not') return not(rename(node.a, map));
+  return bin(node.op, rename(node.a, map), rename(node.b, map));
+}
+
+// Собственные выражения для разбора: конъюнкции из 2–4 множителей, все четыре переменные.
+const SKELETONS = [
+  and(impl(v('x'), v('y')), and(eq(v('y'), v('z')), not(v('w')))),
+  and(or(v('x'), v('y')), and(not(eq(v('z'), v('w'))), impl(v('w'), v('x')))),
+  and(eq(v('x'), v('y')), and(impl(v('y'), v('z')), not(v('w')))),
+  and(not(and(v('x'), v('y'))), and(impl(v('z'), v('w')), or(v('x'), v('z')))),
+  and(impl(v('x'), not(v('y'))), and(eq(v('z'), v('w')), or(v('y'), v('z')))),
+  and(or(not(v('x')), v('y')), and(not(eq(v('y'), v('z'))), impl(v('w'), v('z')))),
+  and(impl(v('x'), v('y')), and(impl(v('y'), v('z')), and(impl(v('z'), v('w')), not(v('x'))))),
+  and(xor(v('x'), v('y')), and(eq(v('z'), v('w')), impl(v('x'), v('z')))),
+  and(not(or(v('x'), v('y'))), or(eq(v('z'), v('w')), impl(v('x'), v('z')))),
+  and(impl(v('x'), v('y')), and(not(eq(v('y'), v('w'))), or(v('z'), v('w')))),
+];
+
+function fullTable(ast) {
+  const rows = [];
+  for (let i = 0; i < 16; i++) {
+    const env = {x: (i >> 3) & 1, y: (i >> 2) & 1, z: (i >> 1) & 1, w: i & 1};
+    rows.push([env.x, env.y, env.z, env.w, evalAst(ast, env)]);
+  }
+  return rows;
+}
+
+function permutations(items) {
+  if (items.length <= 1) return [items.slice()];
+  const out = [];
+  items.forEach((it, i) => {
+    const rest = items.slice(0, i).concat(items.slice(i + 1));
+    for (const p of permutations(rest)) out.push([it, ...p]);
+  });
+  return out;
+}
+
+function product01(k) {
+  let out = [[]];
+  for (let i = 0; i < k; i++) out = out.flatMap(p => [p.concat(0), p.concat(1)]);
+  return out;
+}
+
+// Фрагмент: три строки по 5 чисел (4 переменные + F), пропуск = -1.
+// Перебор всех перестановок «переменная → столбец» и всех заполнений пропусков.
+function solveFragment(ast, target, fragment) {
+  const blanks = [];
+  fragment.forEach((row, i) => row.slice(0, 4).forEach((val, j) => { if (val < 0) blanks.push([i, j]); }));
+  const fillings = product01(blanks.length);
+  const answers = [];
+  let checks = 0;
+  for (const p of permutations([0, 1, 2, 3])) {
+    for (const a of fillings) {
+      checks++;
+      const rows = fragment.map(r => r.slice());
+      blanks.forEach(([i, j], t) => { rows[i][j] = a[t]; });
+      const seen = new Set(rows.map(r => r.join(',')));
+      if (seen.size !== rows.length) continue;
+      const ok = rows.every(r => {
+        const env = {x: r[p[0]], y: r[p[1]], z: r[p[2]], w: r[p[3]]};
+        return evalAst(ast, env) === r[4] && r[4] === target;
+      });
+      if (ok) {
+        const ans = ['?', '?', '?', '?'];
+        p.forEach((col, j) => { ans[col] = VARS[j]; });
+        answers.push(ans.join(''));
+      }
+    }
+  }
+  return {answers, checks, blankCount: blanks.length, permutations: 24, fillings: fillings.length};
+}
+
+function shuffle(arr, rand) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function makeTask(seed) {
+  const rand = rng(seed);
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const skeleton = SKELETONS[Math.floor(rand() * SKELETONS.length)];
+    const names = shuffle(VARS, rand);
+    const map = Object.fromEntries(VARS.map((name, i) => [name, names[i]]));
+    const ast = rename(skeleton, map);
+    const table = fullTable(ast);
+    const ones = table.filter(r => r[4] === 1);
+    const zeros = table.filter(r => r[4] === 0);
+    let target, sol;
+    if (ones.length >= 3 && ones.length <= 6) { target = 1; sol = ones; }
+    else if (zeros.length >= 3 && zeros.length <= 6) { target = 0; sol = zeros; }
+    else continue;
+    // p[j] — столбец фрагмента, в котором стоит переменная j.
+    const p = shuffle([0, 1, 2, 3], rand);
+    const colOf = p.slice();
+    const varOf = [0, 0, 0, 0];
+    p.forEach((col, j) => { varOf[col] = j; });
+    const picked = shuffle(sol, rand).slice(0, 3);
+    const base = picked.map(r => [r[varOf[0]], r[varOf[1]], r[varOf[2]], r[varOf[3]], target]);
+    for (let t = 0; t < 40; t++) {
+      const k = 2 + Math.floor(rand() * 3);
+      const cells = shuffle([[0,0],[0,1],[0,2],[0,3],[1,0],[1,1],[1,2],[1,3],[2,0],[2,1],[2,2],[2,3]], rand).slice(0, k);
+      const fragment = base.map(r => r.slice());
+      cells.forEach(([i, j]) => { fragment[i][j] = -1; });
+      const solved = solveFragment(ast, target, fragment);
+      if (solved.answers.length === 1) {
+        return {
+          seed, ast, target, table, sol, fragment, colOf, varOf,
+          answer: solved.answers[0],
+          pythonExpr: toPython(ast), mathExpr: toMath(ast),
+          blankCount: solved.blankCount, checks: solved.checks,
+        };
+      }
+    }
+  }
+  throw Error('Не удалось сгенерировать задачу для seed ' + seed);
+}
+
+// ---------- Программа разбора ----------
+
+function programLines(task) {
+  const cond = task.target === 1 ? 'if F:' : 'if F == 0:';
+  const condNote = task.target === 1
+    ? 'Условие вывода: F истинно. Запись if F: равносильна if F == 1: — в Python True ведёт себя как 1, False как 0.'
+    : 'В этой задаче нужны строки, где функция ложна, поэтому выводим при F == 0.';
+  return [
+    {code: "print('x y z w')", note: 'Заголовок таблицы. Буквы идут в том же порядке, что и циклы ниже, — так удобнее сопоставлять столбцы.'},
+    {code: 'for x in 0, 1:', note: 'Внешний цикл: переменная x принимает значения 0 и 1. Кортеж 0, 1 можно писать без скобок. Внешний цикл меняется медленнее всех.'},
+    {code: '    for y in 0, 1:', note: 'Второй цикл: для каждого значения x переменная y пробегает 0 и 1.'},
+    {code: '        for z in 0, 1:', note: 'Третий цикл: переменная z. Четыре вложенных цикла перебирают все 2⁴ = 16 наборов значений.'},
+    {code: '            for w in 0, 1:', note: 'Внутренний цикл: w меняется быстрее всех. Наборы идут в порядке возрастания двоичного кода: 0000, 0001, …, 1111.'},
+    {code: `                F = ${task.pythonExpr}`, note: `Вычисляем функцию. Логика переведена на Python: ∧ → and, ∨ → or, ¬ → not, ≡ → ==, импликация a → b → (not a) or b. Скобки обязательны: в Python сравнение == выполняется раньше and и or. Выражение задачи: ${task.mathExpr}.`},
+    {code: `                ${cond}`, note: condNote},
+    {code: '                    print(x, y, z, w)', note: 'Печатаем только подходящие строки — получается часть таблицы истинности, которую и сравниваем с фрагментом из условия.'},
+  ];
+}
+
+function mainProgram(task) {
+  return programLines(task).map(l => l.code).join('\n') + '\n';
+}
+
+function productProgram(task) {
+  const cond = task.target === 1 ? 'if F:' : 'if F == 0:';
+  return [
+    'from itertools import product',
+    "print('x y z w')",
+    'for x, y, z, w in product([0, 1], repeat=4):',
+    `    F = ${task.pythonExpr}`,
+    `    ${cond}`,
+    '        print(x, y, z, w)',
+  ].join('\n') + '\n';
+}
+
+// Трасса построчного выполнения главной программы.
+function trace(task) {
+  const events = [{line: 1, vars: {}, note: 'Программа начинает работу с заголовка таблицы.', print: null}];
+  const rows = [];
+  let n = 0;
+  for (const r of task.table) {
+    const [x, y, z, w, F] = r;
+    n++;
+    const env = {x, y, z, w};
+    events.push({line: 2, vars: {x}, note: `Новый оборот внешнего цикла: x = ${x}.`, print: null});
+    events.push({line: 3, vars: {x, y}, note: `y = ${y}.`, print: null});
+    events.push({line: 4, vars: {x, y, z}, note: `z = ${z}.`, print: null});
+    events.push({line: 5, vars: env, note: `w = ${w}. Набор ${n} из 16: (${x}, ${y}, ${z}, ${w}).`, print: null});
+    events.push({line: 6, vars: {...env, F}, note: `Подставляем значения в выражение и вычисляем: F = ${F}.`, print: null});
+    const fit = F === task.target;
+    events.push({line: 7, vars: {...env, F}, note: fit ? `F = ${task.target} — строка подходит, выводим её.` : `F = ${F} — строка не подходит, пропускаем её.`, print: null});
+    if (fit) {
+      rows.push([x, y, z, w]);
+      events.push({line: 8, vars: {...env, F}, note: `Строка (${x}, ${y}, ${z}, ${w}) добавлена в вывод. Всего выведено строк: ${rows.length}.`, print: [x, y, z, w]});
+    }
+  }
+  return events;
+}
+
+// ---------- Сопоставление столбцов ----------
+
+// assign[c] — номер переменной (0..3) в столбце c, либо null.
+function checkMapping(task, assign) {
+  if (assign.some(a => a === null)) return {status: 'incomplete'};
+  if (new Set(assign).size !== 4) return {status: 'invalid', reason: 'Каждая переменная должна стоять ровно в одном столбце: выбери четыре разные буквы.'};
+  const p = [0, 0, 0, 0];
+  assign.forEach((j, c) => { p[j] = c; });
+  const blanks = [];
+  task.fragment.forEach((row, i) => row.slice(0, 4).forEach((val, j) => { if (val < 0) blanks.push([i, j]); }));
+  for (const a of product01(blanks.length)) {
+    const rows = task.fragment.map(r => r.slice());
+    blanks.forEach(([i, j], t) => { rows[i][j] = a[t]; });
+    if (new Set(rows.map(r => r.join(','))).size !== rows.length) continue;
+    const ok = rows.every(r => {
+      const env = {x: r[p[0]], y: r[p[1]], z: r[p[2]], w: r[p[3]]};
+      return evalAst(task.ast, env) === r[4];
+    });
+    if (ok) return {status: 'ok', answer: assign.map(j => VARS[j]).join(''), rows};
+  }
+  // Ищем конкретное противоречие: строка фрагмента, которой нет среди решений.
+  for (let i = 0; i < task.fragment.length; i++) {
+    const frag = task.fragment[i];
+    const compatible = task.sol.filter(s => frag.slice(0, 4).every((val, c) => val < 0 || s[assign[c]] === val));
+    if (compatible.length === 0) {
+      const known = frag.slice(0, 4).map((val, c) => val < 0 ? null : `${VARS[assign[c]]} = ${val}`).filter(Boolean).join(', ');
+      return {status: 'bad', reason: `Строка ${i + 1} фрагмента (${known}) не совпадает ни с одной из ${task.sol.length} строк решений: при таком порядке столбцов функция не даёт F = ${task.target}.`};
+    }
+  }
+  return {status: 'bad', reason: `При таком порядке столбцов пустые клетки нельзя заполнить так, чтобы все три строки фрагмента оказались различными строками решений (F = ${task.target}).`};
+}
+
+function hints(task) {
+  const out = [];
+  const ones = VARS.map((_, j) => task.sol.filter(r => r[j] === 1).length);
+  VARS.forEach((name, j) => {
+    if (ones[j] === 0) out.push(`Переменная ${name} во всех ${task.sol.length} строках решений равна 0. Её столбец во фрагменте не может содержать единиц.`);
+    else if (ones[j] === task.sol.length) out.push(`Переменная ${name} во всех строках решений равна 1. Её столбец во фрагменте не может содержать нулей.`);
+  });
+  out.push(`В таблице решений ${task.sol.length} строк. Посчитай единицы в каждом столбце фрагмента и сравни с числом единиц у переменных в строках решений: столбец с «лишними» единицами уже не может быть переменной, у которой их меньше.`);
+  out.push(`Строки фрагмента не повторяются. Если после подстановки двух строк решений пустые клетки вынужденно совпадут, такой порядок столбцов не подходит.`);
+  return out.slice(0, 4);
+}
+
+// ---------- «Проверь себя» ----------
+
+function quiz(task) {
+  const rand = rng(task.seed + 7);
+  const n = task.sol.length;
+  const qs = [];
+  qs.push({
+    q: 'Сколько строк в полной таблице истинности функции четырёх переменных?',
+    options: shuffle([
+      {text: '16', ok: true, why: 'Каждая из 4 переменных принимает 2 значения: 2⁴ = 16 строк.'},
+      {text: '4', ok: false, why: '4 — это число переменных, а строк 2⁴ = 16.'},
+      {text: '8', ok: false, why: '8 = 2³ — столько строк у функции трёх переменных. Здесь переменных четыре: 2⁴ = 16.'},
+      {text: '12', ok: false, why: 'Строк столько, сколько наборов значений: 2⁴ = 16, а не 4·3 = 12.'},
+    ], rand),
+  });
+  const implOptions = [
+    {text: 'not x or y', ok: true, why: 'Импликация x → y ложна только при x = 1, y = 0 — это в точности not x or y.'},
+    {text: 'x and not y', ok: false, why: ''},
+    {text: 'x == y', ok: false, why: ''},
+    {text: 'not x and y', ok: false, why: ''},
+  ];
+  const implFn = {
+    'x and not y': (a, b) => a & (1 - b),
+    'x == y': (a, b) => a === b ? 1 : 0,
+    'not x and y': (a, b) => (1 - a) & b,
+  };
+  for (const opt of implOptions) {
+    if (opt.ok) continue;
+    const f = implFn[opt.text];
+    const pair = [[0,0],[0,1],[1,0],[1,1]].find(([a, b]) => f(a, b) !== ((1 - a) | b));
+    opt.why = `При x = ${pair[0]}, y = ${pair[1]} импликация равна ${(1 - pair[0]) | pair[1]}, а ${opt.text} даёт ${f(pair[0], pair[1])}. Верная запись: not x or y (или x <= y для 0/1).`;
+  }
+  qs.push({q: 'Как записать импликацию x → y на Python?', options: shuffle(implOptions, rand)});
+  const printed = shuffle(task.sol, rand)[0].slice(0, 4);
+  const wrongRows = shuffle(task.table.filter(r => r[4] !== task.target), rand).slice(0, 3);
+  qs.push({
+    q: `Какую строку напечатает программа? (выводятся только строки с F = ${task.target})`,
+    options: shuffle([
+      {text: printed.join(' '), ok: true, why: `При (${printed.join(', ')}) функция F = ${task.target} — программа выведет эту строку.`},
+      ...wrongRows.map(r => ({text: r.slice(0, 4).join(' '), ok: false, why: `При (${r.slice(0, 4).join(', ')}) функция F = ${r[4]}, а программа печатает только строки с F = ${task.target}.`})),
+    ], rand),
+  });
+  const countOptions = [{text: String(n), ok: true, why: `Программа печатает строки, где F = ${task.target}; в полной таблице их ${n}.`}];
+  for (const cand of [16, n + 1, 3, n - 1]) {
+    if (countOptions.length >= 4) break;
+    if (cand === n || cand < 0 || countOptions.some(o => o.text === String(cand))) continue;
+    const why = cand === 16 ? '16 — это вся таблица истинности, а программа печатает только подходящие строки.'
+      : cand === 3 ? '3 — это число строк во фрагменте из условия, а не число строк, которые напечатает программа.'
+      : `Программа печатает строки, где F = ${task.target}; подсчёт по полной таблице даёт ${n}, а не ${cand}.`;
+    countOptions.push({text: String(cand), ok: false, why});
+  }
+  qs.push({q: 'Сколько строк напечатает программа для этой функции?', options: shuffle(countOptions, rand)});
+  qs.push({
+    q: 'Что Python вычислит первым в выражении x or y == z?',
+    options: shuffle([
+      {text: 'сравнение y == z', ok: true, why: 'В Python сравнения (==, !=, <=, …) выполняются раньше and и or. Поэтому эквивалентность в логических выражениях берут в скобки: x or (y == z).'},
+      {text: 'x or y', ok: false, why: 'Операция or выполняется после сравнений: сначала y == z, потом x or результат.'},
+      {text: 'всё слева направо', ok: false, why: 'Python соблюдает приоритет операций: сравнение == старше or, поэтому порядок не слева направо.'},
+      {text: 'сначала or, потом ==', ok: false, why: 'Наоборот: сравнение == выполняется раньше or. Без скобок смысл выражения меняется.'},
+    ], rand),
+  });
+  return qs;
+}
+
+// ---------- Программа, которая решает задачу целиком ----------
+
+function advancedProgram(task) {
+  const rows = task.fragment.map(r => '    [' + r.join(', ') + '],').join('\n');
+  return `from itertools import product, permutations
+
+def f(x, y, z, w):
+    return int(${task.pythonExpr})
+
+# строки фрагмента: -1 — пустая клетка, последнее число — F
+st = [
+${rows}
+]
+names = 'xyzw'
+blanks = [(i, j) for i in range(3) for j in range(4) if st[i][j] < 0]
+for p in permutations(range(4)):      # p[j] — столбец переменной j
+    for a in product([0, 1], repeat=len(blanks)):
+        rows = [r[:] for r in st]
+        for (i, j), val in zip(blanks, a):
+            rows[i][j] = val
+        if len(set(map(tuple, rows))) != 3:
+            continue                  # строки фрагмента не повторяются
+        if all(f(*[r[p[j]] for j in range(4)]) == r[4] for r in rows):
+            ans = [''] * 4
+            for j in range(4):
+                ans[p[j]] = names[j]
+            print(''.join(ans))
+            break
+`;
+}
+
+// Построчные комментарии к автоматическому решению: номер строки -> пояснение.
+function advancedLines(task) {
+  const rowNote = i => `Строка ${i + 1} фрагмента: [${task.fragment[i].join(', ')}]. Четыре столбца и F последним; -1 — пустая клетка, которую предстоит заполнить.`;
+  const notes = {
+    1: 'Подключаем из itertools две функции: permutations — все перестановки столбцов, product — все заполнения пустых клеток.',
+    3: 'Объявляем функцию f от четырёх переменных — это логическая функция задачи. Отдельная функция нужна, чтобы вызывать её для каждой строки-кандидата.',
+    4: 'Тело функции: то же выражение, что в переборной программе, но обёрнуто в int(...), чтобы результат был числом 0/1, а не True/False. Скобки вокруг сравнений обязательны.',
+    6: 'Комментарий в коде поясняет формат данных ниже: -1 — пустая клетка, последнее число — F.',
+    7: 'Начало списка st — фрагмент таблицы истинности из условия.',
+    8: rowNote(0), 9: rowNote(1), 10: rowNote(2),
+    11: 'Конец списка st: три строки фрагмента загружены.',
+    12: 'Имена переменных в фиксированном порядке. Явная строка вместо чтения имён из кода функции — поэтому программа не ломается на Python 3.12.',
+    13: 'Генератор списка собирает координаты всех пустых клеток (строка i, столбец j): проходит по всем 3×4 клеткам и берёт те, где стоит -1.',
+    14: 'Внешний цикл: p — перестановка чисел 0..3, p[j] = столбец переменной j. Всего 4! = 24 перестановки столбцов.',
+    15: 'Внутренний цикл: a — одно заполнение пропусков, кортеж из 0/1 длины len(blanks). product даёт все 2^len(blanks) заполнений.',
+    16: 'Копируем фрагмент в rows, чтобы не портить исходный st: r[:] — копия каждой строки.',
+    17: 'zip(blanks, a) соединяет координаты пропусков со значениями заполнения: каждому пропуску достаётся свой 0 или 1.',
+    18: 'Подставляем значение в пустую клетку: rows[i][j] = val.',
+    19: 'Проверяем, что три строки различны: set из кортежей должен содержать 3 элемента. map(tuple, ...) превращает строки-списки в кортежи, чтобы их можно было положить в set.',
+    20: 'Если строки совпали — кандидат не подходит (в условии строки различные): continue пропускает остальное и берёт следующее заполнение.',
+    21: 'Главная проверка: для каждой строки вызываем f от значений в порядке переменных (r[p[j]] — значение переменной j) и сравниваем с F строки (r[4]). all(...) истинно, только если совпало всё.',
+    22: 'Готовим пустой ответ из четырёх клеток — по одной на столбец фрагмента.',
+    23: 'Проходим по переменным j = 0..3.',
+    24: 'Ставим имя переменной j в её столбец p[j]: ответ собирается в порядке столбцов, а не в порядке переменных.',
+    25: 'Печатаем ответ — буквы переменных в порядке столбцов фрагмента.',
+    26: 'Подходящий кандидат найден: break выходит из цикла заполнений. Ответ единственный, поэтому дальше перебор ничего нового не даст.',
+  };
+  const out = [];
+  advancedProgram(task).split('\n').forEach((code, i) => {
+    const line = i + 1;
+    if (!code.trim()) return;
+    out.push({line, code, note: notes[line] || ''});
+  });
+  return out;
+}
+
+// Трасса автоматического решения: перебор перестановок и заполнений до первого ответа.
+function advancedTrace(task) {
+  const blanks = [];
+  task.fragment.forEach((row, i) => row.slice(0, 4).forEach((val, j) => { if (val < 0) blanks.push([i, j]); }));
+  const fillings = product01(blanks.length);
+  const perms = permutations([0, 1, 2, 3]);
+  const events = [];
+  const push = (line, note, extra = {}) => events.push({line, note, print: null, ...extra});
+  const frag = () => task.fragment.map(r => r.slice());
+  push(1, 'Подключаем product и permutations из itertools.');
+  push(3, 'Объявляем функцию f — логическую функцию задачи.');
+  push(4, 'f возвращает int(выражение): число 0/1.');
+  push(6, 'Комментарий: формат фрагмента.');
+  push(7, 'Создаём список st — фрагмент из условия.', {rows: frag()});
+  push(8, 'Строка 1 фрагмента.', {rows: frag()});
+  push(9, 'Строка 2 фрагмента.', {rows: frag()});
+  push(10, 'Строка 3 фрагмента.', {rows: frag()});
+  push(11, 'Список st готов.', {rows: frag()});
+  push(12, 'names = xyzw — фиксированный порядок переменных.');
+  push(13, `Пустых клеток: ${blanks.length}. Координаты: ${blanks.map(([i, j]) => `(${i + 1},${j + 1})`).join(', ')}.`, {rows: frag()});
+  let cand = 0;
+  for (let pi = 0; pi < perms.length; pi++) {
+    const p = perms[pi];
+    push(14, `Перестановка ${pi + 1} из 24: p = (${p.join(', ')}). ${VARS.map((n, j) => `${n} → столбец ${p[j] + 1}`).join(', ')}.`, {p, rows: frag()});
+    for (let ai = 0; ai < fillings.length; ai++) {
+      const a = fillings[ai];
+      cand++;
+      push(15, `Заполнение ${ai + 1} из ${fillings.length}: a = (${a.join(', ')}). Кандидат №${cand}.`, {p, a, rows: frag()});
+      push(16, 'Копируем фрагмент в rows.', {p, a, rows: frag()});
+      push(17, 'zip соединяет координаты пропусков со значениями a.', {p, a, rows: frag()});
+      const rows = frag();
+      blanks.forEach(([i, j], t) => { rows[i][j] = a[t]; });
+      push(18, 'Пустые клетки заполнены.', {p, a, rows});
+      const distinct = new Set(rows.map(r => r.join(','))).size === rows.length;
+      if (!distinct) {
+        push(19, 'Строки совпали: set меньше 3.', {p, a, rows, verdict: 'dup'});
+        push(20, 'continue: кандидат отброшен — строки фрагмента должны быть различными.', {p, a, rows, verdict: 'dup'});
+        continue;
+      }
+      push(19, 'Три строки различны — проверяем функцию.', {p, a, rows});
+      let bad = -1, badVal = 0;
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        const env = {x: r[p[0]], y: r[p[1]], z: r[p[2]], w: r[p[3]]};
+        const val = evalAst(task.ast, env);
+        if (val !== r[4]) { bad = i; badVal = val; break; }
+      }
+      if (bad >= 0) {
+        push(21, `Строка ${bad + 1} не совпала: f даёт ${badVal}, а во фрагменте F = ${rows[bad][4]}. Кандидат отброшен.`, {p, a, rows, verdict: 'nomatch'});
+        continue;
+      }
+      push(21, 'all(...) истинно: все три строки дают нужное F.', {p, a, rows, verdict: 'match'});
+      push(22, 'Готовим ответ из четырёх клеток.', {p, a, rows, verdict: 'match'});
+      push(23, 'Проходим по переменным j = 0..3.', {p, a, rows, verdict: 'match'});
+      const ans = ['', '', '', ''];
+      p.forEach((col, j) => { ans[col] = VARS[j]; });
+      push(24, `Ответ собран: ${ans.join('')}.`, {p, a, rows, verdict: 'match'});
+      push(25, `Печатаем ответ: ${ans.join('')}.`, {p, a, rows, verdict: 'match', print: ans.join('')});
+      push(26, 'break: ответ найден и единственный, перебор можно остановить.', {p, a, rows, verdict: 'match'});
+      return events;
+    }
+  }
+  return events;
+}
+// Интерфейс разбора: шаги, трасса программы, сопоставление столбцов, квиз.
+const $ = id => document.getElementById(id);
+const STEPS = [
+  {id: 'step-1', title: 'Условие и план'},
+  {id: 'step-2', title: 'Логика на Python'},
+  {id: 'step-3', title: 'Программа по строкам'},
+  {id: 'step-4', title: 'Сопоставление столбцов'},
+  {id: 'step-5', title: 'Проверь себя'},
+  {id: 'step-6', title: 'Вся программа'},
+  {id: 'step-7', title: 'Авторешение по строкам'},
+];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('ege2-' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('ege2-' + k, JSON.stringify(v)); } catch {} },
+};
+const S = {
+  seed: store.get('seed', 20261112), task: null, events: [], lines: [],
+  step: 0, idx: 0, timer: null, assign: [null, null, null, null],
+  hintsShown: 0, quizState: [], a: 0, b: 0,
+  advLines: [], advEvents: [], advIdx: 0, advTimer: null,
+};
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  return n;
+}
+
+function buildTable(headCells, bodyRows) {
+  const t = el('table');
+  const hr = el('tr');
+  headCells.forEach(h => {
+    const th = el('th');
+    if (h instanceof Node) th.appendChild(h); else th.textContent = h;
+    hr.appendChild(th);
+  });
+  const thead = el('thead'); thead.appendChild(hr); t.appendChild(thead);
+  const tb = el('tbody');
+  bodyRows.forEach(row => {
+    const tr = el('tr');
+    row.forEach(c => {
+      const td = el('td');
+      if (c instanceof Node) td.appendChild(c);
+      else { td.textContent = c.text !== undefined ? c.text : c; if (c.cls) td.className = c.cls; }
+      tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  return t;
+}
+
+function fragCells(row) {
+  return row.slice(0, 4).map(v => v < 0 ? {text: '?', cls: 'q'} : String(v)).concat(String(row[4]));
+}
+
+// ---------- Шаг 1: условие ----------
+function renderCondition() {
+  const t = S.task;
+  $('condition-expr').textContent = `F = ${t.mathExpr}`;
+  $('fragment-wrap').replaceChildren(buildTable(['?', '?', '?', '?', 'F'], t.fragment.map(fragCells)));
+  const stats = [
+    ['Переменных', VARS.length],
+    ['Строк в полной таблице', 2 ** VARS.length],
+    ['Строк решений (F = ' + t.target + ')', t.sol.length],
+    ['Пустых клеток', t.blankCount],
+  ];
+  $('task-stats').replaceChildren(...stats.map(([label, val]) => {
+    const d = el('div'); d.appendChild(el('small', '', label)); d.appendChild(el('strong', '', String(val)));
+    return d;
+  }));
+  $('plan').replaceChildren(...STEPS.map((s, i) => {
+    const b = el('button'); b.type = 'button';
+    b.appendChild(el('b', '', String(i + 1)));
+    b.appendChild(document.createTextNode(s.title));
+    b.addEventListener('click', () => setStep(i));
+    return b;
+  }));
+}
+
+// ---------- Шаг 2: логика на Python ----------
+function renderOps() {
+  const a = S.a, b = S.b;
+  const rows = [
+    ['¬a', 'not a', 1 - a],
+    ['a ∧ b', 'a and b', a & b],
+    ['a ∨ b', 'a or b', a | b],
+    ['a → b', 'not a or b', (1 - a) | b],
+    ['a → b (короче)', 'a <= b', a <= b ? 1 : 0],
+    ['a ≡ b', 'a == b', a === b ? 1 : 0],
+    ['a ⊕ b', 'a != b', a !== b ? 1 : 0],
+  ];
+  $('ops-table').replaceChildren(buildTable(['Операция', 'Python', 'Результат'],
+    rows.map(([sym, code, val]) => [sym, code, {text: String(val), cls: 'val'}])));
+  $('toggle-a').textContent = `a = ${a}`;
+  $('toggle-b').textContent = `b = ${b}`;
+  $('impl-note').textContent = 'Импликации в Python нет: a → b это ¬a ∨ b, то есть not a or b. Для значений 0/1 работает и запись a <= b: импликация ложна только при a = 1, b = 0. Эквивалентность a ≡ b — это a == b, строгая дизъюнкция a ⊕ b — это a != b.';
+}
+
+// ---------- Шаг 3: трасса ----------
+function renderCode() {
+  S.lines = programLines(S.task);
+  S.events = trace(S.task);
+  S.idx = 0;
+  const box = $('code-lines');
+  box.replaceChildren(...S.lines.map((l, i) => {
+    const b = el('button', 'code-line'); b.type = 'button';
+    b.appendChild(el('span', 'ln', String(i + 1)));
+    b.appendChild(el('span', '', l.code));
+    b.addEventListener('click', () => {
+      const first = S.events.findIndex(e => e.line === i + 1);
+      if (first >= 0) { stopPlay(); setIdx(first); }
+    });
+    return b;
+  }));
+  renderTrace();
+}
+
+function setIdx(i) {
+  S.idx = Math.max(0, Math.min(S.events.length - 1, i));
+  renderTrace();
+}
+
+function renderTrace() {
+  const e = S.events[S.idx];
+  [...$('code-lines').children].forEach((n, i) => n.classList.toggle('current', i === e.line - 1));
+  const tiles = VARS.concat('F').map(name => {
+    const d = el('div', 'tile' + (name in e.vars ? ' active' : ''));
+    d.appendChild(el('small', '', name));
+    d.appendChild(document.createTextNode(name in e.vars ? String(e.vars[name]) : '—'));
+    return d;
+  });
+  $('tiles').replaceChildren(...tiles);
+  $('line-note').textContent = S.lines[e.line - 1].note;
+  $('trace-note').textContent = e.note;
+  $('trace-pos').textContent = `Шаг ${S.idx + 1} из ${S.events.length}`;
+  const printed = S.events.slice(0, S.idx + 1).filter(ev => ev.print).map(ev => ev.print);
+  $('out-wrap').replaceChildren(buildTable(VARS, printed.map(r => r.map(String))));
+  $('trace-back').disabled = S.idx === 0;
+  $('trace-next').disabled = S.idx === S.events.length - 1;
+  $('trace-skip').disabled = S.idx === S.events.length - 1;
+}
+
+function stopPlay() {
+  if (S.timer) { clearInterval(S.timer); S.timer = null; }
+  $('trace-play').textContent = 'Автопоказ';
+}
+
+function togglePlay() {
+  if (S.timer) { stopPlay(); return; }
+  if (S.idx >= S.events.length - 1) setIdx(0);
+  $('trace-play').textContent = 'Пауза';
+  S.timer = setInterval(() => {
+    if (S.idx >= S.events.length - 1) { stopPlay(); return; }
+    setIdx(S.idx + 1);
+  }, 700);
+}
+
+function skipToPrint() {
+  stopPlay();
+  const next = S.events.findIndex((e, i) => i > S.idx && e.print);
+  setIdx(next >= 0 ? next : S.events.length - 1);
+}
+
+// ---------- Шаг 4: сопоставление ----------
+function renderMatch() {
+  const t = S.task;
+  S.assign = [null, null, null, null];
+  S.hintsShown = 0;
+  $('sol-wrap').replaceChildren(buildTable(VARS.concat('F'), t.sol.map(r => r.map(String))));
+  const heads = [0, 1, 2, 3].map(c => {
+    const sel = el('select');
+    sel.setAttribute('aria-label', `Столбец ${c + 1}`);
+    sel.appendChild(new Option('—', ''));
+    VARS.forEach((name, j) => sel.appendChild(new Option(name, String(j))));
+    sel.addEventListener('change', () => {
+      S.assign[c] = sel.value === '' ? null : Number(sel.value);
+      $('match-feedback').className = 'feedback info';
+      $('match-feedback').textContent = 'Выбери по одной переменной в каждом столбце и нажми «Проверить».';
+    });
+    return sel;
+  });
+  $('match-wrap').replaceChildren(buildTable(heads.concat('F'), t.fragment.map(fragCells)));
+  $('match-hints').replaceChildren();
+  $('match-hint').disabled = false;
+  $('match-feedback').className = 'feedback info';
+  $('match-feedback').textContent = 'Выбери по одной переменной в каждом столбце.';
+}
+
+function matchSelects() { return [...$('match-wrap').querySelectorAll('select')]; }
+
+function doCheck() {
+  const res = checkMapping(S.task, S.assign);
+  const fb = $('match-feedback');
+  if (res.status === 'ok') {
+    fb.className = 'feedback ok';
+    fb.replaceChildren(document.createTextNode('Верно! Ответ: '));
+    fb.appendChild(el('span', 'answer', res.answer));
+    fb.appendChild(document.createTextNode('. Пустые клетки заполнились так, что все три строки совпали со строками решений и не повторились.'));
+  } else if (res.status === 'incomplete') {
+    fb.className = 'feedback info';
+    fb.textContent = 'Назначь переменные всем четырём столбцам, потом нажми «Проверить».';
+  } else {
+    fb.className = 'feedback bad';
+    fb.textContent = res.reason;
+  }
+}
+
+function showHint() {
+  const all = hints(S.task);
+  if (S.hintsShown >= all.length) return;
+  $('match-hints').appendChild(el('div', 'note soft', all[S.hintsShown]));
+  S.hintsShown++;
+  if (S.hintsShown >= all.length) $('match-hint').disabled = true;
+}
+
+function showAnswer() {
+  matchSelects().forEach((sel, c) => { sel.value = String(S.task.varOf[c]); });
+  S.assign = S.task.varOf.slice();
+  const fb = $('match-feedback');
+  fb.className = 'feedback ok';
+  fb.replaceChildren(document.createTextNode('Ответ: '));
+  fb.appendChild(el('span', 'answer', S.task.answer));
+  fb.appendChild(document.createTextNode('. Столбцы расставлены верно; проверь себя кнопкой «Проверить» или разбери подсказки.'));
+}
+
+// ---------- Шаг 5: квиз ----------
+function renderQuiz() {
+  const qs = quiz(S.task);
+  S.quizState = qs.map(() => ({solved: false, firstTry: true}));
+  const box = $('quiz');
+  box.replaceChildren(...qs.map((q, qi) => {
+    const card = el('div', 'quiz-q');
+    card.appendChild(el('h3', '', `${qi + 1}. ${q.q}`));
+    const opts = el('div', 'quiz-opts');
+    q.options.forEach(opt => {
+      const wrap = el('div');
+      const b = el('button', '', opt.text); b.type = 'button';
+      const why = el('p', 'quiz-why'); why.hidden = true;
+      b.addEventListener('click', () => {
+        const st = S.quizState[qi];
+        if (st.solved) return;
+        why.hidden = false;
+        why.textContent = opt.why;
+        if (opt.ok) {
+          st.solved = true;
+          b.classList.add('ok');
+          why.className = 'quiz-why ok';
+          [...opts.querySelectorAll('button')].forEach(x => { x.disabled = true; });
+          b.disabled = false;
+        } else {
+          st.firstTry = false;
+          b.classList.add('bad');
+          why.className = 'quiz-why bad';
+        }
+        updateQuizStats();
+      });
+      wrap.appendChild(b); wrap.appendChild(why);
+      opts.appendChild(wrap);
+    });
+    card.appendChild(opts);
+    return card;
+  }));
+  updateQuizStats();
+}
+
+function updateQuizStats() {
+  const solved = S.quizState.filter(s => s.solved).length;
+  const first = S.quizState.filter(s => s.solved && s.firstTry).length;
+  $('quiz-stats').replaceChildren(...[
+    ['Решено', `${solved} из ${S.quizState.length}`],
+    ['С первой попытки', String(first)],
+  ].map(([label, val]) => {
+    const d = el('div'); d.appendChild(el('small', '', label)); d.appendChild(el('strong', '', val));
+    return d;
+  }));
+}
+
+// ---------- Шаг 6: программы ----------
+function renderPrograms() {
+  const t = S.task;
+  $('full-code').textContent = mainProgram(t);
+  $('main-result').textContent = `Программа печатает ${t.sol.length} строк, где F = ${t.target}. Ответ задачи: ${t.answer}.`;
+  $('advanced-stats').replaceChildren(...[
+    ['Перестановок столбцов', 24],
+    ['Заполнений пропусков', 2 ** t.blankCount],
+    ['Всего вариантов', t.checks],
+  ].map(([label, val]) => {
+    const d = el('div'); d.appendChild(el('small', '', label)); d.appendChild(el('strong', '', String(val)));
+    return d;
+  }));
+  $('advanced-code').textContent = advancedProgram(t);
+  $('advanced-result').textContent = `Ответ: ${t.answer}. Программа проверяет ${t.checks} вариантов и печатает единственный подходящий.`;
+}
+
+// ---------- Шаг 7: авторешение по строкам ----------
+function renderAdvanced() {
+  S.advLines = advancedLines(S.task);
+  S.advEvents = advancedTrace(S.task);
+  S.advIdx = 0;
+  const box = $('adv-lines');
+  box.replaceChildren(...S.advLines.map(l => {
+    const b = el('button', 'code-line'); b.type = 'button';
+    b.dataset.line = String(l.line);
+    b.appendChild(el('span', 'ln', String(l.line)));
+    b.appendChild(el('span', '', l.code));
+    b.addEventListener('click', () => {
+      const first = S.advEvents.findIndex(e => e.line === l.line);
+      if (first >= 0) { stopAdvPlay(); setAdvIdx(first); }
+    });
+    return b;
+  }));
+  renderAdvTrace();
+}
+
+function setAdvIdx(i) {
+  S.advIdx = Math.max(0, Math.min(S.advEvents.length - 1, i));
+  renderAdvTrace();
+}
+
+function renderAdvTrace() {
+  const e = S.advEvents[S.advIdx];
+  [...$('adv-lines').children].forEach(n => n.classList.toggle('current', Number(n.dataset.line) === e.line));
+  const line = S.advLines.find(l => l.line === e.line);
+  $('adv-line-note').textContent = line ? line.note : '';
+  $('adv-note').textContent = e.note;
+  $('adv-pos').textContent = `Шаг ${S.advIdx + 1} из ${S.advEvents.length}`;
+  const verdict = {dup: 'строки совпали — отброшен', nomatch: 'функция не совпала — отброшен', match: 'кандидат подходит'}[e.verdict];
+  $('adv-cand').textContent = e.p
+    ? `p = (${e.p.join(', ')})${e.a ? ` · a = (${e.a.join(', ')})` : ''}${verdict ? ' · ' + verdict : ''}`
+    : 'Перебор ещё не начался: загружаем фрагмент и считаем пустые клетки.';
+  $('adv-rows').replaceChildren(buildTable(['?', '?', '?', '?', 'F'], (e.rows || S.task.fragment).map(fragCells)));
+  const printed = S.advEvents.slice(0, S.advIdx + 1).filter(ev => ev.print).map(ev => ev.print);
+  $('adv-out').replaceChildren(printed.length
+    ? el('div', 'answer', printed.join(' '))
+    : el('p', 'hint', 'Пока ничего не напечатано: подходящий кандидат ещё не найден.'));
+  $('adv-back').disabled = S.advIdx === 0;
+  $('adv-next').disabled = S.advIdx === S.advEvents.length - 1;
+  $('adv-skip').disabled = S.advIdx === S.advEvents.length - 1;
+}
+
+function stopAdvPlay() {
+  if (S.advTimer) { clearInterval(S.advTimer); S.advTimer = null; }
+  $('adv-play').textContent = 'Автопоказ';
+}
+
+function toggleAdvPlay() {
+  if (S.advTimer) { stopAdvPlay(); return; }
+  if (S.advIdx >= S.advEvents.length - 1) setAdvIdx(0);
+  $('adv-play').textContent = 'Пауза';
+  S.advTimer = setInterval(() => {
+    if (S.advIdx >= S.advEvents.length - 1) { stopAdvPlay(); return; }
+    setAdvIdx(S.advIdx + 1);
+  }, 700);
+}
+
+function advSkipToAnswer() {
+  stopAdvPlay();
+  const next = S.advEvents.findIndex((e, i) => i > S.advIdx && e.print);
+  setAdvIdx(next >= 0 ? next : S.advEvents.length - 1);
+}
+
+function copyText(text, btn) {
+  const done = () => {
+    const old = btn.textContent;
+    btn.textContent = 'Скопировано ✓';
+    setTimeout(() => { btn.textContent = old; }, 1500);
+  };
+  const fallback = () => {
+    const ta = el('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch {}
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else fallback();
+}
+
+function download(name, text) {
+  const blob = new Blob([text], {type: 'text/x-python;charset=utf-8'});
+  const a = el('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+// ---------- Шаги и общее ----------
+function setStep(i) {
+  stopPlay();
+  stopAdvPlay();
+  S.step = Math.max(0, Math.min(STEPS.length - 1, i));
+  STEPS.forEach((s, k) => { $(s.id).hidden = k !== S.step; });
+  $('counter').textContent = `Шаг ${S.step + 1} из ${STEPS.length}`;
+  $('title').textContent = STEPS[S.step].title;
+  $('step-select').value = String(S.step);
+  $('prev').disabled = S.step === 0;
+  $('next').disabled = S.step === STEPS.length - 1;
+  window.scrollTo({top: 0});
+}
+
+function renderAll() {
+  stopPlay();
+  stopAdvPlay();
+  S.task = makeTask(S.seed);
+  renderCondition();
+  renderOps();
+  renderCode();
+  renderMatch();
+  renderQuiz();
+  renderPrograms();
+  renderAdvanced();
+}
+
+function newTask() {
+  S.seed = (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
+  store.set('seed', S.seed);
+  renderAll();
+  setStep(0);
+}
+
+// тему сохраняем только по явному переключению: иначе светлый снимок постера ломает тёмный
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+}
+
+function applyFont(size) {
+  const s = Math.max(18, Math.min(32, size));
+  document.documentElement.style.setProperty('--size', s + 'px');
+  $('font-size').textContent = String(s);
+  store.set('font', s);
+}
+
+function init() {
+  applyTheme(store.get('theme', window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  applyFont(store.get('font', 24));
+  $('step-select').replaceChildren(...STEPS.map((s, i) => new Option(`${i + 1}. ${s.title}`, String(i))));
+  $('step-select').addEventListener('change', () => setStep(Number($('step-select').value)));
+  $('prev').addEventListener('click', () => setStep(S.step - 1));
+  $('next').addEventListener('click', () => setStep(S.step + 1));
+  $('new-task').addEventListener('click', newTask);
+  $('theme').addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    store.set('theme', next);
+  });
+  $('smaller').addEventListener('click', () => applyFont(parseInt($('font-size').textContent, 10) - 1));
+  $('larger').addEventListener('click', () => applyFont(parseInt($('font-size').textContent, 10) + 1));
+  $('fullscreen').addEventListener('click', () => {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    } catch {}
+  });
+  $('toggle-a').addEventListener('click', () => { S.a = 1 - S.a; renderOps(); });
+  $('toggle-b').addEventListener('click', () => { S.b = 1 - S.b; renderOps(); });
+  $('trace-back').addEventListener('click', () => { stopPlay(); setIdx(S.idx - 1); });
+  $('trace-next').addEventListener('click', () => { stopPlay(); setIdx(S.idx + 1); });
+  $('trace-play').addEventListener('click', togglePlay);
+  $('trace-skip').addEventListener('click', skipToPrint);
+  $('trace-reset').addEventListener('click', () => { stopPlay(); setIdx(0); });
+  $('copy-step3').addEventListener('click', () => copyText(mainProgram(S.task), $('copy-step3')));
+  $('match-check').addEventListener('click', doCheck);
+  $('match-hint').addEventListener('click', showHint);
+  $('match-answer').addEventListener('click', showAnswer);
+  $('quiz-reset').addEventListener('click', renderQuiz);
+  $('copy-main').addEventListener('click', () => copyText(mainProgram(S.task), $('copy-main')));
+  $('download-main').addEventListener('click', () => download('ege-2.py', mainProgram(S.task)));
+  $('copy-advanced').addEventListener('click', () => copyText(advancedProgram(S.task), $('copy-advanced')));
+  $('download-advanced').addEventListener('click', () => download('ege-2-avto.py', advancedProgram(S.task)));
+  $('copy-step7').addEventListener('click', () => copyText(advancedProgram(S.task), $('copy-step7')));
+  $('adv-back').addEventListener('click', () => { stopAdvPlay(); setAdvIdx(S.advIdx - 1); });
+  $('adv-next').addEventListener('click', () => { stopAdvPlay(); setAdvIdx(S.advIdx + 1); });
+  $('adv-play').addEventListener('click', toggleAdvPlay);
+  $('adv-skip').addEventListener('click', advSkipToAnswer);
+  $('adv-reset').addEventListener('click', () => { stopAdvPlay(); setAdvIdx(0); });
+  document.addEventListener('keydown', ev => {
+    const tag = ev.target.tagName;
+    if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (ev.key === 'ArrowRight') { setStep(S.step + 1); ev.preventDefault(); }
+    else if (ev.key === 'ArrowLeft') { setStep(S.step - 1); ev.preventDefault(); }
+    else if (ev.key === 'PageDown' && S.step === 2) { stopPlay(); setIdx(S.idx + 1); ev.preventDefault(); }
+    else if (ev.key === 'PageUp' && S.step === 2) { stopPlay(); setIdx(S.idx - 1); ev.preventDefault(); }
+    else if (ev.key === 'PageDown' && S.step === 6) { stopAdvPlay(); setAdvIdx(S.advIdx + 1); ev.preventDefault(); }
+    else if (ev.key === 'PageUp' && S.step === 6) { stopAdvPlay(); setAdvIdx(S.advIdx - 1); ev.preventDefault(); }
+    else if (ev.key === 'Escape') { stopPlay(); stopAdvPlay(); }
+  });
+  renderAll();
+  setStep(0);
+}
+
+try { init(); } catch (err) {
+  const box = $('error');
+  box.hidden = false;
+  box.textContent = 'Ошибка запуска: ' + err.message;
+  throw err;
+}
+})();
+</script></body></html>
